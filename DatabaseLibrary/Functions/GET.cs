@@ -15,7 +15,20 @@ public static class GET
 
         return employee;
     }
-    public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string position, string state)
+    public static List<Employee>? Employee()
+    {
+        using ParsethingContext db = new();
+        List<Employee>? employees = null;
+
+        try
+        {
+            employees = db.Employees.ToList();
+        }
+        catch { }
+
+        return employees;
+    }
+    public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string position, string state)//need fix
     {
         using ParsethingContext db = new();
         List<ProcurementsEmployee>? procurements = null;

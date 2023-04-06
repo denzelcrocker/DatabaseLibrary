@@ -68,4 +68,17 @@ public static class PULL
         procurement.ProcurementStateId = procurementUpdate.ProcurementStateId;
         _ = db.SaveChanges();
     }
+    public static void EmployeeUpdate(Employee? employeeUpdate)
+    {
+        using ParsethingContext db = new();
+        Employee? employee = db.Employees.Include(e => e.Position).Where(e => e.Id == employeeUpdate.Id).First();
+        employee.FullName = employeeUpdate.FullName;
+        employee.UserName = employeeUpdate.UserName;
+        employee.Password = employeeUpdate.Password;
+        employee.Position = employeeUpdate.Position;
+        employee.Photo = employeeUpdate.Photo;
+        db.SaveChanges();
+
+
+    }
 }
