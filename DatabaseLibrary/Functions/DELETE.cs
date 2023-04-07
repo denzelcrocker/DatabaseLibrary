@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace DatabaseLibrary.Functions;
 
-namespace DatabaseLibrary.Functions
+internal class DELETE
 {
-    internal class DELETE
+    public static bool Employee(Employee employee)
     {
-        public static void EmployeeDelete(Employee? employee)
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
         {
-            using ParsethingContext db = new();
-            db.Employees.Remove(employee);
-            db.SaveChanges();
+            _ = db.Employees.Remove(employee);
+            _ = db.SaveChanges();
         }
+        catch { isSaved = false; }
+
+        return isSaved;
     }
 }

@@ -12,5 +12,5 @@ public partial class Employee
     public virtual ICollection<Comment> Comments { get; } = new List<Comment>();
     public virtual ICollection<History> Histories { get; } = new List<History>();
 
-    public virtual Position Position { get; set; } = null!;
+    public virtual Position? Position { get; set; }
 }

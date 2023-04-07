@@ -2,83 +2,108 @@
 
 public static class PULL
 {
-    public static void ProcurementUpdate(Procurement procurementUpdate)
+    public static bool Procurement(Procurement procurement)
     {
         using ParsethingContext db = new();
-        Procurement? procurement = db.Procurements.Where(e => e.Id == procurementUpdate.Id).First();
+        Procurement? def = null;
+        bool isSaved = true;
 
-        if (procurement.RegionId != null)
+        try
         {
-            procurement.RegionId = procurementUpdate.RegionId;
+            def = db.Procurements.Where(e => e.Id == procurement.Id).First();
+
+            if (def.RegionId != null)
+                def.RegionId = procurement.RegionId;
+
+            def.OrganizationContractName = procurement.OrganizationContractName;
+            def.OrganizationContractPostalAddress = procurement.OrganizationContractPostalAddress;
+            def.ContactPerson = procurement.ContactPerson;
+            def.ContactPhone = procurement.ContactPhone;
+            def.DeliveryDetails = procurement.DeliveryDetails;
+            def.DeadlineAndType = procurement.DeadlineAndType;
+            def.DeliveryDeadline = procurement.DeliveryDeadline;
+            def.AcceptanceDeadline = procurement.AcceptanceDeadline;
+            def.ContractDeadline = procurement.ContractDeadline;
+            def.Indefinitely = procurement.Indefinitely;
+            def.AnotherDeadline = procurement.AnotherDeadline;
+            def.DeadlineAndOrder = procurement.DeadlineAndOrder;
+            def.RepresentativeTypeId = procurement.RepresentativeTypeId;
+            def.CommissioningWorksId = procurement.CommissioningWorksId;
+            def.PlaceCount = procurement.PlaceCount;
+            def.FinesAndPennies = procurement.FinesAndPennies;
+            def.PenniesPerDay = procurement.PenniesPerDay;
+            def.TerminationConditions = procurement.TerminationConditions;
+            def.EliminationDeadline = procurement.EliminationDeadline;
+            def.GuaranteePeriod = procurement.GuaranteePeriod;
+            def.Inn = procurement.Inn;
+            def.ContractNumber = procurement.ContractNumber;
+            def.AssemblyNeed = procurement.AssemblyNeed;
+            def.MinopttorgId = procurement.MinopttorgId;
+            def.LegalEntityId = procurement.LegalEntityId;
+            def.Applications = procurement.Applications;
+            def.Bet = procurement.Bet;
+            def.MinimalPrice = procurement.MinimalPrice;
+            def.ContractAmount = procurement.ContractAmount;
+            def.ReserveContractAmount = procurement.ReserveContractAmount;
+            def.ProtocolDate = procurement.ProtocolDate;
+            def.ShipmentPlanId = procurement.ShipmentPlanId;
+            def.WaitingList = procurement.WaitingList;
+            def.Calculating = procurement.Calculating;
+            def.Purchase = procurement.Purchase;
+            def.ExecutionStateId = procurement.ExecutionStateId;
+            def.WarrantyStateId = procurement.WarrantyStateId;
+            def.SigningDeadline = procurement.SigningDeadline;
+            def.SigningDate = procurement.SigningDate;
+            def.ConclusionDate = procurement.ConclusionDate;
+            def.ActualDeliveryDate = procurement.ActualDeliveryDate;
+            def.DepartureDate = procurement.DepartureDate;
+            def.DeliveryDate = procurement.DeliveryDate;
+            def.MaxAcceptanceDate = procurement.MaxAcceptanceDate;
+            def.CorrectionDate = procurement.CorrectionDate;
+            def.ActDate = procurement.ActDate;
+            def.MaxDueDate = procurement.MaxDueDate;
+            def.ClosingDate = procurement.ClosingDate;
+            def.RealDueDate = procurement.RealDueDate;
+            def.Amount = procurement.Amount;
+            def.SignedOriginalId = procurement.SignedOriginalId;
+            def.Judgment = procurement.Judgment;
+            def.Fas = procurement.Fas;
+            def.ProcurementStateId = procurement.ProcurementStateId;
+            _ = db.SaveChanges();
         }
-        procurement.OrganizationContractName = procurementUpdate.OrganizationContractName;
-        procurement.OrganizationContractPostalAddress = procurementUpdate.OrganizationContractPostalAddress;
-        procurement.ContactPerson = procurementUpdate.ContactPerson;
-        procurement.ContactPhone = procurementUpdate.ContactPhone;
-        procurement.DeliveryDetails = procurementUpdate.DeliveryDetails;
-        procurement.DeadlineAndType = procurementUpdate.DeadlineAndType;
-        procurement.DeliveryDeadline = procurementUpdate.DeliveryDeadline;
-        procurement.AcceptanceDeadline = procurementUpdate.AcceptanceDeadline;
-        procurement.ContractDeadline = procurementUpdate.ContractDeadline;
-        procurement.Indefinitely = procurementUpdate.Indefinitely;
-        procurement.AnotherDeadline = procurementUpdate.AnotherDeadline;
-        procurement.DeadlineAndOrder = procurementUpdate.DeadlineAndOrder;
-        procurement.RepresentativeTypeId = procurementUpdate.RepresentativeTypeId;
-        procurement.CommissioningWorksId = procurementUpdate.CommissioningWorksId;
-        procurement.PlaceCount = procurementUpdate.PlaceCount;
-        procurement.FinesAndPennies = procurementUpdate.FinesAndPennies;
-        procurement.PenniesPerDay = procurementUpdate.PenniesPerDay;
-        procurement.TerminationConditions = procurementUpdate.TerminationConditions;
-        procurement.EliminationDeadline = procurementUpdate.EliminationDeadline;
-        procurement.GuaranteePeriod = procurementUpdate.GuaranteePeriod;
-        procurement.Inn = procurementUpdate.Inn;
-        procurement.ContractNumber = procurementUpdate.ContractNumber;
-        //employeeId
-        procurement.AssemblyNeed = procurementUpdate.AssemblyNeed;
-        procurement.MinopttorgId = procurementUpdate.MinopttorgId;
-        procurement.LegalEntityId = procurementUpdate.LegalEntityId;
-        procurement.Applications = procurementUpdate.Applications;
-        procurement.Bet = procurementUpdate.Bet;
-        procurement.MinimalPrice = procurementUpdate.MinimalPrice;
-        procurement.ContractAmount = procurementUpdate.ContractAmount;
-        procurement.ReserveContractAmount = procurementUpdate.ReserveContractAmount;
-        procurement.ProtocolDate = procurementUpdate.ProtocolDate;
-        procurement.ShipmentPlanId = procurementUpdate.ShipmentPlanId;
-        procurement.WaitingList = procurementUpdate.WaitingList;
-        procurement.Calculating = procurementUpdate.Calculating;
-        procurement.Purchase = procurementUpdate.Purchase;
-        procurement.ExecutionStateId = procurementUpdate.ExecutionStateId;
-        procurement.WarrantyStateId = procurementUpdate.WarrantyStateId;
-        procurement.SigningDeadline = procurementUpdate.SigningDeadline;
-        procurement.SigningDate = procurementUpdate.SigningDate;
-        procurement.ConclusionDate = procurementUpdate.ConclusionDate;
-        procurement.ActualDeliveryDate = procurementUpdate.ActualDeliveryDate;
-        procurement.DepartureDate = procurementUpdate.DepartureDate;
-        procurement.DeliveryDate = procurementUpdate.DeliveryDate;
-        procurement.MaxAcceptanceDate = procurementUpdate.MaxAcceptanceDate;
-        procurement.CorrectionDate = procurementUpdate.CorrectionDate;
-        procurement.ActDate = procurementUpdate.ActDate;
-        procurement.MaxDueDate = procurementUpdate.MaxDueDate;
-        procurement.ClosingDate = procurementUpdate.ClosingDate;
-        procurement.RealDueDate = procurementUpdate.RealDueDate;
-        procurement.Amount = procurementUpdate.Amount;
-        procurement.SignedOriginalId = procurementUpdate.SignedOriginalId;
-        procurement.Judgment = procurementUpdate.Judgment;
-        procurement.Fas = procurementUpdate.Fas;
-        procurement.ProcurementStateId = procurementUpdate.ProcurementStateId;
-        _ = db.SaveChanges();
+        catch { isSaved = false; }
+
+        return isSaved;
     }
-    public static void EmployeeUpdate(Employee? employeeUpdate)
+    public static bool Employee(Employee employee)
     {
         using ParsethingContext db = new();
-        Employee? employee = db.Employees.Include(e => e.Position).Where(e => e.Id == employeeUpdate.Id).First();
-        employee.FullName = employeeUpdate.FullName;
-        employee.UserName = employeeUpdate.UserName;
-        employee.Password = employeeUpdate.Password;
-        employee.Position = employeeUpdate.Position;
-        employee.Photo = employeeUpdate.Photo;
-        db.SaveChanges();
+        Employee? def = null;
+        bool isSaved = true;
 
+        try
+        {
+            def = db.Employees.Include(e => e.Position).Where(e => e.Id == employee.Id).First();
 
+            if (employee.FullName != null)
+                def.FullName = employee.FullName;
+
+            if (employee.UserName != null)
+                def.UserName = employee.UserName;
+
+            if (employee.Password != null)
+                def.Password = employee.Password;
+
+            if (employee.PositionId != -1)
+                def.PositionId = employee.PositionId;
+
+            if (employee.Photo != null)
+                def.Photo = employee.Photo;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
     }
 }
