@@ -56,7 +56,6 @@ public static class GET
         return procurements;
     }
 
-
     public static int ProcurementsCountBy(string kind, KindOf kindOf)
     {
         using ParsethingContext db = new();

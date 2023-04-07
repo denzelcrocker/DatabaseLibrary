@@ -1,6 +1,6 @@
 ﻿namespace DatabaseLibrary.Functions;
 
-internal class DELETE
+public static class DELETE
 {
     public static bool Employee(Employee employee)
     {

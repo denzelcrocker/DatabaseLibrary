@@ -1,8 +1,6 @@
-﻿using DatabaseLibrary.Entities.EmployeeMuchToMany;
+﻿namespace DatabaseLibrary.Functions;
 
-namespace DatabaseLibrary.Functions;
-
-internal class PUT
+public static class PUT
 {
     public static bool Employee(Employee employee)
     {
@@ -37,6 +35,8 @@ internal class PUT
                 procurementsEmployee.EmployeeId = procurementsEmployee.Employee.Id;
             }
             else throw new Exception();
+            procurementsEmployee.Procurement = null;
+            procurementsEmployee.Employee = null;
 
             _ = db.ProcurementsEmployees.Add(procurementsEmployee);
             _ = db.SaveChanges();
