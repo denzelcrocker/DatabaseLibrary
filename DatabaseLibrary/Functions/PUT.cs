@@ -45,4 +45,35 @@ public static class PUT
 
         return isSaved;
     }
+    public static bool ProcurementSource(Procurement procurement, bool isGetted)
+    {
+        try
+        {
+            ParsethingContext db = new();
+            Procurement? def = null;
+            try
+            {
+                def = db.Procurements.Where(p => p.Number == procurement.Number).First();
+            }
+            catch { }
+            if (def == null)
+            {
+                procurement.ProcurementStateId = 20;
+                _ = db.Procurements.Add(procurement);
+                _ = db.SaveChanges();
+            }
+            else
+            {
+                if (!PULL.ProcurementSource(procurement, def, isGetted))
+                {
+                    throw new Exception();
+                }
+            }
+        }
+        catch
+        {
+            return false;
+        }
+        return true;
+    }
 }
