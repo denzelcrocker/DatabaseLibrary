@@ -79,11 +79,11 @@ public partial class Procurement
 
     public virtual CommisioningWork? CommissioningWorks { get; set; }
     public virtual ExecutionState? ExecutionState { get; set; }
-    public virtual Law Law { get; set; } = null!;
+    public virtual Law? Law { get; set; }
     public virtual LegalEntity? LegalEntity { get; set; }
     public virtual Method? Method { get; set; }
     public virtual Minopttorg? Minopttorg { get; set; }
-    public virtual Organization Organization { get; set; } = null!;
+    public virtual Organization? Organization { get; set; }
     public virtual Platform? Platform { get; set; }
     public virtual ProcurementState? ProcurementState { get; set; }
     public virtual Region? Region { get; set; }
@@ -92,4 +92,30 @@ public partial class Procurement
     public virtual SignedOriginal? SignedOriginal { get; set; }
     public virtual TimeZone? TimeZone { get; set; }
     public virtual WarrantyState? WarrantyState { get; set; }
+
+    public void SetNotNullableForeignKeys()
+    {
+        if (Law != null)
+            LawId = GET.LawId(Law);
+        Law = null;
+
+        if (Organization != null)
+            OrganizationId = GET.OrganizationId(Organization);
+        Organization = null;
+    }
+
+    public void SetNullableForeignKeys()
+    {
+        if (Method != null)
+            MethodId = GET.MethodId(Method);
+        Method = null;
+
+        if (Platform != null)
+            PlatformId = GET.PlatformId(Platform);
+        Platform = null;
+
+        if (TimeZone != null)
+            TimeZoneId = GET.TimeZoneId(TimeZone);
+        TimeZone = null;
+    }
 }
