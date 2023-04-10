@@ -26,6 +26,7 @@
     <Using Include="DatabaseLibrary.Entities.ProcurementProperties.TimeZone">
       <Alias>TimeZone</Alias>
     </Using>
+    <Using Include="DatabaseLibrary.Functions" />
     <Using Include="DatabaseLibrary.Properties" />
     <Using Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
