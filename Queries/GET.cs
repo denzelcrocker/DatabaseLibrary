@@ -1,6 +1,4 @@
-﻿using DatabaseLibrary.Entities.EmployeeMuchToMany;
-
-namespace DatabaseLibrary.Functions;
+﻿namespace DatabaseLibrary.Queries;
 
 public static class GET
 {
@@ -195,7 +193,12 @@ public static class GET
         using ParsethingContext db = new();
         List<Employee>? employees = null;
 
-        try { employees = db.Employees.ToList(); }
+        try
+        {
+            employees = db.Employees
+                .Include(e => e.Position)
+                .ToList();
+        }
         catch { }
 
         return employees;

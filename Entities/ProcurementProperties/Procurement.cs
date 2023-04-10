@@ -1,4 +1,6 @@
-﻿namespace DatabaseLibrary.Entities.ProcurementProperties;
+﻿using DatabaseLibrary.Queries;
+
+namespace DatabaseLibrary.Entities.ProcurementProperties;
 
 public partial class Procurement
 {

@@ -1,4 +1,4 @@
-﻿namespace DatabaseLibrary.Functions;
+﻿namespace DatabaseLibrary.Queries;
 
 public static class DELETE
 {
