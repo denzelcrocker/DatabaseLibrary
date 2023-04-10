@@ -1,4 +1,6 @@
-﻿namespace DatabaseLibrary.Functions;
+﻿using DatabaseLibrary.Entities.EmployeeMuchToMany;
+
+namespace DatabaseLibrary.Functions;
 
 public static class GET
 {
@@ -247,6 +249,17 @@ public static class GET
         catch { }
 
         return count;
+    }
+
+    public static List<Tag>? Tags()
+    {
+        using ParsethingContext db = new();
+        List<Tag>? tags = null;
+
+        try { tags = db.Tags.ToList(); }
+        catch { }
+
+        return tags;
     }
 
     public enum KindOf
