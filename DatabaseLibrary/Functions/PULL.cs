@@ -2,6 +2,38 @@
 
 public static class PULL
 {
+    public static bool ProcurementSource(Procurement procurement, Procurement def, bool isGetted)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            def.LawId = procurement.LawId;
+            def.Object = procurement.Object;
+            def.InitialPrice = procurement.InitialPrice;
+            def.OrganizationId = procurement.OrganizationId;
+            if (isGetted)
+            {
+                def.MethodId = procurement.MethodId;
+                def.PlatformId = procurement.PlatformId;
+                def.Location = procurement.Location;
+                def.StartDate = procurement.StartDate;
+                def.Deadline = procurement.Deadline;
+                def.TimeZoneId = procurement.TimeZoneId;
+                def.Securing = procurement.Securing;
+                def.Enforcement = procurement.Enforcement;
+                def.Warranty = procurement.Warranty;
+            }
+
+            _ = db.Procurements.Update(def);
+            _ = db.SaveChanges();
+        }
+        catch { return isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool Procurement(Procurement procurement)
     {
         using ParsethingContext db = new();
@@ -10,7 +42,9 @@ public static class PULL
 
         try
         {
-            def = db.Procurements.Where(e => e.Id == procurement.Id).First();
+            def = db.Procurements
+                .Where(e => e.Id == procurement.Id)
+                .First();
 
             if (def.RegionId != null)
                 def.RegionId = procurement.RegionId;
@@ -105,35 +139,5 @@ public static class PULL
         catch { isSaved = false; }
 
         return isSaved;
-    }
-    public static bool ProcurementSource(Procurement procurement, Procurement def, bool isGetted)
-    {
-        try
-        {
-            ParsethingContext db = new();
-            def.LawId = procurement.LawId;
-            def.Object = procurement.Object;
-            def.InitialPrice = procurement.InitialPrice;
-            def.OrganizationId = procurement.OrganizationId;
-            if (isGetted)
-            {
-                def.MethodId = procurement.MethodId;
-                def.PlatformId = procurement.PlatformId;
-                def.Location = procurement.Location;
-                def.StartDate = procurement.StartDate;
-                def.Deadline = procurement.Deadline;
-                def.TimeZoneId = procurement.TimeZoneId;
-                def.Securing = procurement.Securing;
-                def.Enforcement = procurement.Enforcement;
-                def.Warranty = procurement.Warranty;
-            }
-            _ = db.Procurements.Update(def);
-            _ = db.SaveChanges();
-        }
-        catch
-        {
-            return false;
-        }
-        return true;
     }
 }

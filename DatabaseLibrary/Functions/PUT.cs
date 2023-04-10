@@ -2,6 +2,37 @@
 
 public static class PUT
 {
+    public static bool ProcurementSource(Procurement procurement, bool isGetted)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+        Procurement? def = null;
+
+        try
+        {
+            def = db.Procurements
+                .Where(p => p.Number == procurement.Number)
+                .First();
+        }
+        catch { }
+
+        try
+        {
+            if (def == null)
+            {
+                procurement.ProcurementStateId = 20;
+
+                _ = db.Procurements.Add(procurement);
+                _ = db.SaveChanges();
+            }
+            else if (!PULL.ProcurementSource(procurement, def, isGetted))
+                throw new Exception();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool Employee(Employee employee)
     {
         using ParsethingContext db = new();
@@ -44,36 +75,5 @@ public static class PUT
         catch { isSaved = false; }
 
         return isSaved;
-    }
-    public static bool ProcurementSource(Procurement procurement, bool isGetted)
-    {
-        try
-        {
-            ParsethingContext db = new();
-            Procurement? def = null;
-            try
-            {
-                def = db.Procurements.Where(p => p.Number == procurement.Number).First();
-            }
-            catch { }
-            if (def == null)
-            {
-                procurement.ProcurementStateId = 20;
-                _ = db.Procurements.Add(procurement);
-                _ = db.SaveChanges();
-            }
-            else
-            {
-                if (!PULL.ProcurementSource(procurement, def, isGetted))
-                {
-                    throw new Exception();
-                }
-            }
-        }
-        catch
-        {
-            return false;
-        }
-        return true;
     }
 }
