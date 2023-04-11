@@ -9,18 +9,18 @@ public static class PULL
 
         try
         {
-            def.LawId = procurement.LawId;
+            def.Law = procurement.Law;
             def.Object = procurement.Object;
             def.InitialPrice = procurement.InitialPrice;
-            def.OrganizationId = procurement.OrganizationId;
+            def.Organization = procurement.Organization;
             if (isGetted)
             {
-                def.MethodId = procurement.MethodId;
-                def.PlatformId = procurement.PlatformId;
+                def.Method = procurement.Method;
+                def.Platform = procurement.Platform;
                 def.Location = procurement.Location;
                 def.StartDate = procurement.StartDate;
                 def.Deadline = procurement.Deadline;
-                def.TimeZoneId = procurement.TimeZoneId;
+                def.TimeZone = procurement.TimeZone;
                 def.Securing = procurement.Securing;
                 def.Enforcement = procurement.Enforcement;
                 def.Warranty = procurement.Warranty;
@@ -29,7 +29,7 @@ public static class PULL
             _ = db.Procurements.Update(def);
             _ = db.SaveChanges();
         }
-        catch { return isSaved = false; }
+        catch { isSaved = false; }
 
         return isSaved;
     }

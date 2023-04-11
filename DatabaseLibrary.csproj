@@ -23,6 +23,9 @@
     <Using Include="DatabaseLibrary.Entities.NoRelationship" />
     <Using Include="DatabaseLibrary.Entities.PreferenceMuchToMany" />
     <Using Include="DatabaseLibrary.Entities.ProcurementProperties" />
+    <Using Include="DatabaseLibrary.Entities.ProcurementProperties.Law">
+      <Alias>Law</Alias>
+    </Using>
     <Using Include="DatabaseLibrary.Entities.ProcurementProperties.TimeZone">
       <Alias>TimeZone</Alias>
     </Using>

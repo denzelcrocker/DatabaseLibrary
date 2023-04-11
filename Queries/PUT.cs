@@ -1,7 +1,82 @@
-﻿namespace DatabaseLibrary.Queries;
+﻿using DatabaseLibrary.Entities.ProcurementProperties;
+
+namespace DatabaseLibrary.Queries;
 
 public static class PUT
 {
+    public static bool Law(Law law)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Laws.Add(law);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Method(Method method)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+        try
+        {
+            _ = db.Methods.Add(method);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Organization(Organization organization)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Organizations.Add(organization);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Platform(Platform platform)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Platforms.Add(platform);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool TimeZone(TimeZone timeZone)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.TimeZones.Add(timeZone);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
     public static bool ProcurementSource(Procurement procurement, bool isGetted)
     {
         using ParsethingContext db = new();

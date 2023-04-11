@@ -95,29 +95,29 @@ public partial class Procurement
     public virtual TimeZone? TimeZone { get; set; }
     public virtual WarrantyState? WarrantyState { get; set; }
 
-    public void SetNotNullableForeignKeys()
-    {
-        if (Law != null)
-            LawId = GET.LawId(Law);
-        Law = null;
+    //public void SetNotNullableForeignKeys()
+    //{
+    //    if (Law != null)
+    //        LawId = GET.LawId(Law);
+    //    Law = null;
 
-        if (Organization != null)
-            OrganizationId = GET.OrganizationId(Organization);
-        Organization = null;
-    }
+    //    if (Organization != null)
+    //        OrganizationId = GET.OrganizationId(Organization);
+    //    Organization = null;
+    //}
 
-    public void SetNullableForeignKeys()
-    {
-        if (Method != null)
-            MethodId = GET.MethodId(Method);
-        Method = null;
+    //public void SetNullableForeignKeys()
+    //{
+    //    if (Method != null)
+    //        MethodId = GET.MethodId(Method);
+    //    Method = null;
 
-        if (Platform != null)
-            PlatformId = GET.PlatformId(Platform);
-        Platform = null;
+    //    if (Platform != null)
+    //        PlatformId = GET.PlatformId(Platform);
+    //    Platform = null;
 
-        if (TimeZone != null)
-            TimeZoneId = GET.TimeZoneId(TimeZone);
-        TimeZone = null;
-    }
+    //    if (TimeZone != null)
+    //        TimeZoneId = GET.TimeZoneId(TimeZone);
+    //    TimeZone = null;
+    //}
 }
