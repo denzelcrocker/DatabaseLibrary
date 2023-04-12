@@ -117,22 +117,16 @@ public static class PULL
 
         try
         {
-            def = db.Employees.Include(e => e.Position).Where(e => e.Id == employee.Id).First();
+            def = db.Employees
+                .Include(e => e.Position)
+                .Where(e => e.Id == employee.Id)
+                .First();
 
-            if (employee.FullName != null)
-                def.FullName = employee.FullName;
-
-            if (employee.UserName != null)
-                def.UserName = employee.UserName;
-
-            if (employee.Password != null)
-                def.Password = employee.Password;
-
-            if (employee.PositionId != -1)
-                def.PositionId = employee.PositionId;
-
-            if (employee.Photo != null)
-                def.Photo = employee.Photo;
+            def.FullName = employee.FullName;
+            def.UserName = employee.UserName;
+            def.Password = employee.Password;
+            def.PositionId = employee.PositionId;
+            def.Photo = employee.Photo;
 
             _ = db.SaveChanges();
         }

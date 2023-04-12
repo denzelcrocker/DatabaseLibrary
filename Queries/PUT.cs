@@ -1,6 +1,4 @@
-﻿using DatabaseLibrary.Entities.ProcurementProperties;
-
-namespace DatabaseLibrary.Queries;
+﻿namespace DatabaseLibrary.Queries;
 
 public static class PUT
 {
@@ -115,11 +113,6 @@ public static class PUT
 
         try
         {
-            if (employee.Position != null)
-                employee.PositionId = employee.Position.Id;
-            else throw new Exception();
-            employee.Position = null;
-
             _ = db.Employees.Add(employee);
             _ = db.SaveChanges();
         }

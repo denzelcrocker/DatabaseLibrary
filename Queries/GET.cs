@@ -138,7 +138,7 @@ public static class GET
             return employees;
         }
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string positionKind, string procurementStateKind)
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind)
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurements = null;
@@ -149,15 +149,24 @@ public static class GET
                     .Include(pe => pe.Procurement)
                     .Include(pe => pe.Procurement.ProcurementState)
                     .Include(pe => pe.Employee)
-                    .Include(pe => pe.Employee.Position)
                     .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == procurementStateKind)
                     .Where(pe => pe.Employee.Id == employeeId)
-                    .Where(pe => pe.Employee.Position.Kind == positionKind)
                     .ToList();
             }
             catch { }
 
             return procurements;
+        }
+
+        public static List<Position>? Positions()
+        {
+            using ParsethingContext db = new();
+            List<Position>? positions = null;
+
+            try { positions = db.Positions.ToList(); }
+            catch { }
+
+            return positions;
         }
 
         public static List<Tag>? Tags()
