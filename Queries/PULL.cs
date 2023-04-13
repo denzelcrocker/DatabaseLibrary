@@ -2,31 +2,109 @@
 
 public static class PULL
 {
-    public static bool ProcurementSource(Procurement procurement, Procurement def, bool isGetted)
+    public static bool ComponentState(ComponentState componentState)
     {
         using ParsethingContext db = new();
+        ComponentState? def = null;
         bool isSaved = true;
 
         try
         {
-            def.Law = procurement.Law;
-            def.Object = procurement.Object;
-            def.InitialPrice = procurement.InitialPrice;
-            def.Organization = procurement.Organization;
-            if (isGetted)
-            {
-                def.Method = procurement.Method;
-                def.Platform = procurement.Platform;
-                def.Location = procurement.Location;
-                def.StartDate = procurement.StartDate;
-                def.Deadline = procurement.Deadline;
-                def.TimeZone = procurement.TimeZone;
-                def.Securing = procurement.Securing;
-                def.Enforcement = procurement.Enforcement;
-                def.Warranty = procurement.Warranty;
-            }
+            def = db.ComponentStates
+                .Where(cs => cs.Id == componentState.Id)
+                .First();
 
-            _ = db.Procurements.Update(def);
+            def.Kind = componentState.Kind;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool ComponentType(ComponentType componentType)
+    {
+        using ParsethingContext db = new();
+        ComponentType? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.ComponentTypes
+                .Where(ct => ct.Id == componentType.Id)
+                .First();
+
+            def.Kind = componentType.Kind;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Employee(Employee employee)
+    {
+        using ParsethingContext db = new();
+        Employee? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Employees
+                .Include(e => e.Position)
+                .Where(e => e.Id == employee.Id)
+                .First();
+
+            def.FullName = employee.FullName;
+            def.UserName = employee.UserName;
+            def.Password = employee.Password;
+            def.PositionId = employee.PositionId;
+            def.Photo = employee.Photo;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Manufacturer(Manufacturer manufacturer)
+    {
+        using ParsethingContext db = new();
+        Manufacturer? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Manufacturers
+                .Where(m => m.Id == manufacturer.Id)
+                .First();
+
+            def.Name = manufacturer.Name;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Position(Position position)
+    {
+        using ParsethingContext db = new();
+        Position? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Positions
+                .Where(p => p.Id == position.Id)
+                .First();
+
+            def.Kind = position.Kind;
+
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }
@@ -43,7 +121,7 @@ public static class PULL
         try
         {
             def = db.Procurements
-                .Where(e => e.Id == procurement.Id)
+                .Where(p => p.Id == procurement.Id)
                 .First();
 
             if (def.RegionId != null)
@@ -103,30 +181,58 @@ public static class PULL
             def.Judgment = procurement.Judgment;
             def.Fas = procurement.Fas;
             def.ProcurementStateId = procurement.ProcurementStateId;
+
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }
 
         return isSaved;
     }
-    public static bool Employee(Employee employee)
+
+    public static bool ProcurementSource(Procurement procurement, Procurement def, bool isGetted)
     {
         using ParsethingContext db = new();
-        Employee? def = null;
         bool isSaved = true;
 
         try
         {
-            def = db.Employees
-                .Include(e => e.Position)
-                .Where(e => e.Id == employee.Id)
+            def.LawId = procurement.LawId;
+            def.Object = procurement.Object;
+            def.InitialPrice = procurement.InitialPrice;
+            def.OrganizationId = procurement.OrganizationId;
+            if (isGetted)
+            {
+                def.MethodId = procurement.MethodId;
+                def.PlatformId = procurement.PlatformId;
+                def.Location = procurement.Location;
+                def.StartDate = procurement.StartDate;
+                def.Deadline = procurement.Deadline;
+                def.TimeZoneId = procurement.TimeZoneId;
+                def.Securing = procurement.Securing;
+                def.Enforcement = procurement.Enforcement;
+                def.Warranty = procurement.Warranty;
+            }
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Tag(Tag tag)
+    {
+        using ParsethingContext db = new();
+        Tag? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Tags
+                .Where(t => t.Id == tag.Id)
                 .First();
 
-            def.FullName = employee.FullName;
-            def.UserName = employee.UserName;
-            def.Password = employee.Password;
-            def.PositionId = employee.PositionId;
-            def.Photo = employee.Photo;
+            def.Keyword = tag.Keyword;
 
             _ = db.SaveChanges();
         }

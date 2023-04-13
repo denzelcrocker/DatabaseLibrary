@@ -1,9 +1,29 @@
-﻿namespace DatabaseLibrary.Queries;
+﻿using DatabaseLibrary.Entities.ComponentCalculationProperties;
+
+namespace DatabaseLibrary.Queries;
 
 public static class GET
 {
     public struct Entry
     {
+        public static Employee? Employee(string userName, string password)
+        {
+            using ParsethingContext db = new();
+            Employee? employee = null;
+
+            try
+            {
+                employee = db.Employees
+                    .Include(e => e.Position)
+                    .Where(e => e.UserName == userName)
+                    .Where(e => e.Password == password)
+                    .First();
+            }
+            catch { }
+
+            return employee;
+        }
+
         public static Law? Law(string number)
         {
             using ParsethingContext db = new();
@@ -100,28 +120,32 @@ public static class GET
 
             return timeZone;
         }
-
-        public static Employee? Employee(string userName, string password)
-        {
-            using ParsethingContext db = new();
-            Employee? employee = null;
-
-            try
-            {
-                employee = db.Employees
-                    .Include(e => e.Position)
-                    .Where(e => e.UserName == userName)
-                    .Where(e => e.Password == password)
-                    .First();
-            }
-            catch { }
-
-            return employee;
-        }
     }
 
     public struct View
     {
+        public static List<ComponentState>? ComponentStates()
+        {
+            using ParsethingContext db = new();
+            List<ComponentState>? componentStates = null;
+
+            try { componentStates = db.ComponentStates.ToList(); }
+            catch { }
+
+            return componentStates;
+        }
+
+        public static List<ComponentType>? ComponentTypes()
+        {
+            using ParsethingContext db = new();
+            List<ComponentType>? componentTypes = null;
+
+            try { componentTypes = db.ComponentTypes.ToList(); }
+            catch { }
+
+            return componentTypes;
+        }
+
         public static List<Employee>? Employees()
         {
             using ParsethingContext db = new();
@@ -136,6 +160,28 @@ public static class GET
             catch { }
 
             return employees;
+        }
+
+        public static List<Manufacturer>? Manufacturers()
+        {
+            using ParsethingContext db = new();
+            List<Manufacturer>? manufacturers = null;
+
+            try { manufacturers = db.Manufacturers.ToList(); }
+            catch { }
+
+            return manufacturers;
+        }
+
+        public static List<Position>? Positions()
+        {
+            using ParsethingContext db = new();
+            List<Position>? positions = null;
+
+            try { positions = db.Positions.ToList(); }
+            catch { }
+
+            return positions;
         }
 
         public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind)
@@ -156,17 +202,6 @@ public static class GET
             catch { }
 
             return procurements;
-        }
-
-        public static List<Position>? Positions()
-        {
-            using ParsethingContext db = new();
-            List<Position>? positions = null;
-
-            try { positions = db.Positions.ToList(); }
-            catch { }
-
-            return positions;
         }
 
         public static List<Tag>? Tags()
