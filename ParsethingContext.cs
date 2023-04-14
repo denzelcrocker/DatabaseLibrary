@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using DatabaseLibrary.Entities.Actions;
-
-
-namespace DatabaseLibrary;
+﻿namespace DatabaseLibrary;
 
 public partial class ParsethingContext : DbContext
 {
@@ -45,8 +39,9 @@ public partial class ParsethingContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        _ = optionsBuilder.UseSqlServer(Properties.Resources.ConnectionString);
+        _ = optionsBuilder.UseSqlServer(Resources.ConnectionString);
     }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         _ = modelBuilder.Entity<Comment>(entity =>

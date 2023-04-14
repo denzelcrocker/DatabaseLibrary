@@ -2,6 +2,21 @@
 
 public static class PUT
 {
+    public static bool Component(Component component)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Components.Add(component);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool ComponentState(ComponentState componentState)
     {
         using ParsethingContext db = new();
@@ -40,6 +55,21 @@ public static class PUT
         try
         {
             _ = db.Employees.Add(employee);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool History(History history)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Histories.Add(history);
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }
@@ -183,6 +213,36 @@ public static class PUT
             procurementsEmployee.Employee = null;
 
             _ = db.ProcurementsEmployees.Add(procurementsEmployee);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Region(Region region)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Regions.Add(region);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Seller(Seller seller)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Sellers.Add(seller);
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }

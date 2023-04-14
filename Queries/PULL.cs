@@ -2,6 +2,29 @@
 
 public static class PULL
 {
+    public static bool Component(Component component)
+    {
+        using ParsethingContext db = new();
+        Component? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Components
+                .Where(c => c.Id == component.Id)
+                .First();
+
+            def.Title = component.Title;
+            def.ManufacturerId = component.ManufacturerId;
+            def.ComponentTypeId = component.ComponentTypeId;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool ComponentState(ComponentState componentState)
     {
         using ParsethingContext db = new();
@@ -212,6 +235,49 @@ public static class PULL
                 def.Enforcement = procurement.Enforcement;
                 def.Warranty = procurement.Warranty;
             }
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Region(Region region)
+    {
+        using ParsethingContext db = new();
+        Region? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Regions
+                .Where(r => r.Id == region.Id)
+                .First();
+
+            def.Title = region.Title;
+            def.Distance = region.Distance;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Seller(Seller seller)
+    {
+        using ParsethingContext db = new();
+        Seller? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Sellers
+                .Where(r => r.Id == seller.Id)
+                .First();
+
+            def.Name = seller.Name;
 
             _ = db.SaveChanges();
         }

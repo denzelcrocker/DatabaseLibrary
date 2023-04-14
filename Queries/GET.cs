@@ -105,6 +105,22 @@ public static class GET
             return platform;
         }
 
+        public static Procurement? Procurement(string number)
+        {
+            using ParsethingContext db = new();
+            Procurement? procurement = null;
+
+            try
+            {
+                procurement = db.Procurements
+                    .Where(p => p.Number == number)
+                    .First();
+            }
+            catch { }
+
+            return procurement;
+        }
+
         public static TimeZone? TimeZone(string offset)
         {
             using ParsethingContext db = new();
@@ -124,6 +140,23 @@ public static class GET
 
     public struct View
     {
+        public static List<Component>? Components()
+        {
+            using ParsethingContext db = new();
+            List<Component>? components = null;
+
+            try
+            {
+                components = db.Components
+                    .Include(c => c.Manufacturer)
+                    .Include(c => c.ComponentType)
+                    .ToList();
+            }
+            catch { }
+
+            return components;
+        }
+
         public static List<ComponentState>? ComponentStates()
         {
             using ParsethingContext db = new();
@@ -202,6 +235,28 @@ public static class GET
             catch { }
 
             return procurements;
+        }
+
+        public static List<Region>? Regions()
+        {
+            using ParsethingContext db = new();
+            List<Region>? regions = null;
+
+            try { regions = db.Regions.ToList(); }
+            catch { }
+
+            return regions;
+        }
+
+        public static List<Seller>? Sellers()
+        {
+            using ParsethingContext db = new();
+            List<Seller>? sellers = null;
+
+            try { sellers = db.Sellers.ToList(); }
+            catch { }
+
+            return sellers;
         }
 
         public static List<Tag>? Tags()
