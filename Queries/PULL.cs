@@ -67,6 +67,27 @@ public static class PULL
         return isSaved;
     }
 
+    public static bool Document(Document document)
+    {
+        using ParsethingContext db = new();
+        Document? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Documents
+                .Where(d => d.Id == document.Id)
+                .First();
+
+            def.Title = document.Title;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool Employee(Employee employee)
     {
         using ParsethingContext db = new();
@@ -85,6 +106,27 @@ public static class PULL
             def.Password = employee.Password;
             def.PositionId = employee.PositionId;
             def.Photo = employee.Photo;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool LegalEntity(LegalEntity legalEntity)
+    {
+        using ParsethingContext db = new();
+        LegalEntity? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.LegalEntities
+                .Where(m => m.Id == legalEntity.Id)
+                .First();
+
+            def.Name = legalEntity.Name;
 
             _ = db.SaveChanges();
         }
@@ -114,6 +156,27 @@ public static class PULL
         return isSaved;
     }
 
+    public static bool Minopttorg(Minopttorg minopttorg)
+    {
+        using ParsethingContext db = new();
+        Minopttorg? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Minopttorgs
+                .Where(m => m.Id == minopttorg.Id)
+                .First();
+
+            def.Name = minopttorg.Name;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool Position(Position position)
     {
         using ParsethingContext db = new();
@@ -127,6 +190,27 @@ public static class PULL
                 .First();
 
             def.Kind = position.Kind;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Preference(Preference preference)
+    {
+        using ParsethingContext db = new();
+        Preference? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Preferences
+                .Where(p => p.Id == preference.Id)
+                .First();
+
+            def.Kind = preference.Kind;
 
             _ = db.SaveChanges();
         }
@@ -204,6 +288,27 @@ public static class PULL
             def.Judgment = procurement.Judgment;
             def.Fas = procurement.Fas;
             def.ProcurementStateId = procurement.ProcurementStateId;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool ProcurementState(ProcurementState procurementState)
+    {
+        using ParsethingContext db = new();
+        ProcurementState? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.ProcurementStates
+                .Where(p => p.Id == procurementState.Id)
+                .First();
+
+            def.Kind = procurementState.Kind;
 
             _ = db.SaveChanges();
         }

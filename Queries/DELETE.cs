@@ -47,6 +47,21 @@ public static class DELETE
         return isSaved;
     }
 
+    public static bool Document(Document document)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Documents.Remove(document);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool Employee(Employee employee)
     {
         using ParsethingContext db = new();
@@ -55,6 +70,20 @@ public static class DELETE
         try
         {
             _ = db.Employees.Remove(employee);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool LegalEntity(LegalEntity legalEntity)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+        try
+        {
+            _ = db.LegalEntities.Remove(legalEntity);
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }
@@ -76,6 +105,20 @@ public static class DELETE
         return isSaved;
     }
 
+    public static bool Minopttorg(Minopttorg minopttorg)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+        try
+        {
+            _ = db.Minopttorgs.Remove(minopttorg);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool Position(Position position)
     {
         using ParsethingContext db = new();
@@ -84,6 +127,36 @@ public static class DELETE
         try
         {
             _ = db.Positions.Remove(position);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Preference(Preference preference)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Preferences.Remove(preference);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool ProcurementState(ProcurementState procurementState)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.ProcurementStates.Remove(procurementState);
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }

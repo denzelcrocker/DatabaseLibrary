@@ -179,6 +179,21 @@ public static class GET
             return componentTypes;
         }
 
+        public static List<Document>? Documents()
+        {
+            using ParsethingContext db = new();
+            List<Document>? documents = null;
+
+            try
+            {
+                documents = db.Documents
+                    .ToList();
+            }
+            catch { }
+
+            return documents;
+        }
+
         public static List<Employee>? Employees()
         {
             using ParsethingContext db = new();
@@ -195,6 +210,17 @@ public static class GET
             return employees;
         }
 
+        public static List<LegalEntity>? LegalEntities()
+        {
+            using ParsethingContext db = new();
+            List<LegalEntity>? LegalEntitys = null;
+
+            try { LegalEntitys = db.LegalEntities.ToList(); }
+            catch { }
+
+            return LegalEntitys;
+        }
+
         public static List<Manufacturer>? Manufacturers()
         {
             using ParsethingContext db = new();
@@ -206,6 +232,17 @@ public static class GET
             return manufacturers;
         }
 
+        public static List<Minopttorg>? Minopttorgs()
+        {
+            using ParsethingContext db = new();
+            List<Minopttorg>? minopttorgs = null;
+
+            try { minopttorgs = db.Minopttorgs.ToList(); }
+            catch { }
+
+            return minopttorgs;
+        }
+
         public static List<Position>? Positions()
         {
             using ParsethingContext db = new();
@@ -215,6 +252,17 @@ public static class GET
             catch { }
 
             return positions;
+        }
+
+        public static List<Preference>? Preferences()
+        {
+            using ParsethingContext db = new();
+            List<Preference>? preferences = null;
+
+            try { preferences = db.Preferences.ToList(); }
+            catch { }
+
+            return preferences;
         }
 
         public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind)
@@ -235,6 +283,17 @@ public static class GET
             catch { }
 
             return procurements;
+        }
+
+        public static List<ProcurementState>? ProcurementStates()
+        {
+            using ParsethingContext db = new();
+            List<ProcurementState>? procurementStates = null;
+
+            try { procurementStates = db.ProcurementStates.ToList(); }
+            catch { }
+
+            return procurementStates;
         }
 
         public static List<Region>? Regions()
