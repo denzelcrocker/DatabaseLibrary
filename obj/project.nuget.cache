@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "2CWXETumY1eACKKMuAB2IfsipbL8G1lfnj0l8aTxr0phMLwkJ3xNssMQbJ+gm5Vz76vUt4H+Ibc4S+lIyDnT/A==",
+  "dgSpecHash": "3sCxz0XuyNZ6QFTrSSNy0iMvFhyT2U2wB+UEI0DkpiCvDyTYho70w/+1mNWQUmzm4QbazrD+Rys1KXQ0GlF8dw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Денис\\source\\repos\\DatabaseLibrary\\DatabaseLibrary.csproj",
+  "projectFilePath": "C:\\Users\\Денис\\Source\\Repos\\DatabaseLibrary\\DatabaseLibrary.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Денис\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\Денис\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
