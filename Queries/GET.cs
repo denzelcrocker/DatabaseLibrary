@@ -264,7 +264,8 @@ public static class GET
 
             return preferences;
         }
-        public static List<Procurement>? Procurements()
+
+        public static List<Procurement>? ProcurementSources()
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -272,10 +273,13 @@ public static class GET
             try
             {
                 procurements = db.Procurements
-                    .Include(pe => pe.ProcurementState)
-                    .Include(pe => pe.Law)
-                    .Include(pe => pe.Organization)
-                    .Include(pe => pe.Method)
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include(p => p.Organization)
+                    .Include(p => p.Method)
+                    .Include(p => p.Platform)
+                    .Include(p => p.TimeZone)
+                    .Where(p => p.ProcurementState != null && p.ProcurementState.Kind == "Получен")
                     .ToList();
             }
             catch { }
@@ -398,6 +402,7 @@ public static class GET
 
             return count;
         }
+        
     }
 
     public enum KindOf

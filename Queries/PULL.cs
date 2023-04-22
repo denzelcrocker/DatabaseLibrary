@@ -326,7 +326,7 @@ public static class PULL
         {
             def.LawId = procurement.LawId;
             def.Object = procurement.Object;
-            def.InitialPrice = procurement.InitialPrice;
+            def.InitialPrice = Convert.ToDecimal(DbValueConverter.ToNullableString(Convert.ToString( procurement.InitialPrice))) ;
             def.OrganizationId = procurement.OrganizationId;
             if (isGetted)
             {

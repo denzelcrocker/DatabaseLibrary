@@ -208,6 +208,7 @@ public static class DELETE
 
         return isSaved;
     }
+
     public static bool Procurement(Procurement procurement)
     {
         using ParsethingContext db = new();
