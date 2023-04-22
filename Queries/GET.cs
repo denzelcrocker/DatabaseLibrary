@@ -264,6 +264,24 @@ public static class GET
 
             return preferences;
         }
+        public static List<Procurement>? Procurements()
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            try
+            {
+                procurements = db.Procurements
+                    .Include(pe => pe.ProcurementState)
+                    .Include(pe => pe.Law)
+                    .Include(pe => pe.Organization)
+                    .Include(pe => pe.Method)
+                    .ToList();
+            }
+            catch { }
+
+            return procurements;
+        }
 
         public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind)
         {
@@ -276,7 +294,28 @@ public static class GET
                     .Include(pe => pe.Procurement)
                     .Include(pe => pe.Procurement.ProcurementState)
                     .Include(pe => pe.Employee)
+                    .Include(pe => pe.Procurement.Law)
                     .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                    .Where(pe => pe.Employee.Id == employeeId)
+                    .ToList();
+            }
+            catch { }
+
+            return procurements;
+        }
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurements = null;
+
+            try
+            {
+                procurements = db.ProcurementsEmployees
+                    .Include(pe => pe.Procurement)
+                    .Include(pe => pe.Procurement.ProcurementState)
+                    .Include(pe => pe.Employee)
+                    .Include(pe => pe.Procurement.Law)
+                    .Where(pe => pe.Procurement.ProcurementState != null)
                     .Where(pe => pe.Employee.Id == employeeId)
                     .ToList();
             }
