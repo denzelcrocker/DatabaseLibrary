@@ -265,6 +265,28 @@ public static class GET
             return preferences;
         }
 
+        public static List<Procurement>? ProcurementSources()
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            try
+            {
+                procurements = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include(p => p.Organization)
+                    .Include(p => p.Method)
+                    .Include(p => p.Platform)
+                    .Include(p => p.TimeZone)
+                    .Where(p => p.ProcurementState != null && p.ProcurementState.Kind == "Получен")
+                    .ToList();
+            }
+            catch { }
+
+            return procurements;
+        }
+
         public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind)
         {
             using ParsethingContext db = new();
@@ -276,7 +298,28 @@ public static class GET
                     .Include(pe => pe.Procurement)
                     .Include(pe => pe.Procurement.ProcurementState)
                     .Include(pe => pe.Employee)
+                    .Include(pe => pe.Procurement.Law)
                     .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                    .Where(pe => pe.Employee.Id == employeeId)
+                    .ToList();
+            }
+            catch { }
+
+            return procurements;
+        }
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurements = null;
+
+            try
+            {
+                procurements = db.ProcurementsEmployees
+                    .Include(pe => pe.Procurement)
+                    .Include(pe => pe.Procurement.ProcurementState)
+                    .Include(pe => pe.Employee)
+                    .Include(pe => pe.Procurement.Law)
+                    .Where(pe => pe.Procurement.ProcurementState != null)
                     .Where(pe => pe.Employee.Id == employeeId)
                     .ToList();
             }
@@ -359,6 +402,7 @@ public static class GET
 
             return count;
         }
+        
     }
 
     public enum KindOf
