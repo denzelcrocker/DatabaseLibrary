@@ -14,7 +14,7 @@ public static class PULL
                 .Where(c => c.Id == component.Id)
                 .First();
 
-            def.Title = component.Title;
+            def.Title = DbValueConverter.ToNullableString(component.Title);
             def.ManufacturerId = component.ManufacturerId;
             def.ComponentTypeId = component.ComponentTypeId;
 
