@@ -287,6 +287,57 @@ public static class GET
             return procurements;
         }
 
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(int employeeId)
+        {
+            using ParsethingContext db = new();
+            var procurementsEmployees = db.ProcurementsEmployees
+                .Include(pe => pe.Employee)
+                .Include(pe => pe.Procurement)
+                .Where(pe => pe.EmployeeId == employeeId)
+                .GroupBy(pe => pe.Employee.FullName)
+                .Select(g => new ProcurementsEmployeesGrouping {Id = g.Key, CountOfProcurements = g.Count() })
+                .ToList();
+
+            return procurementsEmployees;
+        }
+
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string position)
+        {
+            using ParsethingContext db = new();
+            var procurementsEmployees = db.ProcurementsEmployees
+                .Include(pe => pe.Employee)
+                .Include(pe => pe.Employee.Position)
+                .Include(pe => pe.Procurement)
+                .Where(pe => pe.Employee.Position.Kind == position)
+                .GroupBy(pe => pe.Employee.FullName)
+                .Select(g => new ProcurementsEmployeesGrouping { Id = g.Key , CountOfProcurements = g.Count() })
+                .ToList();
+
+            return procurementsEmployees;
+        }
+
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesQueue()
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurements = null;
+
+            try
+            {
+                procurements = db.ProcurementsEmployees
+                    .Include(pe => pe.Procurement)
+                    .Include(pe => pe.Procurement.ProcurementState)
+                    .Include(pe => pe.Employee)
+                    .Include(pe => pe.Employee.Position)
+                    .Include(pe => pe.Procurement.Law)
+                    .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == "Новый")
+                    .Where(pe => pe.Employee.Position.Kind != "Специалист отдела расчетов")
+                    .ToList();
+            }
+            catch { }
+
+            return procurements;
+        }
+
         public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind)
         {
             using ParsethingContext db = new();
@@ -404,7 +455,11 @@ public static class GET
         }
         
     }
-
+    public class ProcurementsEmployeesGrouping
+    {
+        public string Id { get; set; }
+        public int CountOfProcurements { get; set; }
+    }
     public enum KindOf
     {
         ProcurementState,
