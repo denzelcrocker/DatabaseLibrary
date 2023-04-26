@@ -447,13 +447,46 @@ public static class GET
                             .Where(p => p.ShipmentPlan != null && p.ShipmentPlan.Kind == kind)
                             .Count();
                         break;
+                    case KindOf.Applications:
+                        count = db.Procurements
+                            .Where(p => p.Applications == true)
+                            .Count();
+                        break;
                 }
             }
             catch { }
 
             return count;
         }
-        
+
+        public static int ProcurementsCountBy(string procurementStateKind, bool isOverdue)
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                if (isOverdue)
+                {
+                    count = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                    .Where(p => p.Deadline < DateTime.Now)
+                    .Count();
+                }
+                else
+                {
+                    count = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                    .Where(p => p.Deadline > DateTime.Now)
+                    .Count();
+                }
+            }
+            catch { }
+
+            return count;
+        }
     }
     public class ProcurementsEmployeesGrouping
     {
@@ -463,6 +496,7 @@ public static class GET
     public enum KindOf
     {
         ProcurementState,
-        ShipmentPlane
+        ShipmentPlane,
+        Applications
     }
 }

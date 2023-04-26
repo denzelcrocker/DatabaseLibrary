@@ -14,7 +14,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="C:\Users\Денис\Source\Repos\DatabaseLibrary\bin\Release\net6.0\DatabaseLibrary.runtimeconfig.json" target="lib\net6.0\DatabaseLibrary.runtimeconfig.json" />
-    <file src="C:\Users\Денис\Source\Repos\DatabaseLibrary\bin\Release\net6.0\DatabaseLibrary.dll" target="lib\net6.0\DatabaseLibrary.dll" />
+    <file src="C:\Users\Денис\source\repos\DatabaseLibrary\bin\Release\net6.0\DatabaseLibrary.runtimeconfig.json" target="lib\net6.0\DatabaseLibrary.runtimeconfig.json" />
+    <file src="C:\Users\Денис\source\repos\DatabaseLibrary\bin\Release\net6.0\DatabaseLibrary.dll" target="lib\net6.0\DatabaseLibrary.dll" />
   </files>
 </package>
