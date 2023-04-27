@@ -458,8 +458,7 @@ public static class GET
 
             return count;
         }
-
-        public static int ProcurementsCountBy(string procurementStateKind, bool isOverdue)
+        public static int ProcurementsCountBy(bool isOverdue)
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -470,18 +469,98 @@ public static class GET
                 {
                     count = db.Procurements
                     .Include(p => p.ProcurementState)
-                    .Where(p => p.ProcurementState.Kind == procurementStateKind)
-                    .Where(p => p.Deadline < DateTime.Now)
+                    .Where(p => p.ProcurementState.Kind == "Принят")
+                    .Where(p => p.MaxDueDate < DateTime.Now)
+                    .Where(p => p.RealDueDate == null)
                     .Count();
                 }
                 else
                 {
                     count = db.Procurements
                     .Include(p => p.ProcurementState)
-                    .Where(p => p.ProcurementState.Kind == procurementStateKind)
-                    .Where(p => p.Deadline > DateTime.Now)
+                    .Where(p => p.ProcurementState.Kind == "Принят")
+                    .Where(p => p.MaxDueDate > DateTime.Now)
+                    .Where(p => p.RealDueDate == null)
                     .Count();
                 }
+            }
+            catch { }
+
+            return count;
+        }
+        public static int ProcurementsCountBy(KindOf kindOf)
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Judgement:
+                        count = db.Procurements
+                            .Where(p => p.Judgment == true)
+                            .Count();
+                        break;
+                    case KindOf.FAS:
+                        count = db.Procurements
+                            .Where(p => p.Fas == true)
+                            .Count();
+                        break;
+                }
+            }
+            catch { }
+
+            return count;
+        }
+
+        public static int ProcurementsCountBy(string procurementStateKind, bool isOverdue, KindOf kindOf)
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Deadline:
+                        if (isOverdue)
+                        {
+                            count = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.Deadline < DateTime.Now)
+                            .Count();
+                        }
+                        else
+                        {
+                            count = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.Deadline > DateTime.Now)
+                            .Count();
+                        }
+                        break;
+                    case KindOf.StartDate:
+                        if (isOverdue)
+                        {
+                            count = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.StartDate < DateTime.Now)
+                            .Count();
+                        }
+                        else
+                        {
+                            count = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.StartDate > DateTime.Now)
+                            .Count();
+                        }
+                        break;
+                }
+                
             }
             catch { }
 
@@ -497,6 +576,10 @@ public static class GET
     {
         ProcurementState,
         ShipmentPlane,
-        Applications
+        Applications,
+        StartDate,
+        Deadline,
+        Judgement,
+        FAS
     }
 }
