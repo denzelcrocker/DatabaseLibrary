@@ -287,6 +287,46 @@ public static class GET
             return procurements;
         }
 
+        public static List<Procurement>? ProcurementsBy(string kind, KindOf kindOf)
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.ProcurementState:
+                        procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(e => e.ShipmentPlan)
+                            .Where(p => p.ProcurementState != null && p.ProcurementState.Kind == kind)
+                            .ToList();
+                        break;
+                    case KindOf.ShipmentPlane:
+                        procurements = db.Procurements
+                            .Include(e => e.ShipmentPlan)
+                            .Include(p => p.Law)
+                            .Include(p => p.ProcurementState)
+                            .Where(p => p.ShipmentPlan != null && p.ShipmentPlan.Kind == kind)
+                            .ToList();
+                        break;
+                    case KindOf.Applications:
+                        procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(e => e.ShipmentPlan)
+                            .Where(p => p.Applications == true)
+                            .ToList();
+                        break;
+                }
+            }
+            catch { }
+
+            return procurements;
+        }
+
         public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(int employeeId)
         {
             using ParsethingContext db = new();
@@ -316,27 +356,27 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesQueue()
-        {
-            using ParsethingContext db = new();
-            List<ProcurementsEmployee>? procurements = null;
+        //public static List<ProcurementsEmployee>? ProcurementsEmployeesQueue()
+        //{
+        //    using ParsethingContext db = new();
+        //    List<ProcurementsEmployee>? procurements = null;
 
-            try
-            {
-                procurements = db.ProcurementsEmployees
-                    .Include(pe => pe.Procurement)
-                    .Include(pe => pe.Procurement.ProcurementState)
-                    .Include(pe => pe.Employee)
-                    .Include(pe => pe.Employee.Position)
-                    .Include(pe => pe.Procurement.Law)
-                    .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == "Новый")
-                    .Where(pe => pe.Employee.Position.Kind != "Специалист отдела расчетов")
-                    .ToList();
-            }
-            catch { }
+        //    try
+        //    {
+        //        procurements = db.ProcurementsEmployees
+        //            .Include(pe => pe.Procurement)
+        //            .Include(pe => pe.Procurement.ProcurementState)
+        //            .Include(pe => pe.Employee)
+        //            .Include(pe => pe.Employee.Position)
+        //            .Include(pe => pe.Procurement.Law)
+        //            .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == "Новый")
+        //            .Where(pe => pe.Employee.Position.Kind != "Специалист отдела расчетов")
+        //            .ToList();
+        //    }
+        //    catch { }
 
-            return procurements;
-        }
+        //    return procurements;
+        //}
 
         public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind)
         {
@@ -377,6 +417,94 @@ public static class GET
             catch { }
 
             return procurements;
+        }
+
+        public static List<ProcurementState>? DistributionOfProcurementStates(string employeePosition)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementState>? procurementStates = null;
+
+            try 
+            { 
+                switch(employeePosition)
+                {
+                    case "Администратор":
+                        procurementStates = db.ProcurementStates.ToList();
+                        break;
+                    case "Руководитель отдела расчетов":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой")
+                            .ToList();
+                        break;
+                    case "Заместитель руководителя отдела расчетов":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой")
+                            .ToList();
+                        break;
+                    case "Специалист отдела расчетов":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен")
+                            .ToList();
+                        break;
+                    case "Руководитель тендерного отдела":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" || ps.Kind == "Отклонен" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
+                            .ToList();
+                        break;
+                    case "Заместитель руководителя тендреного отдела":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" || ps.Kind == "Отклонен" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
+                            .ToList();
+                        break;
+                    case "Специалист тендерного отдела":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят")
+                            .ToList();
+                        break;
+                    case "Специалист по работе с электронными площадками":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
+                            .ToList();
+                        break;
+                    case "Руководитель отдела закупки":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка")
+                            .ToList();
+                        break;
+                    case "Заместитель руководителя отдела закупок":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка")
+                            .ToList();
+                        break;
+                    case "Специалист закупки":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка")
+                            .ToList();
+                        break;
+                    case "Руководитель отдела производства":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Выигран 2ч")
+                            .ToList();
+                        break;
+                    case "Заместитель руководителя отдела производства":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Выигран 2ч")
+                            .ToList();
+                        break;
+                    case "Специалист по производству":
+                        procurementStates = db.ProcurementStates
+                            .Where(ps => ps.Kind == "Выигран 2ч")
+                            .ToList();
+                        break;
+                    case "Юрист":
+                        procurementStates = db.ProcurementStates
+                            .ToList();
+                        break;
+                }
+            }
+            catch { }
+
+            return procurementStates;
         }
 
         public static List<ProcurementState>? ProcurementStates()
@@ -422,6 +550,7 @@ public static class GET
 
             return tags;
         }
+
     }
 
     public struct Aggregate
@@ -566,6 +695,8 @@ public static class GET
 
             return count;
         }
+
+
     }
     public class ProcurementsEmployeesGrouping
     {

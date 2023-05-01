@@ -340,7 +340,7 @@ public static class PULL
                 def.Enforcement = procurement.Enforcement;
                 def.Warranty = procurement.Warranty;
             }
-
+            
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }
