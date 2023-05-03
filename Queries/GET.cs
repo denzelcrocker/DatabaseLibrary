@@ -287,6 +287,26 @@ public static class GET
             return procurements;
         }
 
+        public static List<ComponentCalculation>? ComponentCalculationsBy(string kind)
+        {
+            using ParsethingContext db = new();
+            List<ComponentCalculation> componentCalculations = db.ComponentCalculations
+                .Include(cc => cc.ComponentState)
+                .Include(cc => cc.Procurement)
+                .Include(cc => cc.Procurement.Law)
+                .Include(cc => cc.Procurement.ProcurementState)
+                .Include(cc => cc.Component)
+                .Include(cc => cc.Component.Manufacturer)
+                .Include(cc => cc.Component.ComponentType)
+                .Include(cc => cc.Seller)
+                .Where(cc => cc.ComponentState.Kind == kind)
+                .ToList();
+
+            return componentCalculations;
+        }
+
+        
+
         public static List<Procurement>? ProcurementsBy(string kind, KindOf kindOf)
         {
             using ParsethingContext db = new();
@@ -713,4 +733,5 @@ public static class GET
         Judgement,
         FAS
     }
+    
 }
