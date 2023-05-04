@@ -136,6 +136,21 @@ public static class GET
 
             return timeZone;
         }
+        public static Region? Region(string title, int distance)
+        {
+            using ParsethingContext db = new();
+            Region? region = null;
+
+            try
+            {
+                region = db.Regions
+                    .Where(r => r.Title == title && r.Distance == distance)
+                    .First();
+            }
+            catch { }
+
+            return region;
+        }
     }
 
     public struct View
@@ -290,22 +305,45 @@ public static class GET
         public static List<ComponentCalculation>? ComponentCalculationsBy(string kind)
         {
             using ParsethingContext db = new();
-            List<ComponentCalculation> componentCalculations = db.ComponentCalculations
-                .Include(cc => cc.ComponentState)
-                .Include(cc => cc.Procurement)
-                .Include(cc => cc.Procurement.Law)
-                .Include(cc => cc.Procurement.ProcurementState)
-                .Include(cc => cc.Component)
-                .Include(cc => cc.Component.Manufacturer)
-                .Include(cc => cc.Component.ComponentType)
-                .Include(cc => cc.Seller)
-                .Where(cc => cc.ComponentState.Kind == kind)
-                .ToList();
+            List<ComponentCalculation> componentCalculations = null;
+
+            try
+            {
+                componentCalculations = db.ComponentCalculations
+                    .Include(cc => cc.ComponentState)
+                    .Include(cc => cc.Procurement)
+                    .Include(cc => cc.Procurement.Law)
+                    .Include(cc => cc.Procurement.ProcurementState)
+                    .Include(cc => cc.Procurement.Region)
+                    .Include(cc => cc.Procurement.Method)
+                    .Include(cc => cc.Procurement.Platform)
+                    .Include(cc => cc.Procurement.TimeZone)
+                    .Include(cc => cc.Procurement.Organization)
+                    .Include(cc => cc.Component)
+                    .Include(cc => cc.Component.Manufacturer)
+                    .Include(cc => cc.Component.ComponentType)
+                    .Include(cc => cc.Seller)
+                    .Where(cc => cc.ComponentState.Kind == kind)
+                    .ToList();
+            }
+            catch { }
 
             return componentCalculations;
         }
 
-        
+        public static List<Method>? Methods()
+        {
+            using ParsethingContext db = new();
+            List<Method> methods = null;
+            try
+            {
+                methods = db.Methods
+                    .ToList();
+            }
+            catch { }
+
+            return methods;
+        }
 
         public static List<Procurement>? ProcurementsBy(string kind, KindOf kindOf)
         {
@@ -320,14 +358,24 @@ public static class GET
                         procurements = db.Procurements
                             .Include(p => p.ProcurementState)
                             .Include(p => p.Law)
-                            .Include(e => e.ShipmentPlan)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Include(p => p.Organization)
                             .Where(p => p.ProcurementState != null && p.ProcurementState.Kind == kind)
                             .ToList();
                         break;
                     case KindOf.ShipmentPlane:
                         procurements = db.Procurements
-                            .Include(e => e.ShipmentPlan)
+                            .Include(p => p.ShipmentPlan)
                             .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.Organization)
                             .Include(p => p.ProcurementState)
                             .Where(p => p.ShipmentPlan != null && p.ShipmentPlan.Kind == kind)
                             .ToList();
@@ -336,7 +384,12 @@ public static class GET
                         procurements = db.Procurements
                             .Include(p => p.ProcurementState)
                             .Include(p => p.Law)
-                            .Include(e => e.ShipmentPlan)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
                             .Where(p => p.Applications == true)
                             .ToList();
                         break;
@@ -352,6 +405,7 @@ public static class GET
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
                 .Include(pe => pe.Employee)
+                .Include(pe => pe.Procurement.Method)
                 .Include(pe => pe.Procurement)
                 .Where(pe => pe.EmployeeId == employeeId)
                 .GroupBy(pe => pe.Employee.FullName)
@@ -367,6 +421,7 @@ public static class GET
             var procurementsEmployees = db.ProcurementsEmployees
                 .Include(pe => pe.Employee)
                 .Include(pe => pe.Employee.Position)
+                .Include(pe => pe.Procurement.Method)
                 .Include(pe => pe.Procurement)
                 .Where(pe => pe.Employee.Position.Kind == position)
                 .GroupBy(pe => pe.Employee.FullName)
@@ -410,6 +465,11 @@ public static class GET
                     .Include(pe => pe.Procurement.ProcurementState)
                     .Include(pe => pe.Employee)
                     .Include(pe => pe.Procurement.Law)
+                    .Include(pe => pe.Procurement.Method)
+                    .Include(pe => pe.Procurement.Platform)
+                    .Include(pe => pe.Procurement.TimeZone)
+                    .Include(pe => pe.Procurement.Region)
+                    .Include(pe => pe.Procurement.Organization)
                     .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == procurementStateKind)
                     .Where(pe => pe.Employee.Id == employeeId)
                     .ToList();
@@ -428,8 +488,13 @@ public static class GET
                 procurements = db.ProcurementsEmployees
                     .Include(pe => pe.Procurement)
                     .Include(pe => pe.Procurement.ProcurementState)
+                    .Include(pe => pe.Procurement.Method)
                     .Include(pe => pe.Employee)
                     .Include(pe => pe.Procurement.Law)
+                    .Include(pe => pe.Procurement.Platform)
+                    .Include(pe => pe.Procurement.TimeZone)
+                    .Include(pe => pe.Procurement.Region)
+                    .Include(pe => pe.Procurement.Organization)
                     .Where(pe => pe.Procurement.ProcurementState != null)
                     .Where(pe => pe.Employee.Id == employeeId)
                     .ToList();
