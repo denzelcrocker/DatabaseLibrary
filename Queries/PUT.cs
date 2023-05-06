@@ -222,6 +222,29 @@ public static class PUT
 
         return isSaved;
     }
+    public static bool ProcurementsPreferences(ProcurementsPreference procurementsPreference)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            if (procurementsPreference.Procurement != null && procurementsPreference.Preference != null)
+            {
+                procurementsPreference.ProcurementId = procurementsPreference.Procurement.Id;
+                procurementsPreference.PreferenceId = procurementsPreference.Preference.Id;
+            }
+            else throw new Exception();
+            procurementsPreference.Procurement = null;
+            procurementsPreference.Preference = null;
+
+            _ = db.ProcurementsPreferences.Add(procurementsPreference);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
 
     public static bool ProcurementState(ProcurementState procurementState)
     {

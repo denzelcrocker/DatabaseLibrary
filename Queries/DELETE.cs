@@ -148,6 +148,20 @@ public static class DELETE
 
         return isSaved;
     }
+    public static bool ProcurementPreference(ProcurementsPreference procurementsPreference)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.ProcurementsPreferences.Remove(procurementsPreference);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
 
     public static bool ProcurementState(ProcurementState procurementState)
     {

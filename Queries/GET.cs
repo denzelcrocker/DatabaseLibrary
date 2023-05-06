@@ -503,6 +503,23 @@ public static class GET
 
             return procurements;
         }
+        public static List<ProcurementsPreference>? ProcurementsPreferencesBy(int procurementId)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsPreference>? procurementsPreferences = null;
+
+            try
+            {
+                procurementsPreferences = db.ProcurementsPreferences
+                    .Include(pp => pp.Procurement)
+                    .Include(pp => pp.Preference)
+                    .Where(pe => pe.ProcurementId == procurementId)
+                    .ToList();
+            }
+            catch { }
+
+            return procurementsPreferences;
+        }
 
         public static List<ProcurementState>? DistributionOfProcurementStates(string employeePosition)
         {
