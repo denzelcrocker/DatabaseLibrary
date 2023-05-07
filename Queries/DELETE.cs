@@ -155,8 +155,12 @@ public static class DELETE
 
         try
         {
-            _ = db.ProcurementsPreferences.Remove(procurementsPreference);
-            _ = db.SaveChanges();
+            var procurementToDelete = db.ProcurementsPreferences.FirstOrDefault(pp => pp.ProcurementId == procurementsPreference.ProcurementId && pp.PreferenceId == procurementsPreference.PreferenceId);
+            if (procurementsPreference != null)
+            {
+                _ = db.ProcurementsPreferences.Remove(procurementToDelete);
+                _ = db.SaveChanges();
+            }
         }
         catch { isSaved = false; }
 

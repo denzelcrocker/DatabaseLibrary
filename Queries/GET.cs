@@ -280,6 +280,28 @@ public static class GET
             return preferences;
         }
 
+        public static List<RepresentativeType>? RepresentativeTypes()
+        {
+            using ParsethingContext db = new();
+            List<RepresentativeType>? representativeTypes = null;
+
+            try { representativeTypes = db.RepresentativeTypes.ToList(); }
+            catch { }
+
+            return representativeTypes;
+        }
+
+        public static List<CommisioningWork>? CommissioningWorks()
+        {
+            using ParsethingContext db = new();
+            List<CommisioningWork>? commissioningWorks = null;
+
+            try { commissioningWorks = db.CommisioningWorks.ToList(); }
+            catch { }
+
+            return commissioningWorks;
+        }
+
         public static List<Procurement>? ProcurementSources()
         {
             using ParsethingContext db = new();
