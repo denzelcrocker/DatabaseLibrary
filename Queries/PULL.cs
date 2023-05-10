@@ -1,4 +1,6 @@
-﻿namespace DatabaseLibrary.Queries;
+﻿using DatabaseLibrary.Entities.ProcurementProperties;
+
+namespace DatabaseLibrary.Queries;
 
 public static class PULL
 {
@@ -288,6 +290,26 @@ public static class PULL
             def.Judgment = procurement.Judgment;
             def.Fas = procurement.Fas;
             def.ProcurementStateId = procurement.ProcurementStateId;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Procurement_ProcurementState(Procurement procurement)
+    {
+        using ParsethingContext db = new();
+        Procurement? def = null;
+        bool isSaved = true;
+        try
+        {
+            def = db.Procurements
+                .Where(p => p.Id == procurement.Id)
+                .First();
+
+            def.ProcurementState = procurement.ProcurementState;
 
             _ = db.SaveChanges();
         }
