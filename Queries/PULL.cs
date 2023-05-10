@@ -296,7 +296,7 @@ public static class PULL
         return isSaved;
     }
 
-    public static bool Procurement_ProcurementState(Procurement procurement)
+    public static bool Procurement_ProcurementState(Procurement procurement, int procurementStateId)
     {
         using ParsethingContext db = new();
         Procurement? def = null;
