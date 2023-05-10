@@ -148,6 +148,24 @@ public static class DELETE
 
         return isSaved;
     }
+    public static bool ProcurementPreference(ProcurementsPreference procurementsPreference)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            var procurementToDelete = db.ProcurementsPreferences.FirstOrDefault(pp => pp.ProcurementId == procurementsPreference.ProcurementId && pp.PreferenceId == procurementsPreference.PreferenceId);
+            if (procurementsPreference != null)
+            {
+                _ = db.ProcurementsPreferences.Remove(procurementToDelete);
+                _ = db.SaveChanges();
+            }
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
 
     public static bool ProcurementState(ProcurementState procurementState)
     {

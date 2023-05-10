@@ -233,9 +233,7 @@ public static class PULL
                 .Where(p => p.Id == procurement.Id)
                 .First();
 
-            if (def.RegionId != null)
-                def.RegionId = procurement.RegionId;
-
+            def.RegionId = procurement.RegionId;
             def.OrganizationContractName = procurement.OrganizationContractName;
             def.OrganizationContractPostalAddress = procurement.OrganizationContractPostalAddress;
             def.ContactPerson = procurement.ContactPerson;
@@ -362,7 +360,7 @@ public static class PULL
                 def.Enforcement = procurement.Enforcement;
                 def.Warranty = procurement.Warranty;
             }
-
+            
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }

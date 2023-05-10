@@ -260,7 +260,6 @@ public partial class ParsethingContext : DbContext
 
         _ = modelBuilder.Entity<ProcurementsPreference>(entity =>
         {
-            _ = entity.HasNoKey();
 
             _ = entity.HasOne(d => d.Preference).WithMany()
                 .HasForeignKey(d => d.PreferenceId)
