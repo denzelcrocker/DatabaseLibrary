@@ -307,7 +307,7 @@ public static class PULL
                 .Where(p => p.Id == procurement.Id)
                 .First();
 
-            def.ProcurementState = procurement.ProcurementState;
+            def.ProcurementStateId = procurementStateId;
 
             _ = db.SaveChanges();
         }
