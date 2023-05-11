@@ -443,4 +443,19 @@ public static class PUT
 
         return isSaved;
     }
+
+    public static bool Comment(Comment comment)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Comments.Add(comment);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
 }

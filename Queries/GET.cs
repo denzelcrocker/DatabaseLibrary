@@ -155,6 +155,20 @@ public static class GET
 
     public struct View
     {
+        public static List<Law>? Laws()
+        {
+            using ParsethingContext db = new();
+            List<Law> laws = null;
+            try
+            {
+                laws = db.Laws
+                    .ToList();
+            }
+            catch { }
+
+            return laws;
+        }
+
         public static List<Component>? Components()
         {
             using ParsethingContext db = new();
@@ -250,6 +264,23 @@ public static class GET
             catch { }
 
             return LegalEntitys;
+        }
+
+        public static List<History>? HistoriesBy(int procurementId)
+        {
+            using ParsethingContext db = new();
+            List<History>? histories = null;
+
+            try
+            { 
+                histories = db.Histories
+                    .Include(h => h.Employee)
+                    .Where(h => h.EntryId == procurementId && h.EntityType == "Procurement")
+                    .ToList(); 
+            }
+            catch { }
+
+            return histories;
         }
 
         public static List<Manufacturer>? Manufacturers()
@@ -475,6 +506,38 @@ public static class GET
             catch { }
 
             return procurements;
+        }
+
+        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber)
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            procurements = db.Procurements
+                .Include(p => p.ProcurementState)
+                .Include(p => p.Law)
+                .Include(p => p.Method)
+                .Include(p => p.Platform)
+                .Include(p => p.TimeZone)
+                .Include(p => p.Region)
+                .Include(p => p.ShipmentPlan)
+                .Include(p => p.Organization)
+                .Where(p => p.Id == searchId && searchId != 0)
+                .Where(p => p.Number == searchNumber && searchNumber != "")
+                .ToList();
+            return procurements;
+        }
+
+        public static List<Comment>? CommentsBy (int procurementId)
+        {
+            using ParsethingContext db = new();
+            var comments = db.Comments
+                .Include(c => c.Employee)
+                .Where(pe => pe.EntryId == procurementId)
+                .Where(c => c.EntityType == "Procurement")
+                .ToList();
+
+            return comments;
         }
 
         public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(int employeeId)
