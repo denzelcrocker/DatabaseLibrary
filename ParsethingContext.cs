@@ -230,7 +230,6 @@ public partial class ParsethingContext : DbContext
 
         _ = modelBuilder.Entity<ProcurementsDocument>(entity =>
         {
-            _ = entity.HasNoKey();
 
             _ = entity.HasOne(d => d.Document).WithMany()
                 .HasForeignKey(d => d.DocumentId)
@@ -245,7 +244,6 @@ public partial class ParsethingContext : DbContext
 
         _ = modelBuilder.Entity<ProcurementsEmployee>(entity =>
         {
-            _ = entity.HasNoKey();
 
             _ = entity.HasOne(d => d.Employee).WithMany()
                 .HasForeignKey(d => d.EmployeeId)

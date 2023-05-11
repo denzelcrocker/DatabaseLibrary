@@ -167,6 +167,25 @@ public static class DELETE
         return isSaved;
     }
 
+    public static bool ProcurementDocument(ProcurementsDocument procurementsDocument)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            var procurementToDelete = db.ProcurementsDocuments.FirstOrDefault(pp => pp.ProcurementId == procurementsDocument.ProcurementId && pp.DocumentId == procurementsDocument.DocumentId);
+            if (procurementsDocument != null)
+            {
+                _ = db.ProcurementsDocuments.Remove(procurementToDelete);
+                _ = db.SaveChanges();
+            }
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool ProcurementState(ProcurementState procurementState)
     {
         using ParsethingContext db = new();

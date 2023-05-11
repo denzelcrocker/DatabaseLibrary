@@ -224,6 +224,22 @@ public static class GET
 
             return employees;
         }
+        public static List<Employee>? EmployeesBy(string premierPosition, string secondPosition, string thirdPosition)
+        {
+            using ParsethingContext db = new();
+            List<Employee>? employees = null;
+
+            try
+            {
+                employees = db.Employees
+                    .Include(e => e.Position)
+                    .Where(e => e.Position.Kind == premierPosition || e.Position.Kind == secondPosition || e.Position.Kind == thirdPosition)
+                    .ToList();
+            }
+            catch { }
+
+            return employees;
+        }
 
         public static List<LegalEntity>? LegalEntities()
         {
@@ -290,7 +306,46 @@ public static class GET
 
             return representativeTypes;
         }
+        public static List<ShipmentPlan>? ShipmentPlans()
+        {
+            using ParsethingContext db = new();
+            List<ShipmentPlan>? shipmentPlans = null;
 
+            try { shipmentPlans = db.ShipmentPlans.ToList(); }
+            catch { }
+
+            return shipmentPlans;
+        }
+        public static List<ExecutionState>? ExecutionStates()
+        {
+            using ParsethingContext db = new();
+            List<ExecutionState>? executionStates = null;
+
+            try { executionStates = db.ExecutionStates.ToList(); }
+            catch { }
+
+            return executionStates;
+        }
+        public static List<WarrantyState>? WarrantyStates()
+        {
+            using ParsethingContext db = new();
+            List<WarrantyState>? warrantyStates = null;
+
+            try { warrantyStates = db.WarrantyStates.ToList(); }
+            catch { }
+
+            return warrantyStates;
+        }
+        public static List<SignedOriginal>? SignedOriginals()
+        {
+            using ParsethingContext db = new();
+            List<SignedOriginal>? signedOriginals = null;
+
+            try { signedOriginals = db.SignedOriginals.ToList(); }
+            catch { }
+
+            return signedOriginals;
+        }
         public static List<CommisioningWork>? CommissioningWorks()
         {
             using ParsethingContext db = new();
@@ -500,6 +555,23 @@ public static class GET
 
             return procurements;
         }
+        public static ProcurementsEmployee? ProcurementsEmployeesBy(Procurement procurement, string premierPosition, string secondPosition, string thirdPosition)
+        {
+            using ParsethingContext db = new();
+            ProcurementsEmployee? procurementsEmployee = null;
+
+            try
+            {
+                procurementsEmployee = db.ProcurementsEmployees
+                .Include(pe => pe.Employee)
+                .Include(pe => pe.Employee.Position)
+                .Where(pe => pe.ProcurementId == procurement.Id && (pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition))
+                .First();
+            }
+            catch { }
+
+            return procurementsEmployee;
+        }
         public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId)
         {
             using ParsethingContext db = new();
@@ -541,6 +613,24 @@ public static class GET
             catch { }
 
             return procurementsPreferences;
+        }
+
+        public static List<ProcurementsDocument>? ProcurementsDocumentsBy(int procurementId)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsDocument>? procurementsDocuments = null;
+
+            try
+            {
+                procurementsDocuments = db.ProcurementsDocuments
+                    .Include(pd => pd.Procurement)
+                    .Include(pd => pd.Document)
+                    .Where(pd => pd.ProcurementId == procurementId)
+                    .ToList();
+            }
+            catch { }
+
+            return procurementsDocuments;
         }
 
         public static List<ProcurementState>? DistributionOfProcurementStates(string employeePosition)

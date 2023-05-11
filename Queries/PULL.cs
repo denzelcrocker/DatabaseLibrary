@@ -296,6 +296,43 @@ public static class PULL
         return isSaved;
     }
 
+    public static bool ProcurementsEmployee(ProcurementsEmployee procurementsEmployee, string premierPosition, string secondPosition, string thirdPosition)
+    {
+        using ParsethingContext db = new();
+        ProcurementsEmployee? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            if (procurementsEmployee.Procurement != null && procurementsEmployee.Employee != null)
+            {
+                procurementsEmployee.ProcurementId = procurementsEmployee.Procurement.Id;
+                procurementsEmployee.EmployeeId = procurementsEmployee.Employee.Id;
+            }
+            else throw new Exception();
+            procurementsEmployee.Procurement = null;
+            procurementsEmployee.Employee = null;
+        }
+        catch { isSaved = false; }
+
+        try
+        {
+            def = db.ProcurementsEmployees
+                .Include(pe => pe.Employee)
+                .Include(pe => pe.Employee.Position)
+                .Where(pe => pe.ProcurementId == procurementsEmployee.ProcurementId && (pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition))
+                .First();
+
+            def.ProcurementId = procurementsEmployee.ProcurementId;
+            def.EmployeeId = procurementsEmployee.EmployeeId;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool Procurement_ProcurementState(Procurement procurement, int procurementStateId)
     {
         using ParsethingContext db = new();
