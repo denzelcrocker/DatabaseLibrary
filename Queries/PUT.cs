@@ -2,20 +2,6 @@
 
 public static class PUT
 {
-    public static bool Component(Component component)
-    {
-        using ParsethingContext db = new();
-        bool isSaved = true;
-
-        try
-        {
-            _ = db.Components.Add(component);
-            _ = db.SaveChanges();
-        }
-        catch { isSaved = false; }
-
-        return isSaved;
-    }
 
     public static bool ComponentState(ComponentState componentState)
     {
@@ -40,6 +26,20 @@ public static class PUT
         try
         {
             _ = db.ComponentTypes.Add(componentType);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+    public static bool ComponentCalculation(ComponentCalculation componentCalculation)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.ComponentCalculations.Add(componentCalculation);
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }

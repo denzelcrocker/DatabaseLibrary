@@ -6,7 +6,6 @@ public partial class ParsethingContext : DbContext
 
     public virtual DbSet<Comment> Comments { get; set; } = null!;
     public virtual DbSet<CommisioningWork> CommisioningWorks { get; set; } = null!;
-    public virtual DbSet<Component> Components { get; set; } = null!;
     public virtual DbSet<ComponentCalculation> ComponentCalculations { get; set; } = null!;
     public virtual DbSet<ComponentState> ComponentStates { get; set; } = null!;
     public virtual DbSet<ComponentType> ComponentTypes { get; set; } = null!;
@@ -59,44 +58,49 @@ public partial class ParsethingContext : DbContext
             _ = entity.HasKey(e => e.Id).HasName("PK_ConmmisioningWorks");
         });
 
-        _ = modelBuilder.Entity<Component>(entity =>
-        {
-            _ = entity.HasOne(d => d.ComponentType).WithMany(p => p.Components)
-                .HasForeignKey(d => d.ComponentTypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Components_ComponentTypes");
+        //_ = modelBuilder.Entity<Component>(entity =>
+        //{
+        //    _ = entity.HasOne(d => d.ComponentType).WithMany(p => p.Components)
+        //        .HasForeignKey(d => d.ComponentTypeId)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK_Components_ComponentTypes");
 
-            _ = entity.HasOne(d => d.Manufacturer).WithMany(p => p.Components)
-                .HasForeignKey(d => d.ManufacturerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Components_Manufacturers");
-        });
+        //    _ = entity.HasOne(d => d.Manufacturer).WithMany(p => p.Components)
+        //        .HasForeignKey(d => d.ManufacturerId)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK_Components_Manufacturers");
+        //});
 
         _ = modelBuilder.Entity<ComponentCalculation>(entity =>
         {
             _ = entity.HasKey(e => e.Id).HasName("PK_CalculationAndPurchasingList");
-
-            _ = entity.Property(e => e.Date).HasColumnType("datetime");
-            _ = entity.Property(e => e.Price).HasColumnType("decimal(19, 2)");
-
-            _ = entity.HasOne(d => d.Component).WithMany(p => p.ComponentCalculations)
-                .HasForeignKey(d => d.ComponentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ComponentCalculations_Components");
-
-            _ = entity.HasOne(d => d.ComponentState).WithMany(p => p.ComponentCalculations)
-                .HasForeignKey(d => d.ComponentStateId)
-                .HasConstraintName("FK_ComponentCalculations_ComponentStates");
 
             _ = entity.HasOne(d => d.Procurement).WithMany(p => p.ComponentCalculations)
                 .HasForeignKey(d => d.ProcurementId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ComponentCalculations_Procurements");
 
+            _ = entity.HasOne(d => d.Manufacturer).WithMany(p => p.ComponentCalculations)
+                .HasForeignKey(d => d.ManufacturerId)
+                .HasConstraintName("FK_ComponentCalculations_Manufacturers");
+
+            _ = entity.Property(e => e.Price).HasColumnType("decimal(19, 2)");
+            _ = entity.Property(e => e.PricePurchase).HasColumnType("decimal(19, 2)");
+
             _ = entity.HasOne(d => d.Seller).WithMany(p => p.ComponentCalculations)
                         .HasForeignKey(d => d.SellerId)
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_ComponentCalculations_Sellers");
+
+            _ = entity.HasOne(d => d.ComponentState).WithMany(p => p.ComponentCalculations)
+                .HasForeignKey(d => d.ComponentStateId)
+                .HasConstraintName("FK_ComponentCalculations_ComponentStates");
+
+            _ = entity.Property(e => e.Date).HasColumnType("datetime");
+
+            _ = entity.HasOne(d => d.ComponentType).WithMany(p => p.ComponentCalculations)
+                .HasForeignKey(d => d.ComponentTypeId)
+                .HasConstraintName("FK_ComponentCalculations_ComponentTypes");
         });
 
         _ = modelBuilder.Entity<ComponentState>(entity =>

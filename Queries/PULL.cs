@@ -4,28 +4,6 @@ namespace DatabaseLibrary.Queries;
 
 public static class PULL
 {
-    public static bool Component(Component component)
-    {
-        using ParsethingContext db = new();
-        Component? def = null;
-        bool isSaved = true;
-
-        try
-        {
-            def = db.Components
-                .Where(c => c.Id == component.Id)
-                .First();
-
-            def.Title = DbValueConverter.ToNullableString(component.Title);
-            def.ManufacturerId = component.ManufacturerId;
-            def.ComponentTypeId = component.ComponentTypeId;
-
-            _ = db.SaveChanges();
-        }
-        catch { isSaved = false; }
-
-        return isSaved;
-    }
 
     public static bool ComponentState(ComponentState componentState)
     {
@@ -108,6 +86,38 @@ public static class PULL
             def.Password = employee.Password;
             def.PositionId = employee.PositionId;
             def.Photo = employee.Photo;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool ComponentCalculation(ComponentCalculation componentCalculation)
+    {
+        using ParsethingContext db = new();
+        ComponentCalculation? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.ComponentCalculations
+                .Where(e => e.Id == componentCalculation.Id)
+                .First();
+
+            def.PartNumber = componentCalculation.PartNumber;
+            def.ComponentName = componentCalculation.ComponentName;
+            def.ManufacturerId = componentCalculation.ManufacturerId;
+            def.Price = componentCalculation.Price;
+            def.PricePurchase = componentCalculation.PricePurchase;
+            def.Count = componentCalculation.Count;
+            def.SellerId = componentCalculation.SellerId;
+            def.ComponentStateId = componentCalculation.ComponentStateId;
+            def.Date = componentCalculation.Date;
+            def.Reserve = componentCalculation.Reserve;
+            def.Note = componentCalculation.Note;
+            def.NotePurchase = componentCalculation.NotePurchase;
 
             _ = db.SaveChanges();
         }

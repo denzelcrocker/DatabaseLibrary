@@ -169,23 +169,6 @@ public static class GET
             return laws;
         }
 
-        public static List<Component>? Components()
-        {
-            using ParsethingContext db = new();
-            List<Component>? components = null;
-
-            try
-            {
-                components = db.Components
-                    .Include(c => c.Manufacturer)
-                    .Include(c => c.ComponentType)
-                    .ToList();
-            }
-            catch { }
-
-            return components;
-        }
-
         public static List<ComponentState>? ComponentStates()
         {
             using ParsethingContext db = new();
@@ -427,11 +410,38 @@ public static class GET
                     .Include(cc => cc.Procurement.Platform)
                     .Include(cc => cc.Procurement.TimeZone)
                     .Include(cc => cc.Procurement.Organization)
-                    .Include(cc => cc.Component)
-                    .Include(cc => cc.Component.Manufacturer)
-                    .Include(cc => cc.Component.ComponentType)
+                    .Include(cc => cc.Manufacturer)
+                    .Include(cc => cc.ComponentType)
                     .Include(cc => cc.Seller)
                     .Where(cc => cc.ComponentState.Kind == kind)
+                    .ToList();
+            }
+            catch { }
+
+            return componentCalculations;
+        }
+
+        public static List<ComponentCalculation>? ComponentCalculationsBy(int procurementId)
+        {
+            using ParsethingContext db = new();
+            List<ComponentCalculation> componentCalculations = null;
+
+            try
+            {
+                componentCalculations = db.ComponentCalculations
+                    .Include(cc => cc.ComponentState)
+                    .Include(cc => cc.Procurement)
+                    .Include(cc => cc.Procurement.Law)
+                    .Include(cc => cc.Procurement.ProcurementState)
+                    .Include(cc => cc.Procurement.Region)
+                    .Include(cc => cc.Procurement.Method)
+                    .Include(cc => cc.Procurement.Platform)
+                    .Include(cc => cc.Procurement.TimeZone)
+                    .Include(cc => cc.Procurement.Organization)
+                    .Include(cc => cc.Manufacturer)
+                    .Include(cc => cc.ComponentType)
+                    .Include(cc => cc.Seller)
+                    .Where(cc => cc.ProcurementId == procurementId)
                     .ToList();
             }
             catch { }

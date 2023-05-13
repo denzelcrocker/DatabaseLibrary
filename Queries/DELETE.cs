@@ -2,20 +2,6 @@
 
 public static class DELETE
 {
-    public static bool Component(Component component)
-    {
-        using ParsethingContext db = new();
-        bool isSaved = true;
-
-        try
-        {
-            _ = db.Components.Remove(component);
-            _ = db.SaveChanges();
-        }
-        catch { isSaved = false; }
-
-        return isSaved;
-    }
 
     public static bool ComponentState(ComponentState componentState)
     {
@@ -25,6 +11,20 @@ public static class DELETE
         try
         {
             _ = db.ComponentStates.Remove(componentState);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+    public static bool ComponentCalculation(ComponentCalculation componentCalculation)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.ComponentCalculations.Remove(componentCalculation);
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }
