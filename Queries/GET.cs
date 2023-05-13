@@ -155,21 +155,18 @@ public static class GET
 
     public struct View
     {
-        public static List<Component>? Components()
+        public static List<Law>? Laws()
         {
             using ParsethingContext db = new();
-            List<Component>? components = null;
-
+            List<Law> laws = null;
             try
             {
-                components = db.Components
-                    .Include(c => c.Manufacturer)
-                    .Include(c => c.ComponentType)
+                laws = db.Laws
                     .ToList();
             }
             catch { }
 
-            return components;
+            return laws;
         }
 
         public static List<ComponentState>? ComponentStates()
@@ -224,6 +221,22 @@ public static class GET
 
             return employees;
         }
+        public static List<Employee>? EmployeesBy(string premierPosition, string secondPosition, string thirdPosition)
+        {
+            using ParsethingContext db = new();
+            List<Employee>? employees = null;
+
+            try
+            {
+                employees = db.Employees
+                    .Include(e => e.Position)
+                    .Where(e => e.Position.Kind == premierPosition || e.Position.Kind == secondPosition || e.Position.Kind == thirdPosition)
+                    .ToList();
+            }
+            catch { }
+
+            return employees;
+        }
 
         public static List<LegalEntity>? LegalEntities()
         {
@@ -234,6 +247,23 @@ public static class GET
             catch { }
 
             return LegalEntitys;
+        }
+
+        public static List<History>? HistoriesBy(int procurementId)
+        {
+            using ParsethingContext db = new();
+            List<History>? histories = null;
+
+            try
+            { 
+                histories = db.Histories
+                    .Include(h => h.Employee)
+                    .Where(h => h.EntryId == procurementId && h.EntityType == "Procurement")
+                    .ToList(); 
+            }
+            catch { }
+
+            return histories;
         }
 
         public static List<Manufacturer>? Manufacturers()
@@ -290,7 +320,46 @@ public static class GET
 
             return representativeTypes;
         }
+        public static List<ShipmentPlan>? ShipmentPlans()
+        {
+            using ParsethingContext db = new();
+            List<ShipmentPlan>? shipmentPlans = null;
 
+            try { shipmentPlans = db.ShipmentPlans.ToList(); }
+            catch { }
+
+            return shipmentPlans;
+        }
+        public static List<ExecutionState>? ExecutionStates()
+        {
+            using ParsethingContext db = new();
+            List<ExecutionState>? executionStates = null;
+
+            try { executionStates = db.ExecutionStates.ToList(); }
+            catch { }
+
+            return executionStates;
+        }
+        public static List<WarrantyState>? WarrantyStates()
+        {
+            using ParsethingContext db = new();
+            List<WarrantyState>? warrantyStates = null;
+
+            try { warrantyStates = db.WarrantyStates.ToList(); }
+            catch { }
+
+            return warrantyStates;
+        }
+        public static List<SignedOriginal>? SignedOriginals()
+        {
+            using ParsethingContext db = new();
+            List<SignedOriginal>? signedOriginals = null;
+
+            try { signedOriginals = db.SignedOriginals.ToList(); }
+            catch { }
+
+            return signedOriginals;
+        }
         public static List<CommisioningWork>? CommissioningWorks()
         {
             using ParsethingContext db = new();
@@ -341,11 +410,38 @@ public static class GET
                     .Include(cc => cc.Procurement.Platform)
                     .Include(cc => cc.Procurement.TimeZone)
                     .Include(cc => cc.Procurement.Organization)
-                    .Include(cc => cc.Component)
-                    .Include(cc => cc.Component.Manufacturer)
-                    .Include(cc => cc.Component.ComponentType)
+                    .Include(cc => cc.Manufacturer)
+                    .Include(cc => cc.ComponentType)
                     .Include(cc => cc.Seller)
                     .Where(cc => cc.ComponentState.Kind == kind)
+                    .ToList();
+            }
+            catch { }
+
+            return componentCalculations;
+        }
+
+        public static List<ComponentCalculation>? ComponentCalculationsBy(int procurementId)
+        {
+            using ParsethingContext db = new();
+            List<ComponentCalculation> componentCalculations = null;
+
+            try
+            {
+                componentCalculations = db.ComponentCalculations
+                    .Include(cc => cc.ComponentState)
+                    .Include(cc => cc.Procurement)
+                    .Include(cc => cc.Procurement.Law)
+                    .Include(cc => cc.Procurement.ProcurementState)
+                    .Include(cc => cc.Procurement.Region)
+                    .Include(cc => cc.Procurement.Method)
+                    .Include(cc => cc.Procurement.Platform)
+                    .Include(cc => cc.Procurement.TimeZone)
+                    .Include(cc => cc.Procurement.Organization)
+                    .Include(cc => cc.Manufacturer)
+                    .Include(cc => cc.ComponentType)
+                    .Include(cc => cc.Seller)
+                    .Where(cc => cc.ProcurementId == procurementId)
                     .ToList();
             }
             catch { }
@@ -420,6 +516,38 @@ public static class GET
             catch { }
 
             return procurements;
+        }
+
+        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber)
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            procurements = db.Procurements
+                .Include(p => p.ProcurementState)
+                .Include(p => p.Law)
+                .Include(p => p.Method)
+                .Include(p => p.Platform)
+                .Include(p => p.TimeZone)
+                .Include(p => p.Region)
+                .Include(p => p.ShipmentPlan)
+                .Include(p => p.Organization)
+                .Where(p => p.Id == searchId && searchId != 0)
+                .Where(p => p.Number == searchNumber && searchNumber != "")
+                .ToList();
+            return procurements;
+        }
+
+        public static List<Comment>? CommentsBy (int procurementId)
+        {
+            using ParsethingContext db = new();
+            var comments = db.Comments
+                .Include(c => c.Employee)
+                .Where(pe => pe.EntryId == procurementId)
+                .Where(c => c.EntityType == "Procurement")
+                .ToList();
+
+            return comments;
         }
 
         public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(int employeeId)
@@ -500,6 +628,23 @@ public static class GET
 
             return procurements;
         }
+        public static ProcurementsEmployee? ProcurementsEmployeesBy(Procurement procurement, string premierPosition, string secondPosition, string thirdPosition)
+        {
+            using ParsethingContext db = new();
+            ProcurementsEmployee? procurementsEmployee = null;
+
+            try
+            {
+                procurementsEmployee = db.ProcurementsEmployees
+                .Include(pe => pe.Employee)
+                .Include(pe => pe.Employee.Position)
+                .Where(pe => pe.ProcurementId == procurement.Id && (pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition))
+                .First();
+            }
+            catch { }
+
+            return procurementsEmployee;
+        }
         public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId)
         {
             using ParsethingContext db = new();
@@ -541,6 +686,24 @@ public static class GET
             catch { }
 
             return procurementsPreferences;
+        }
+
+        public static List<ProcurementsDocument>? ProcurementsDocumentsBy(int procurementId)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsDocument>? procurementsDocuments = null;
+
+            try
+            {
+                procurementsDocuments = db.ProcurementsDocuments
+                    .Include(pd => pd.Procurement)
+                    .Include(pd => pd.Document)
+                    .Where(pd => pd.ProcurementId == procurementId)
+                    .ToList();
+            }
+            catch { }
+
+            return procurementsDocuments;
         }
 
         public static List<ProcurementState>? DistributionOfProcurementStates(string employeePosition)

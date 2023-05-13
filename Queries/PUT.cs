@@ -2,20 +2,6 @@
 
 public static class PUT
 {
-    public static bool Component(Component component)
-    {
-        using ParsethingContext db = new();
-        bool isSaved = true;
-
-        try
-        {
-            _ = db.Components.Add(component);
-            _ = db.SaveChanges();
-        }
-        catch { isSaved = false; }
-
-        return isSaved;
-    }
 
     public static bool ComponentState(ComponentState componentState)
     {
@@ -40,6 +26,20 @@ public static class PUT
         try
         {
             _ = db.ComponentTypes.Add(componentType);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+    public static bool ComponentCalculation(ComponentCalculation componentCalculation)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.ComponentCalculations.Add(componentCalculation);
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }
@@ -246,6 +246,30 @@ public static class PUT
         return isSaved;
     }
 
+    public static bool ProcurementsDocuments(ProcurementsDocument procurementsDocument)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            if (procurementsDocument.Procurement != null && procurementsDocument.Document != null)
+            {
+                procurementsDocument.ProcurementId = procurementsDocument.Procurement.Id;
+                procurementsDocument.DocumentId = procurementsDocument.Document.Id;
+            }
+            else throw new Exception();
+            procurementsDocument.Procurement = null;
+            procurementsDocument.Document = null;
+
+            _ = db.ProcurementsDocuments.Add(procurementsDocument);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool ProcurementState(ProcurementState procurementState)
     {
         using ParsethingContext db = new();
@@ -288,6 +312,50 @@ public static class PUT
                 throw new Exception();
         }
         catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    
+
+    public static bool ProcurementsEmployeesBy(ProcurementsEmployee procurementsEmployee, string premierPosition, string secondPosition, string thirdPosition)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+        ProcurementsEmployee? def = null;
+        try
+        {
+            if (procurementsEmployee.Procurement != null && procurementsEmployee.Employee != null)
+            {
+                procurementsEmployee.ProcurementId = procurementsEmployee.Procurement.Id;
+                procurementsEmployee.EmployeeId = procurementsEmployee.Employee.Id;
+            }
+            else throw new Exception();
+            procurementsEmployee.Procurement = null;
+            procurementsEmployee.Employee = null;
+        }
+        catch { isSaved = false; }
+        try 
+        {
+            def = db.ProcurementsEmployees
+                .Include(pe => pe.Employee)
+                .Include(pe => pe.Employee.Position)
+                .Where(pe => pe.ProcurementId == procurementsEmployee.ProcurementId &&( pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition))
+                .First();
+        }
+        catch { }
+        try
+        {
+            if (def == null)
+            {
+                _ = db.ProcurementsEmployees.Add(procurementsEmployee);
+                _ = db.SaveChanges();
+            }
+            else if (!PULL.ProcurementsEmployee(procurementsEmployee, premierPosition, secondPosition, thirdPosition))
+                throw new Exception();
+        }
+        catch { isSaved = false; }
+
 
         return isSaved;
     }
@@ -369,6 +437,21 @@ public static class PUT
         try
         {
             _ = db.TimeZones.Add(timeZone);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Comment(Comment comment)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.Comments.Add(comment);
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }

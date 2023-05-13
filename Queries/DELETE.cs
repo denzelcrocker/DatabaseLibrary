@@ -2,20 +2,6 @@
 
 public static class DELETE
 {
-    public static bool Component(Component component)
-    {
-        using ParsethingContext db = new();
-        bool isSaved = true;
-
-        try
-        {
-            _ = db.Components.Remove(component);
-            _ = db.SaveChanges();
-        }
-        catch { isSaved = false; }
-
-        return isSaved;
-    }
 
     public static bool ComponentState(ComponentState componentState)
     {
@@ -25,6 +11,20 @@ public static class DELETE
         try
         {
             _ = db.ComponentStates.Remove(componentState);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+    public static bool ComponentCalculation(ComponentCalculation componentCalculation)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.ComponentCalculations.Remove(componentCalculation);
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }
@@ -159,6 +159,25 @@ public static class DELETE
             if (procurementsPreference != null)
             {
                 _ = db.ProcurementsPreferences.Remove(procurementToDelete);
+                _ = db.SaveChanges();
+            }
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool ProcurementDocument(ProcurementsDocument procurementsDocument)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            var procurementToDelete = db.ProcurementsDocuments.FirstOrDefault(pp => pp.ProcurementId == procurementsDocument.ProcurementId && pp.DocumentId == procurementsDocument.DocumentId);
+            if (procurementsDocument != null)
+            {
+                _ = db.ProcurementsDocuments.Remove(procurementToDelete);
                 _ = db.SaveChanges();
             }
         }
