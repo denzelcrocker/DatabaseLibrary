@@ -421,6 +421,35 @@ public static class GET
             return componentCalculations;
         }
 
+        public static List<ComponentCalculation>? ComponentCalculationsBy(string kind, int employeeId)
+        {
+            using ParsethingContext db = new();
+            List<ComponentCalculation> componentCalculations = null;
+
+            try
+            {
+                componentCalculations = db.ComponentCalculations
+                    .Include(cc => cc.ComponentState)
+                    .Include(cc => cc.Procurement)
+                    .Include(cc => cc.Procurement.Law)
+                    .Include(cc => cc.Procurement.ProcurementState)
+                    .Include(cc => cc.Procurement.Region)
+                    .Include(cc => cc.Procurement.Method)
+                    .Include(cc => cc.Procurement.Platform)
+                    .Include(cc => cc.Procurement.TimeZone)
+                    .Include(cc => cc.Procurement.Organization)
+                    .Include(cc => cc.Manufacturer)
+                    .Include(cc => cc.ComponentType)
+                    .Include(cc => cc.Seller)
+                    .Where(cc => cc.Procurement.EmployeeId == employeeId)
+                    .Where(cc => cc.ComponentState.Kind == kind)
+                    .ToList();
+            }
+            catch { }
+
+            return componentCalculations;
+        }
+
         public static List<ComponentCalculation>? ComponentCalculationsBy(int procurementId)
         {
             using ParsethingContext db = new();
@@ -496,6 +525,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.ProcurementState)
                             .Where(p => p.ShipmentPlan != null && p.ShipmentPlan.Kind == kind)
+                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" || p.ProcurementState.Kind == "Приемка")
                             .ToList();
                         break;
                     case KindOf.Applications:
@@ -518,24 +548,276 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber)
+        public static List<Procurement>? ProcurementsBy(string procurementStateKind, bool isOverdue, KindOf kindOf)
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
 
-            procurements = db.Procurements
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Deadline:
+                        if (isOverdue)
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.Deadline < DateTime.Now)
+                            .ToList();
+                        }
+                        else
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.Deadline > DateTime.Now)
+                            .ToList();
+                        }
+                        break;
+                    case KindOf.StartDate:
+                        if (isOverdue)
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.StartDate < DateTime.Now)
+                            .ToList();
+                        }
+                        else
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.StartDate > DateTime.Now)
+                            .ToList();
+                        }
+                        break;
+                    case KindOf.ContractConclusion:
+                        if (isOverdue)
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
+                            .Where(p => p.ConclusionDate != null)
+                            .ToList();
+                        }
+                        else
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
+                            .Where(p => p.ConclusionDate == null)
+                            .ToList();
+                        }
+                        break;
+                }
+
+            }
+            catch { }
+
+            return procurements;
+        }
+
+        public static List<Procurement>? ProcurementsBy(bool isOverdue)
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            try
+            {
+                if (isOverdue)
+                {
+                    procurements = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include(p => p.Method)
+                    .Include(p => p.Platform)
+                    .Include(p => p.Organization)
+                    .Include(p => p.TimeZone)
+                    .Include(p => p.Region)
+                    .Include(p => p.ShipmentPlan)
+                    .Where(p => p.ProcurementState.Kind == "Принят")
+                    .Where(p => p.MaxDueDate < DateTime.Now)
+                    .Where(p => p.RealDueDate == null)
+                    .ToList();
+                }
+                else
+                {
+                    procurements = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include(p => p.Method)
+                    .Include(p => p.Platform)
+                    .Include(p => p.Organization)
+                    .Include(p => p.TimeZone)
+                    .Include(p => p.Region)
+                    .Include(p => p.ShipmentPlan)
+                    .Where(p => p.ProcurementState.Kind == "Принят")
+                    .Where(p => p.MaxDueDate > DateTime.Now)
+                    .Where(p => p.RealDueDate == null)
+                    .ToList();
+                }
+            }
+            catch { }
+
+            return procurements;
+        }
+        public static List<Procurement>? ProcurementsNotPaid()
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            try
+            {
+                procurements = db.Procurements
                 .Include(p => p.ProcurementState)
                 .Include(p => p.Law)
                 .Include(p => p.Method)
                 .Include(p => p.Platform)
+                .Include(p => p.Organization)
                 .Include(p => p.TimeZone)
                 .Include(p => p.Region)
                 .Include(p => p.ShipmentPlan)
-                .Include(p => p.Organization)
-                .Where(p => p.Id == searchId && searchId != 0)
-                .Where(p => p.Number == searchNumber && searchNumber != "")
+                .Where(p => p.ProcurementState.Kind == "Принят")
+                .Where(p => p.RealDueDate == null)
+                .Where(p => p.MaxDueDate != null)
                 .ToList();
+            }
+            catch { }
+
             return procurements;
+        }
+
+        public static List<Procurement>? ProcurementsBy(KindOf kindOf)
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Judgement:
+                        procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.Judgment == true)
+                            .ToList();
+                        break;
+                    case KindOf.FAS:
+                        procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.Fas == true)
+                            .ToList();
+                        break;
+                }
+            }
+            catch { }
+
+            return procurements;
+        }
+
+        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber, string searchLaw, string searchProcurementState, string searchInn)
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            var query = db.Procurements.AsQueryable();
+
+            if (searchId != 0)
+                query = query.Where(p => p.Id == searchId);
+            if (!string.IsNullOrEmpty(searchNumber))
+                query = query.Where(p => p.Number == searchNumber);
+            if (!string.IsNullOrEmpty(searchLaw))
+                query = query.Where(p => p.Law.Number == searchLaw);
+            if (!string.IsNullOrEmpty(searchProcurementState))
+                query = query.Where(p => p.ProcurementState.Kind == searchProcurementState);
+            if (!string.IsNullOrEmpty(searchInn))
+                query = query.Where(p => p.Inn == searchInn);
+
+            query = query.Include(p => p.ProcurementState);
+            query = query.Include(p => p.Law);
+            query = query.Include(p => p.Method);
+            query = query.Include(p => p.Platform);
+            query = query.Include(p => p.TimeZone);
+            query = query.Include(p => p.Region);
+            query = query.Include(p => p.ShipmentPlan);
+            query = query.Include(p => p.Organization);
+
+            procurements = query.ToList();
+
+            return procurements;
+        }
+
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsGroupByMethod()
+        {
+            using ParsethingContext db = new();
+            var procurementsEmployees = db.Procurements
+                .Include(p => p.Method)
+                .Include(p => p.ProcurementState)
+                .Where(p => p.Method != null)
+                .Where(p => p.ProcurementState.Kind == "Отправлен")
+                .GroupBy(p => p.Method.Text)
+                .Select(g => new ProcurementsEmployeesGrouping { Id = g.Key, CountOfProcurements = g.Count() })
+                .ToList();
+
+            return procurementsEmployees;
         }
 
         public static List<Comment>? CommentsBy (int procurementId)
@@ -565,17 +847,36 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string position)
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition, string premierProcurementState, string secondProcurementState, string thirdProcurementState)
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
                 .Include(pe => pe.Employee)
+                .Include(pe => pe.Procurement.ProcurementState)
                 .Include(pe => pe.Employee.Position)
                 .Include(pe => pe.Procurement.Method)
                 .Include(pe => pe.Procurement)
-                .Where(pe => pe.Employee.Position.Kind == position)
+                .Where(pe => pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition)
+                .Where(pe => pe.Procurement.ProcurementState.Kind == premierProcurementState || pe.Procurement.ProcurementState.Kind == secondProcurementState || pe.Procurement.ProcurementState.Kind == thirdProcurementState)
                 .GroupBy(pe => pe.Employee.FullName)
                 .Select(g => new ProcurementsEmployeesGrouping { Id = g.Key , CountOfProcurements = g.Count() })
+                .ToList();
+
+            return procurementsEmployees;
+        }
+
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition)
+        {
+            using ParsethingContext db = new();
+            var procurementsEmployees = db.ProcurementsEmployees
+                .Include(pe => pe.Employee)
+                .Include(pe => pe.Procurement.ProcurementState)
+                .Include(pe => pe.Employee.Position)
+                .Include(pe => pe.Procurement.Method)
+                .Include(pe => pe.Procurement)
+                .Where(pe => pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition)
+                .GroupBy(pe => pe.Employee.FullName)
+                .Select(g => new ProcurementsEmployeesGrouping { Id = g.Key, CountOfProcurements = g.Count() })
                 .ToList();
 
             return procurementsEmployees;
@@ -594,7 +895,7 @@ public static class GET
         //            .Include(pe => pe.Employee)
         //            .Include(pe => pe.Employee.Position)
         //            .Include(pe => pe.Procurement.Law)
-        //            .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == "Новый")
+        //            .Where(pe => pe.Procurement.ProcurementState.Kind == "Новый")
         //            .Where(pe => pe.Employee.Position.Kind != "Специалист отдела расчетов")
         //            .ToList();
         //    }
@@ -670,6 +971,365 @@ public static class GET
 
             return procurements;
         }
+        //
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string kind, KindOf kindOf, int employeeId)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurementsEmployees = null;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.ProcurementState:
+                        procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == kind)
+                            .ToList();
+                        break;
+                    case KindOf.ShipmentPlane:
+                        procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.ShipmentPlan != null && pe.Procurement.ShipmentPlan.Kind == kind)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
+                            .ToList();
+                        break;
+                    case KindOf.Applications:
+                        procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Applications == true)
+                            .ToList();
+                        break;
+                    case KindOf.ExecutionState:
+                        procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Include(pe => pe.Procurement.ExecutionState)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
+                            .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Оформлена БГ" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)" || pe.Procurement.ExecutionState.Kind == "Добросовестность")
+                            .ToList();
+                        break;
+                    case KindOf.WarrantyState:
+                        procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Include(pe => pe.Procurement.WarrantyState)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
+                            .Where(pe => pe.Procurement.WarrantyState.Kind == "Запрошена БГ" || pe.Procurement.WarrantyState.Kind == "Согласована БГ" || pe.Procurement.WarrantyState.Kind == "Оформлена БГ" || pe.Procurement.WarrantyState.Kind == "Деньги(Возвратные)" || pe.Procurement.WarrantyState.Kind == "Добросовестность")
+                            .ToList();
+                        break;
+                }
+            }
+            catch { }
+
+            return procurementsEmployees;
+        }
+
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string procurementStateKind, bool isOverdue, KindOf kindOf, int employeeId)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurementsEmployees = null;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Deadline:
+                        if (isOverdue)
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Include(pe => pe.Procurement.Law)
+                                .Include(pe => pe.Procurement.Method)
+                                .Include(pe => pe.Procurement.Platform)
+                                .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.TimeZone)
+                                .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.ShipmentPlan)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.Deadline < DateTime.Now)
+                                .ToList();
+                        }
+                        else
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Include(pe => pe.Procurement.Law)
+                                .Include(pe => pe.Procurement.Method)
+                                .Include(pe => pe.Procurement.Platform)
+                                .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.TimeZone)
+                                .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.ShipmentPlan)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.Deadline > DateTime.Now)
+                                .ToList();
+                        }
+                        break;
+                    case KindOf.StartDate:
+                        if (isOverdue)
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Include(pe => pe.Procurement.Law)
+                                .Include(pe => pe.Procurement.Method)
+                                .Include(pe => pe.Procurement.Platform)
+                                .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.TimeZone)
+                                .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.ShipmentPlan)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.StartDate < DateTime.Now)
+                                .ToList();
+                        }
+                        else
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Include(pe => pe.Procurement.Law)
+                                .Include(pe => pe.Procurement.Method)
+                                .Include(pe => pe.Procurement.Platform)
+                                .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.TimeZone)
+                                .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.ShipmentPlan)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.StartDate > DateTime.Now)
+                                .ToList();
+                        }
+                        break;
+                    case KindOf.ContractConclusion:
+                        if (isOverdue)
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Include(pe => pe.Procurement.Law)
+                                .Include(pe => pe.Procurement.Method)
+                                .Include(pe => pe.Procurement.Platform)
+                                .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.TimeZone)
+                                .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.ShipmentPlan)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
+                                .Where(pe => pe.Procurement.ConclusionDate != null)
+                                .ToList();
+                        }
+                        else
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Include(pe => pe.Procurement.Law)
+                                .Include(pe => pe.Procurement.Method)
+                                .Include(pe => pe.Procurement.Platform)
+                                .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.TimeZone)
+                                .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.ShipmentPlan)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
+                                .Where(pe => pe.Procurement.ConclusionDate == null)
+                                .ToList();
+                        }
+                        break;
+                }
+            }
+            catch { }
+
+            return procurementsEmployees;
+        }
+
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(bool isOverdue, int employeeId)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurementsEmployees = null;
+
+            try
+            {
+                if (isOverdue)
+                {
+                    procurementsEmployees = db.ProcurementsEmployees
+                        .Include(pe => pe.Employee)
+                        .Include(pe => pe.Procurement)
+                        .Include(pe => pe.Procurement.ProcurementState)
+                        .Include(pe => pe.Procurement.Law)
+                        .Include(pe => pe.Procurement.Method)
+                        .Include(pe => pe.Procurement.Platform)
+                        .Include(pe => pe.Procurement.Organization)
+                        .Include(pe => pe.Procurement.TimeZone)
+                        .Include(pe => pe.Procurement.Region)
+                        .Include(pe => pe.Procurement.ShipmentPlan)
+                        .Where(pe => pe.Employee.Id == employeeId)
+                        .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
+                        .Where(pe => pe.Procurement.MaxDueDate < DateTime.Now)
+                        .Where(pe => pe.Procurement.RealDueDate == null)
+                        .ToList();
+                }
+                else
+                {
+                    procurementsEmployees = db.ProcurementsEmployees
+                        .Include(pe => pe.Employee)
+                        .Include(pe => pe.Procurement)
+                        .Include(pe => pe.Procurement.ProcurementState)
+                        .Include(pe => pe.Procurement.Law)
+                        .Include(pe => pe.Procurement.Method)
+                        .Include(pe => pe.Procurement.Platform)
+                        .Include(pe => pe.Procurement.Organization)
+                        .Include(pe => pe.Procurement.TimeZone)
+                        .Include(pe => pe.Procurement.Region)
+                        .Include(pe => pe.Procurement.ShipmentPlan)
+                        .Where(pe => pe.Employee.Id == employeeId)
+                        .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
+                        .Where(pe => pe.Procurement.MaxDueDate > DateTime.Now)
+                        .Where(pe => pe.Procurement.RealDueDate == null)
+                        .ToList();
+                }
+            }
+            catch { }
+
+            return procurementsEmployees;
+        }
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesNotPaid(int employeeId)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurementsEmployees = null;
+
+            try
+            {
+                procurementsEmployees = db.ProcurementsEmployees
+                    .Include(pe => pe.Employee)
+                    .Include(pe => pe.Procurement)
+                    .Include(pe => pe.Procurement.ProcurementState)
+                    .Include(pe => pe.Procurement.Law)
+                    .Include(pe => pe.Procurement.Method)
+                    .Include(pe => pe.Procurement.Platform)
+                    .Include(pe => pe.Procurement.Organization)
+                    .Include(pe => pe.Procurement.TimeZone)
+                    .Include(pe => pe.Procurement.Region)
+                    .Include(pe => pe.Procurement.ShipmentPlan)
+                    .Where(pe => pe.Employee.Id == employeeId)
+                    .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
+                    .Where(pe => pe.Procurement.RealDueDate == null)
+                    .Where(pe => pe.Procurement.MaxDueDate != null)
+                    .ToList();
+            }
+            catch { }
+
+            return procurementsEmployees;
+        }
+
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(KindOf kindOf, int employeeId)
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurementsEmployees = null;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Judgement:
+                        procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Judgment == true)
+                            .ToList();
+                        break;
+                    case KindOf.FAS:
+                        procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Fas == true)
+                            .ToList();
+                        break;
+                }
+            }
+            catch { }
+
+            return procurementsEmployees;
+        }
+        //
         public static List<ProcurementsPreference>? ProcurementsPreferencesBy(int procurementId)
         {
             using ParsethingContext db = new();
@@ -720,12 +1380,12 @@ public static class GET
                         break;
                     case "Руководитель отдела расчетов":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой")
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой" || ps.Kind == "Неразобранный")
                             .ToList();
                         break;
                     case "Заместитель руководителя отдела расчетов":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой")
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой" || ps.Kind == "Неразобранный")
                             .ToList();
                         break;
                     case "Специалист отдела расчетов":
@@ -861,6 +1521,7 @@ public static class GET
                         count = db.Procurements
                             .Include(e => e.ShipmentPlan)
                             .Where(p => p.ShipmentPlan != null && p.ShipmentPlan.Kind == kind)
+                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" || p.ProcurementState.Kind == "Приемка")
                             .Count();
                         break;
                     case KindOf.Applications:
@@ -975,6 +1636,24 @@ public static class GET
                             .Count();
                         }
                         break;
+                    case KindOf.ContractConclusion:
+                        if (isOverdue)
+                        {
+                            count = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
+                            .Where(p => p.ConclusionDate != null)
+                            .Count();
+                        }
+                        else
+                        {
+                            count = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
+                            .Where(p => p.ConclusionDate == null)
+                            .Count();
+                        }
+                        break;
                 }
                 
             }
@@ -983,6 +1662,250 @@ public static class GET
             return count;
         }
 
+        public static int ProcurementsEmployeesCountBy(string kind, KindOf kindOf, int employeeId)
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.ProcurementState:
+                        count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == kind)
+                            .Count();
+                        break;
+                    case KindOf.ShipmentPlane:
+                        count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.ShipmentPlan != null && pe.Procurement.ShipmentPlan.Kind == kind)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
+                            .Count();
+                        break;
+                    case KindOf.Applications:
+                        count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Applications == true)
+                            .Count();
+                        break;
+                    case KindOf.ExecutionState:
+                        count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ExecutionState)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
+                            .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Оформлена БГ" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)" || pe.Procurement.ExecutionState.Kind == "Добросовестность")
+                            .Count();
+                        break;
+                    case KindOf.WarrantyState:
+                        count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.WarrantyState)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
+                            .Where(pe => pe.Procurement.WarrantyState.Kind == "Запрошена БГ" || pe.Procurement.WarrantyState.Kind == "Согласована БГ" || pe.Procurement.WarrantyState.Kind == "Оформлена БГ" || pe.Procurement.WarrantyState.Kind == "Деньги(Возвратные)" || pe.Procurement.WarrantyState.Kind == "Добросовестность")
+                            .Count();
+                        break;
+                }
+            }
+            catch { }
+
+            return count;
+        }
+
+        public static int ProcurementsEmployeesCountBy(string procurementStateKind, bool isOverdue, KindOf kindOf, int employeeId)
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Deadline:
+                        if (isOverdue)
+                        {
+                            count = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.Deadline < DateTime.Now)
+                                .Count();
+                        }
+                        else
+                        {
+                            count = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.Deadline > DateTime.Now)
+                                .Count();
+                        }
+                        break;
+                    case KindOf.StartDate:
+                        if (isOverdue)
+                        {
+                            count = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.StartDate < DateTime.Now)
+                                .Count();
+                        }
+                        else
+                        {
+                            count = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.StartDate > DateTime.Now)
+                                .Count();
+                        }
+                        break;
+                    case KindOf.ContractConclusion:
+                        if (isOverdue)
+                        {
+                            count = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
+                                .Where(pe => pe.Procurement.ConclusionDate != null)
+                                .Count();
+                        }
+                        else
+                        {
+                            count = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
+                                .Where(pe => pe.Procurement.ConclusionDate == null)
+                                .Count();
+                        }
+                        break;
+                }
+            }
+            catch { }
+
+            return count;
+        }
+
+        public static int ProcurementsEmployeesCountBy(bool isOverdue, int employeeId)
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                if (isOverdue)
+                {
+                    count = db.ProcurementsEmployees
+                        .Include(pe => pe.Employee)
+                        .Include(pe => pe.Procurement)
+                        .Include(pe => pe.Procurement.ProcurementState)
+                        .Where(pe => pe.Employee.Id == employeeId)
+                        .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
+                        .Where(pe => pe.Procurement.MaxDueDate < DateTime.Now)
+                        .Where(pe => pe.Procurement.RealDueDate == null)
+                        .Count();
+                }
+                else
+                {
+                    count = db.ProcurementsEmployees
+                        .Include(pe => pe.Employee)
+                        .Include(pe => pe.Procurement)
+                        .Include(pe => pe.Procurement.ProcurementState)
+                        .Where(pe => pe.Employee.Id == employeeId)
+                        .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
+                        .Where(pe => pe.Procurement.MaxDueDate > DateTime.Now)
+                        .Where(pe => pe.Procurement.RealDueDate == null)
+                        .Count();
+                }
+            }
+            catch { }
+
+            return count;
+        }
+        public static int ProcurementsEmployeesCountNotPaid(int employeeId)
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                count = db.ProcurementsEmployees
+                    .Include(pe => pe.Employee)
+                    .Include(pe => pe.Procurement)
+                    .Include(pe => pe.Procurement.ProcurementState)
+                    .Where(pe => pe.Employee.Id == employeeId)
+                    .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
+                    .Where(pe => pe.Procurement.RealDueDate == null)
+                    .Where(pe => pe.Procurement.MaxDueDate != null)
+                    .Count();
+            }
+            catch { }
+
+            return count;
+        }
+
+        public static int ProcurementsEmployeesCountBy(KindOf kindOf, int employeeId)
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Judgement:
+                        count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Judgment == true)
+                            .Count();
+                        break;
+                    case KindOf.FAS:
+                        count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Fas == true)
+                            .Count();
+                        break;
+                }
+            }
+            catch { }
+
+            return count;
+
+        }
 
     }
     public class ProcurementsEmployeesGrouping
@@ -998,7 +1921,10 @@ public static class GET
         StartDate,
         Deadline,
         Judgement,
-        FAS
+        FAS,
+        ContractConclusion,
+        ExecutionState,
+        WarrantyState
     }
     
 }
