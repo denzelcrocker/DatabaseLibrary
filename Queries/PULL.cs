@@ -429,6 +429,7 @@ public static class PULL
 
             def.Title = region.Title;
             def.Distance = region.Distance;
+            def.RegionCode = region.RegionCode;
 
             _ = db.SaveChanges();
         }
