@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\micha\\source\\repos\\DatabaseLibrary\\DatabaseLibrary.csproj": {}
+    "C:\\Users\\poink\\Source\\Repos\\DatabaseLibraryy\\DatabaseLibrary.csproj": {}
   },
   "projects": {
-    "C:\\Users\\micha\\source\\repos\\DatabaseLibrary\\DatabaseLibrary.csproj": {
+    "C:\\Users\\poink\\Source\\Repos\\DatabaseLibraryy\\DatabaseLibrary.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\micha\\source\\repos\\DatabaseLibrary\\DatabaseLibrary.csproj",
+        "projectUniqueName": "C:\\Users\\poink\\Source\\Repos\\DatabaseLibraryy\\DatabaseLibrary.csproj",
         "projectName": "DatabaseLibrary",
-        "projectPath": "C:\\Users\\micha\\source\\repos\\DatabaseLibrary\\DatabaseLibrary.csproj",
-        "packagesPath": "C:\\Users\\micha\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\micha\\source\\repos\\DatabaseLibrary\\obj\\",
+        "projectPath": "C:\\Users\\poink\\Source\\Repos\\DatabaseLibraryy\\DatabaseLibrary.csproj",
+        "packagesPath": "C:\\Users\\poink\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\poink\\Source\\Repos\\DatabaseLibraryy\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\micha\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\poink\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -74,26 +75,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[6.0.14, 6.0.14]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[6.0.14, 6.0.14]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[6.0.14, 6.0.14]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-preview.2.23157.25\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.203\\RuntimeIdentifierGraph.json"
         }
       }
     }
