@@ -298,6 +298,7 @@ public static class PULL
             def.Judgment = procurement.Judgment;
             def.Fas = procurement.Fas;
             def.ProcurementStateId = procurement.ProcurementStateId;
+            def.PostingDate = procurement.PostingDate;
 
             _ = db.SaveChanges();
         }
