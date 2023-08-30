@@ -12,3 +12,17 @@
 /obj/DatabaseLibrary.csproj.nuget.g.props
 /obj/Release/net6.0/DatabaseLibrary.GeneratedMSBuildEditorConfig.editorconfig
 /obj/Release/net6.0/DatabaseLibrary.csproj.AssemblyReference.cache
+/.vs/DatabaseLibrary/v17/.suo
+/bin/Release/net6.0/DatabaseLibrary.dll
+/bin/Release/net6.0/DatabaseLibrary.pdb
+/obj/Release/net6.0/ref/DatabaseLibrary.dll
+/obj/Release/net6.0/refint/DatabaseLibrary.dll
+/obj/Release/net6.0/DatabaseLibrary.csproj.CoreCompileInputs.cache
+/obj/project.assets.json
+/obj/project.nuget.cache
+/obj/DatabaseLibrary.csproj.nuget.dgspec.json
+/obj/DatabaseLibrary.csproj.nuget.g.props
+/obj/Release/net6.0/DatabaseLibrary.pdb
+/obj/Release/net6.0/DatabaseLibrary.genruntimeconfig.cache
+/obj/Release/net6.0/DatabaseLibrary.csproj.FileListAbsolute.txt
+/obj/Release/net6.0/DatabaseLibrary.dll
