@@ -14,6 +14,7 @@ public partial class Procurement
     public int? MethodId { get; set; }
     public int? PlatformId { get; set; }
     public string? Location { get; set; }
+    public DateTime? PostingDate { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? Deadline { get; set; }
     public int? TimeZoneId { get; set; }

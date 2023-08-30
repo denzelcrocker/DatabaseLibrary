@@ -158,6 +158,7 @@ public partial class ParsethingContext : DbContext
             _ = entity.Property(e => e.MaxDueDate).HasColumnType("datetime");
             _ = entity.Property(e => e.MinimalPrice).HasColumnType("decimal(19, 2)");
             _ = entity.Property(e => e.ProtocolDate).HasColumnType("datetime");
+            _ = entity.Property(e => e.PostingDate).HasColumnType("datetime");
             _ = entity.Property(e => e.RealDueDate).HasColumnType("datetime");
             _ = entity.Property(e => e.ReserveContractAmount).HasColumnType("decimal(19, 2)");
             _ = entity.Property(e => e.SigningDate).HasColumnType("datetime");
