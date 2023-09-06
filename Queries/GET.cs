@@ -1498,6 +1498,25 @@ public static class GET
             return tags;
         }
 
+        public static List<Tuple<int,int,int>>? HistoryGroupBy()
+        {
+            using ParsethingContext db = new();
+            List<History>? histories = null;
+
+            try { histories = db.Histories.ToList(); }
+            catch { }
+
+            var winningTendersByMonth = histories
+                .Where(h => h.Text == "Выигран 1ч" || h.Text == "Выигран 2ч")
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
+                .Select(group => Tuple.Create(group.Key.Year, group.Key.Month, group.Count()))
+                .OrderBy(entry => entry.Item1)
+                .ThenBy(entry => entry.Item2)
+                .ToList();
+
+            return winningTendersByMonth;
+        }
+
     }
 
     public struct Aggregate
@@ -1908,11 +1927,14 @@ public static class GET
         }
 
     }
+
+
     public class ProcurementsEmployeesGrouping
     {
         public string Id { get; set; }
         public int CountOfProcurements { get; set; }
     }
+
     public enum KindOf
     {
         ProcurementState,
