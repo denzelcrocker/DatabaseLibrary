@@ -1498,7 +1498,7 @@ public static class GET
             return tags;
         }
 
-        public static List<Tuple<int,int,int>>? HistoryGroupBy()
+        public static List<Tuple<int,int,int>>? HistoryGroupByWins()
         {
             using ParsethingContext db = new();
             List<History>? histories = null;
@@ -1506,8 +1506,62 @@ public static class GET
             try { histories = db.Histories.ToList(); }
             catch { }
 
-            var winningTendersByMonth = histories
-                .Where(h => h.Text == "Выигран 1ч" || h.Text == "Выигран 2ч")
+            var uniqueWiningTenders = histories
+                .Where(h => h.Text == "Выигран 1ч")
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month, tender.Id })
+                .Select(group => group.First())
+                .DistinctBy(h => h.EntryId)
+                .ToList();
+
+            var winningTendersByMonth = uniqueWiningTenders
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
+                .Select(group => Tuple.Create(group.Key.Year, group.Key.Month, group.Count()))
+                .OrderBy(entry => entry.Item1)
+                .ThenBy(entry => entry.Item2)
+                .ToList();
+
+            return winningTendersByMonth;
+        }
+        public static List<Tuple<int, int, int>>? HistoryGroupBySended()
+        {
+            using ParsethingContext db = new();
+            List<History>? histories = null;
+
+            try { histories = db.Histories.ToList(); }
+            catch { }
+
+            var uniqueWiningTenders = histories
+                .Where(h => h.Text == "Отправлен")
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month, tender.Id })
+                .Select(group => group.First())
+                .DistinctBy(h => h.EntryId)
+                .ToList();
+
+            var winningTendersByMonth = uniqueWiningTenders
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
+                .Select(group => Tuple.Create(group.Key.Year, group.Key.Month, group.Count()))
+                .OrderBy(entry => entry.Item1)
+                .ThenBy(entry => entry.Item2)
+                .ToList();
+
+            return winningTendersByMonth;
+        }
+        public static List<Tuple<int, int, int>>? HistoryGroupByCalculations()
+        {
+            using ParsethingContext db = new();
+            List<History>? histories = null;
+
+            try { histories = db.Histories.ToList(); }
+            catch { }
+
+            var uniqueWiningTenders = histories
+                .Where(h => h.Text == "Посчитан")
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month, tender.Id })
+                .Select(group => group.First())
+                .DistinctBy(h => h.EntryId)
+                .ToList();
+
+            var winningTendersByMonth = uniqueWiningTenders
                 .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
                 .Select(group => Tuple.Create(group.Key.Year, group.Key.Month, group.Count()))
                 .OrderBy(entry => entry.Item1)
