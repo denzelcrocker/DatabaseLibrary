@@ -832,6 +832,19 @@ public static class GET
             return comments;
         }
 
+        public static List<Comment>? CommentsBy(int procurementId, bool isTechical) // Получить технические комментарии по id тендера
+        {
+            using ParsethingContext db = new();
+            var comments = db.Comments
+                .Include(c => c.Employee)
+                .Where(pe => pe.EntryId == procurementId)
+                .Where(pe => pe.IsTechnical == true)
+                .Where(c => c.EntityType == "Procurement")
+                .ToList();
+
+            return comments;
+        }
+
         public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(int employeeId) // Получить информацию по тому, сколько тендеров назначено на конкретного сотрудника
         {
             using ParsethingContext db = new();
