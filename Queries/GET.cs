@@ -120,6 +120,24 @@ public static class GET
 
             return procurement;
         }
+        public static Procurement? ProcurementBy(int id) // Получить тендер
+        {
+            using ParsethingContext db = new();
+            Procurement? procurement = null;
+
+            try
+            {
+                procurement = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include (p => p.ShipmentPlan)
+                    .Where(p => p.Id == id)
+                    .First();
+            }
+            catch { }
+
+            return procurement;
+        }
 
         public static TimeZone? TimeZone(string offset) // Получить часовой пояс
         {
@@ -410,6 +428,7 @@ public static class GET
                     .Include(cc => cc.Procurement.Platform)
                     .Include(cc => cc.Procurement.TimeZone)
                     .Include(cc => cc.Procurement.Organization)
+                    .Include(cc => cc.Procurement.ShipmentPlan)
                     .Include(cc => cc.Manufacturer)
                     .Include(cc => cc.ComponentType)
                     .Include(cc => cc.Seller)
@@ -449,6 +468,8 @@ public static class GET
 
             return componentCalculations;
         }
+
+
 
         public static List<ComponentCalculation>? ComponentCalculationsBy(int procurementId) // Получить список комплектующих по конкретному тендеру
         {
@@ -1995,6 +2016,18 @@ public static class GET
 
     }
 
+    public class SellerSummary
+    {
+        public string SupplierName { get; set; }
+        public string ManufacturerName { get; set; }
+        public string ComponentName { get; set; }
+        public string ComponentStatus { get; set; }
+        public decimal AveragePrice { get; set; }
+        public int TotalCount { get; set; }
+        public string SellerName { get; set; }
+        public int TenderNumber { get; set; }
+        public decimal TotalAmount { get; set; }
+    }
 
     public class ProcurementsEmployeesGrouping // Класс для формирования результатов запросов на группировку
     {
