@@ -299,6 +299,8 @@ public static class PULL
             def.Fas = procurement.Fas;
             def.ProcurementStateId = procurement.ProcurementStateId;
             def.PostingDate = procurement.PostingDate;
+            def.CalculatingAmount = procurement.CalculatingAmount;
+            def.PurchaseAmount = procurement.PurchaseAmount;
 
             _ = db.SaveChanges();
         }

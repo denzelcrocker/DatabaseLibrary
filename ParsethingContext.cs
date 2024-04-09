@@ -164,6 +164,9 @@ public partial class ParsethingContext : DbContext
             _ = entity.Property(e => e.SigningDate).HasColumnType("datetime");
             _ = entity.Property(e => e.SigningDeadline).HasColumnType("datetime");
             _ = entity.Property(e => e.StartDate).HasColumnType("datetime");
+            _ = entity.Property(e => e.CalculatingAmount).HasColumnType("decimal(19, 2)");
+            _ = entity.Property(e => e.PurchaseAmount).HasColumnType("decimal(19, 2)");
+
 
             _ = entity.HasOne(d => d.CommissioningWorks).WithMany(p => p.Procurements)
                 .HasForeignKey(d => d.CommissioningWorksId)
