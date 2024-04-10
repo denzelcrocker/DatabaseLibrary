@@ -159,7 +159,7 @@ public static class PULL
                 .Where(m => m.Id == manufacturer.Id)
                 .First();
 
-            def.Name = manufacturer.Name;
+            def.ManufacturerName = manufacturer.ManufacturerName;
 
             _ = db.SaveChanges();
         }

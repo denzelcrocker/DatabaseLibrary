@@ -499,6 +499,40 @@ public static class GET
             return componentCalculations;
         }
 
+        public static List<SupplyMonitoringList> GetSupplyMonitoringLists(List<Procurement> procurements, List<string> componentStatuses) // Получить комплектующие по статусам и тендерам
+        {
+            using (var dbContext = new ParsethingContext())
+            {
+                var tenderIds = procurements.Select(p => p.Id).ToList();
+
+                var query = from cc in dbContext.ComponentCalculations
+                            join s in dbContext.Sellers on cc.SellerId equals s.Id
+                            join m in dbContext.Manufacturers on cc.ManufacturerId equals m.Id
+                            join cs in dbContext.ComponentStates on cc.ComponentStateId equals cs.Id
+                            where tenderIds.Contains(cc.ProcurementId)
+                            group new { cc, s, m, cs } by new { s.Name, m.ManufacturerName, cc.ComponentName, cs.Kind, cc.ProcurementId } into g
+                            select new SupplyMonitoringList
+                            {
+                                SupplierName = g.Key.Name,
+                                ManufacturerName = g.Key.ManufacturerName,
+                                ComponentName = g.Key.ComponentName,
+                                ComponentStatus = g.Key.Kind,
+                                AveragePrice = g.Average(x => x.cc.PricePurchase),
+                                TotalCount = g.Sum(x => x.cc.Count),
+                                SellerName = g.Key.Name,
+                                TenderNumber = g.Key.ProcurementId,
+                                TotalAmount = g.Sum(x => x.cc.PricePurchase * x.cc.Count)
+                            };
+
+                if (componentStatuses != null && componentStatuses.Any())
+                {
+                    query = query.Where(x => componentStatuses.Contains(x.ComponentStatus));
+                }
+
+                return query.ToList();
+            }
+        }
+
         public static List<Method>? Methods() // Получить все методы определения поставщика
         {
             using ParsethingContext db = new();
@@ -1363,7 +1397,6 @@ public static class GET
 
             return procurementsEmployees;
         }
-        //
         public static List<ProcurementsPreference>? ProcurementsPreferencesBy(int procurementId) // Получить преференции по конкретному тендеру
         {
             using ParsethingContext db = new();
@@ -2027,17 +2060,17 @@ public static class GET
 
     }
 
-    public class SellerSummary
+    public class SupplyMonitoringList // Класс для формирования результатов запросов на получение списка сгруппированных комплектующих
     {
-        public string SupplierName { get; set; }
-        public string ManufacturerName { get; set; }
-        public string ComponentName { get; set; }
-        public string ComponentStatus { get; set; }
-        public decimal AveragePrice { get; set; }
-        public int TotalCount { get; set; }
-        public string SellerName { get; set; }
-        public int TenderNumber { get; set; }
-        public decimal TotalAmount { get; set; }
+        public string? SupplierName { get; set; }
+        public string? ManufacturerName { get; set; }
+        public string? ComponentName { get; set; }
+        public string? ComponentStatus { get; set; }
+        public decimal? AveragePrice { get; set; }
+        public int? TotalCount { get; set; }
+        public string? SellerName { get; set; }
+        public int? TenderNumber { get; set; }
+        public decimal? TotalAmount { get; set; }
     }
 
     public class ProcurementsEmployeesGrouping // Класс для формирования результатов запросов на группировку
