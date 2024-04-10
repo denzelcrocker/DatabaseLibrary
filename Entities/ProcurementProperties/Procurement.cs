@@ -77,6 +77,10 @@ public partial class Procurement
     public bool? Judgment { get; set; }
     public bool? Fas { get; set; }
     public int? ProcurementStateId { get; set; }
+    public decimal? CalculatingAmount { get; set; }
+    public decimal? PurchaseAmount { get; set; }
+
+
 
     public virtual ICollection<ComponentCalculation> ComponentCalculations { get; } = new List<ComponentCalculation>();
 

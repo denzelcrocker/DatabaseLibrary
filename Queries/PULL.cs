@@ -159,7 +159,7 @@ public static class PULL
                 .Where(m => m.Id == manufacturer.Id)
                 .First();
 
-            def.Name = manufacturer.Name;
+            def.ManufacturerName = manufacturer.ManufacturerName;
 
             _ = db.SaveChanges();
         }
@@ -299,6 +299,8 @@ public static class PULL
             def.Fas = procurement.Fas;
             def.ProcurementStateId = procurement.ProcurementStateId;
             def.PostingDate = procurement.PostingDate;
+            def.CalculatingAmount = procurement.CalculatingAmount;
+            def.PurchaseAmount = procurement.PurchaseAmount;
 
             _ = db.SaveChanges();
         }
@@ -473,6 +475,26 @@ public static class PULL
                 .First();
 
             def.Keyword = tag.Keyword;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+    public static bool TagException(TagException tagException)
+    {
+        using ParsethingContext db = new();
+        TagException? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.TagExceptions
+                .Where(t => t.Id == tagException.Id)
+                .First();
+
+            def.Keyword = tagException.Keyword;
 
             _ = db.SaveChanges();
         }

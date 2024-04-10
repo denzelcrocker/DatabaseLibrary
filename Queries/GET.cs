@@ -6,7 +6,7 @@ public static class GET
 {
     public struct Entry
     {
-        public static Employee? Employee(string userName, string password)
+        public static Employee? Employee(string userName, string password) // Авторизация
         {
             using ParsethingContext db = new();
             Employee? employee = null;
@@ -24,7 +24,7 @@ public static class GET
             return employee;
         }
 
-        public static Law? Law(string number)
+        public static Law? Law(string number) // Получить закон
         {
             using ParsethingContext db = new();
             Law? law = null;
@@ -40,7 +40,7 @@ public static class GET
             return law;
         }
 
-        public static Method? Method(string text)
+        public static Method? Method(string text) // Получить метод
         {
             using ParsethingContext db = new();
             Method? method = null;
@@ -55,7 +55,7 @@ public static class GET
             return method;
         }
 
-        public static Organization? Organization(string name)
+        public static Organization? Organization(string name) // Получить организацию
         {
             using ParsethingContext db = new();
             Organization? organization = null;
@@ -71,7 +71,7 @@ public static class GET
             return organization;
         }
 
-        public static Organization? Organization(string name, string? postalAddress)
+        public static Organization? Organization(string name, string? postalAddress) // Получить организацию по имени и адресу поставки
         {
             using ParsethingContext db = new();
             Organization? organization = null;
@@ -88,7 +88,7 @@ public static class GET
             return organization;
         }
 
-        public static Platform? Platform(string name, string address)
+        public static Platform? Platform(string name, string address) // Получить платформу по имени и адресу
         {
             using ParsethingContext db = new();
             Platform? platform = null;
@@ -105,7 +105,7 @@ public static class GET
             return platform;
         }
 
-        public static Procurement? Procurement(string number)
+        public static Procurement? Procurement(string number) // Получить тендер
         {
             using ParsethingContext db = new();
             Procurement? procurement = null;
@@ -120,8 +120,26 @@ public static class GET
 
             return procurement;
         }
+        public static Procurement? ProcurementBy(int id) // Получить тендер
+        {
+            using ParsethingContext db = new();
+            Procurement? procurement = null;
 
-        public static TimeZone? TimeZone(string offset)
+            try
+            {
+                procurement = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include (p => p.ShipmentPlan)
+                    .Where(p => p.Id == id)
+                    .First();
+            }
+            catch { }
+
+            return procurement;
+        }
+
+        public static TimeZone? TimeZone(string offset) // Получить часовой пояс
         {
             using ParsethingContext db = new();
             TimeZone? timeZone = null;
@@ -136,7 +154,7 @@ public static class GET
 
             return timeZone;
         }
-        public static Region? Region(string title, int distance)
+        public static Region? Region(string title, int distance) // Получить часовой пояс по дистанции и названию
         {
             using ParsethingContext db = new();
             Region? region = null;
@@ -155,7 +173,7 @@ public static class GET
 
     public struct View
     {
-        public static List<Law>? Laws()
+        public static List<Law>? Laws() // Получить все законы
         {
             using ParsethingContext db = new();
             List<Law> laws = null;
@@ -169,7 +187,7 @@ public static class GET
             return laws;
         }
 
-        public static List<ComponentState>? ComponentStates()
+        public static List<ComponentState>? ComponentStates() // Получить все статусы тендеров
         {
             using ParsethingContext db = new();
             List<ComponentState>? componentStates = null;
@@ -180,7 +198,7 @@ public static class GET
             return componentStates;
         }
 
-        public static List<ComponentType>? ComponentTypes()
+        public static List<ComponentType>? ComponentTypes() // Получить все типы комплектующих 
         {
             using ParsethingContext db = new();
             List<ComponentType>? componentTypes = null;
@@ -191,7 +209,7 @@ public static class GET
             return componentTypes;
         }
 
-        public static List<Document>? Documents()
+        public static List<Document>? Documents() // Получить документы к тендерам
         {
             using ParsethingContext db = new();
             List<Document>? documents = null;
@@ -206,7 +224,7 @@ public static class GET
             return documents;
         }
 
-        public static List<Employee>? Employees()
+        public static List<Employee>? Employees() // Получить сотрудников
         {
             using ParsethingContext db = new();
             List<Employee>? employees = null;
@@ -221,7 +239,7 @@ public static class GET
 
             return employees;
         }
-        public static List<Employee>? EmployeesBy(string premierPosition, string secondPosition, string thirdPosition)
+        public static List<Employee>? EmployeesBy(string premierPosition, string secondPosition, string thirdPosition) // Получить сотрудников по трем должностям
         {
             using ParsethingContext db = new();
             List<Employee>? employees = null;
@@ -238,7 +256,7 @@ public static class GET
             return employees;
         }
 
-        public static List<LegalEntity>? LegalEntities()
+        public static List<LegalEntity>? LegalEntities() // Получить список юридических лиц
         {
             using ParsethingContext db = new();
             List<LegalEntity>? LegalEntitys = null;
@@ -249,7 +267,7 @@ public static class GET
             return LegalEntitys;
         }
 
-        public static List<History>? HistoriesBy(int procurementId)
+        public static List<History>? HistoriesBy(int procurementId) // Получить историю изменений статусов тендеров
         {
             using ParsethingContext db = new();
             List<History>? histories = null;
@@ -266,7 +284,7 @@ public static class GET
             return histories;
         }
 
-        public static List<Manufacturer>? Manufacturers()
+        public static List<Manufacturer>? Manufacturers() // Получить список производителей
         {
             using ParsethingContext db = new();
             List<Manufacturer>? manufacturers = null;
@@ -277,7 +295,7 @@ public static class GET
             return manufacturers;
         }
 
-        public static List<Minopttorg>? Minopttorgs()
+        public static List<Minopttorg>? Minopttorgs() // Получить список Миноптторг
         {
             using ParsethingContext db = new();
             List<Minopttorg>? minopttorgs = null;
@@ -288,7 +306,7 @@ public static class GET
             return minopttorgs;
         }
 
-        public static List<Position>? Positions()
+        public static List<Position>? Positions() // Получить список должностей
         {
             using ParsethingContext db = new();
             List<Position>? positions = null;
@@ -299,7 +317,7 @@ public static class GET
             return positions;
         }
 
-        public static List<Preference>? Preferences()
+        public static List<Preference>? Preferences() // Получить список префренций
         {
             using ParsethingContext db = new();
             List<Preference>? preferences = null;
@@ -310,7 +328,7 @@ public static class GET
             return preferences;
         }
 
-        public static List<RepresentativeType>? RepresentativeTypes()
+        public static List<RepresentativeType>? RepresentativeTypes() // Получить список пусконаладочных работ
         {
             using ParsethingContext db = new();
             List<RepresentativeType>? representativeTypes = null;
@@ -320,7 +338,7 @@ public static class GET
 
             return representativeTypes;
         }
-        public static List<ShipmentPlan>? ShipmentPlans()
+        public static List<ShipmentPlan>? ShipmentPlans() // Получить список планов отгрузки
         {
             using ParsethingContext db = new();
             List<ShipmentPlan>? shipmentPlans = null;
@@ -330,7 +348,7 @@ public static class GET
 
             return shipmentPlans;
         }
-        public static List<ExecutionState>? ExecutionStates()
+        public static List<ExecutionState>? ExecutionStates() // Получить список статусов БГ
         {
             using ParsethingContext db = new();
             List<ExecutionState>? executionStates = null;
@@ -340,7 +358,7 @@ public static class GET
 
             return executionStates;
         }
-        public static List<WarrantyState>? WarrantyStates()
+        public static List<WarrantyState>? WarrantyStates() // Получить список статусов БГ гарантии
         {
             using ParsethingContext db = new();
             List<WarrantyState>? warrantyStates = null;
@@ -350,7 +368,7 @@ public static class GET
 
             return warrantyStates;
         }
-        public static List<SignedOriginal>? SignedOriginals()
+        public static List<SignedOriginal>? SignedOriginals() // Получить список подписанных оригиналов
         {
             using ParsethingContext db = new();
             List<SignedOriginal>? signedOriginals = null;
@@ -360,7 +378,7 @@ public static class GET
 
             return signedOriginals;
         }
-        public static List<CommisioningWork>? CommissioningWorks()
+        public static List<CommisioningWork>? CommissioningWorks() // Получить список пусконаладочных работ
         {
             using ParsethingContext db = new();
             List<CommisioningWork>? commissioningWorks = null;
@@ -371,7 +389,7 @@ public static class GET
             return commissioningWorks;
         }
 
-        public static List<Procurement>? ProcurementSources()
+        public static List<Procurement>? ProcurementSources() // Получить список полученных парсингом тендеров
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -393,7 +411,7 @@ public static class GET
             return procurements;
         }
 
-        public static List<ComponentCalculation>? ComponentCalculationsBy(string kind)
+        public static List<ComponentCalculation>? ComponentCalculationsBy(string kind) // Получить список комплектующих по их статусу 
         {
             using ParsethingContext db = new();
             List<ComponentCalculation> componentCalculations = null;
@@ -410,6 +428,7 @@ public static class GET
                     .Include(cc => cc.Procurement.Platform)
                     .Include(cc => cc.Procurement.TimeZone)
                     .Include(cc => cc.Procurement.Organization)
+                    .Include(cc => cc.Procurement.ShipmentPlan)
                     .Include(cc => cc.Manufacturer)
                     .Include(cc => cc.ComponentType)
                     .Include(cc => cc.Seller)
@@ -421,7 +440,7 @@ public static class GET
             return componentCalculations;
         }
 
-        public static List<ComponentCalculation>? ComponentCalculationsBy(string kind, int employeeId)
+        public static List<ComponentCalculation>? ComponentCalculationsBy(string kind, int employeeId) //  Получить список комплектующих по их статусу и id сотрудника
         {
             using ParsethingContext db = new();
             List<ComponentCalculation> componentCalculations = null;
@@ -450,7 +469,9 @@ public static class GET
             return componentCalculations;
         }
 
-        public static List<ComponentCalculation>? ComponentCalculationsBy(int procurementId)
+
+
+        public static List<ComponentCalculation>? ComponentCalculationsBy(int procurementId) // Получить список комплектующих по конкретному тендеру
         {
             using ParsethingContext db = new();
             List<ComponentCalculation> componentCalculations = null;
@@ -478,7 +499,41 @@ public static class GET
             return componentCalculations;
         }
 
-        public static List<Method>? Methods()
+        public static List<SupplyMonitoringList> GetSupplyMonitoringLists(List<Procurement> procurements, List<string> componentStatuses) // Получить комплектующие по статусам и тендерам
+        {
+            using (var dbContext = new ParsethingContext())
+            {
+                var tenderIds = procurements.Select(p => p.Id).ToList();
+
+                var query = from cc in dbContext.ComponentCalculations
+                            join s in dbContext.Sellers on cc.SellerId equals s.Id
+                            join m in dbContext.Manufacturers on cc.ManufacturerId equals m.Id
+                            join cs in dbContext.ComponentStates on cc.ComponentStateId equals cs.Id
+                            where tenderIds.Contains(cc.ProcurementId)
+                            group new { cc, s, m, cs } by new { s.Name, m.ManufacturerName, cc.ComponentName, cs.Kind, cc.ProcurementId } into g
+                            select new SupplyMonitoringList
+                            {
+                                SupplierName = g.Key.Name,
+                                ManufacturerName = g.Key.ManufacturerName,
+                                ComponentName = g.Key.ComponentName,
+                                ComponentStatus = g.Key.Kind,
+                                AveragePrice = g.Average(x => x.cc.PricePurchase),
+                                TotalCount = g.Sum(x => x.cc.Count),
+                                SellerName = g.Key.Name,
+                                TenderNumber = g.Key.ProcurementId,
+                                TotalAmount = g.Sum(x => x.cc.PricePurchase * x.cc.Count)
+                            };
+
+                if (componentStatuses != null && componentStatuses.Any())
+                {
+                    query = query.Where(x => componentStatuses.Contains(x.ComponentStatus));
+                }
+
+                return query.ToList();
+            }
+        }
+
+        public static List<Method>? Methods() // Получить все методы определения поставщика
         {
             using ParsethingContext db = new();
             List<Method> methods = null;
@@ -492,7 +547,7 @@ public static class GET
             return methods;
         }
 
-        public static List<Procurement>? ProcurementsBy(string kind, KindOf kindOf)
+        public static List<Procurement>? ProcurementsBy(string kind, KindOf kindOf) // Получить список тендеров по: 
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -501,7 +556,7 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.ProcurementState:
+                    case KindOf.ProcurementState: // Статусу
                         procurements = db.Procurements
                             .Include(p => p.ProcurementState)
                             .Include(p => p.Law)
@@ -514,7 +569,7 @@ public static class GET
                             .Where(p => p.ProcurementState != null && p.ProcurementState.Kind == kind)
                             .ToList();
                         break;
-                    case KindOf.ShipmentPlane:
+                    case KindOf.ShipmentPlane: // Плану отгрузки
                         procurements = db.Procurements
                             .Include(p => p.ShipmentPlan)
                             .Include(p => p.Law)
@@ -528,7 +583,7 @@ public static class GET
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" || p.ProcurementState.Kind == "Приемка")
                             .ToList();
                         break;
-                    case KindOf.Applications:
+                    case KindOf.Applications: // Выигранным по заявкам
                         procurements = db.Procurements
                             .Include(p => p.ProcurementState)
                             .Include(p => p.Law)
@@ -548,7 +603,7 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(string procurementStateKind, bool isOverdue, KindOf kindOf)
+        public static List<Procurement>? ProcurementsBy(string procurementStateKind, bool isOverdue, KindOf kindOf) // Получить список тендеров:
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -557,8 +612,8 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.Deadline:
-                        if (isOverdue)
+                    case KindOf.Deadline: // Дата окончания подачи заявок
+                        if (isOverdue) // Просроченных по статусу 
                         {
                             procurements = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -573,7 +628,7 @@ public static class GET
                             .Where(p => p.Deadline < DateTime.Now)
                             .ToList();
                         }
-                        else
+                        else // Непросроченных по статусу 
                         {
                             procurements = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -589,8 +644,8 @@ public static class GET
                             .ToList();
                         }
                         break;
-                    case KindOf.StartDate:
-                        if (isOverdue)
+                    case KindOf.StartDate: // Дата начала подачи заявок
+                        if (isOverdue) // Просроченных по статусу 
                         {
                             procurements = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -605,7 +660,7 @@ public static class GET
                             .Where(p => p.StartDate < DateTime.Now)
                             .ToList();
                         }
-                        else
+                        else // Непросроченных по статусу
                         {
                             procurements = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -621,8 +676,8 @@ public static class GET
                             .ToList();
                         }
                         break;
-                    case KindOf.ContractConclusion:
-                        if (isOverdue)
+                    case KindOf.ContractConclusion: // По дате заключения контракта
+                        if (isOverdue) // Просроченных по статусу
                         {
                             procurements = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -637,7 +692,7 @@ public static class GET
                             .Where(p => p.ConclusionDate != null)
                             .ToList();
                         }
-                        else
+                        else // Непросроченных по статусу 
                         {
                             procurements = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -661,14 +716,14 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(bool isOverdue)
+        public static List<Procurement>? ProcurementsBy(bool isOverdue) // Получить список неоплаченых тендеров
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
 
             try
             {
-                if (isOverdue)
+                if (isOverdue) // Просроченная оплата
                 {
                     procurements = db.Procurements
                     .Include(p => p.ProcurementState)
@@ -684,7 +739,7 @@ public static class GET
                     .Where(p => p.RealDueDate == null)
                     .ToList();
                 }
-                else
+                else // В срок
                 {
                     procurements = db.Procurements
                     .Include(p => p.ProcurementState)
@@ -705,7 +760,7 @@ public static class GET
 
             return procurements;
         }
-        public static List<Procurement>? ProcurementsNotPaid()
+        public static List<Procurement>? ProcurementsNotPaid() // Получить список неоплаченных тендеров
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -731,7 +786,7 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(KindOf kindOf)
+        public static List<Procurement>? ProcurementsBy(KindOf kindOf) // Получить список тендеров: 
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -740,7 +795,7 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.Judgement:
+                    case KindOf.Judgement: // В суде
                         procurements = db.Procurements
                             .Include(p => p.ProcurementState)
                             .Include(p => p.Law)
@@ -753,7 +808,7 @@ public static class GET
                             .Where(p => p.Judgment == true)
                             .ToList();
                         break;
-                    case KindOf.FAS:
+                    case KindOf.FAS: // В ФАС
                         procurements = db.Procurements
                             .Include(p => p.ProcurementState)
                             .Include(p => p.Law)
@@ -773,7 +828,7 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber, string searchLaw, string searchProcurementState, string searchInn)
+        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber, string searchLaw, string searchProcurementState, string searchInn) // Запрос для поиска
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -805,7 +860,7 @@ public static class GET
             return procurements;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsGroupByMethod()
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsGroupByMethod() // Получить список отправленных тендеров групированных по методам проведения
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.Procurements
@@ -820,7 +875,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<Comment>? CommentsBy (int procurementId)
+        public static List<Comment>? CommentsBy (int procurementId) // Получить комментарии по id тендера
         {
             using ParsethingContext db = new();
             var comments = db.Comments
@@ -832,7 +887,20 @@ public static class GET
             return comments;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(int employeeId)
+        public static List<Comment>? CommentsBy(int procurementId, bool isTechical) // Получить технические комментарии по id тендера
+        {
+            using ParsethingContext db = new();
+            var comments = db.Comments
+                .Include(c => c.Employee)
+                .Where(pe => pe.EntryId == procurementId)
+                .Where(pe => pe.IsTechnical == true)
+                .Where(c => c.EntityType == "Procurement")
+                .ToList();
+
+            return comments;
+        }
+
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(int employeeId) // Получить информацию по тому, сколько тендеров назначено на конкретного сотрудника
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
@@ -847,7 +915,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition, string premierProcurementState, string secondProcurementState, string thirdProcurementState)
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition, string premierProcurementState, string secondProcurementState, string thirdProcurementState) // Получить список сотруников и тендеров, которые у них в работе (по трем должностям и трем статусам) 
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
@@ -865,7 +933,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition)
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition) // Получить список сотруников и тендеров, которые у них в работе (по трем должностям) 
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
@@ -882,7 +950,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        //public static List<ProcurementsEmployee>? ProcurementsEmployeesQueue()
+        //public static List<ProcurementsEmployee>? ProcurementsEmployeesQueue() // Очередь расчета
         //{
         //    using ParsethingContext db = new();
         //    List<ProcurementsEmployee>? procurements = null;
@@ -904,7 +972,7 @@ public static class GET
         //    return procurements;
         //}
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind)
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind) // Получить список тендеров и сотудиков, по статусу и id сотрудника
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurements = null;
@@ -929,7 +997,7 @@ public static class GET
 
             return procurements;
         }
-        public static ProcurementsEmployee? ProcurementsEmployeesBy(Procurement procurement, string premierPosition, string secondPosition, string thirdPosition)
+        public static ProcurementsEmployee? ProcurementsEmployeesBy(Procurement procurement, string premierPosition, string secondPosition, string thirdPosition) // Получить список тендеров и сотрудников, по id тендера и трем должностям
         {
             using ParsethingContext db = new();
             ProcurementsEmployee? procurementsEmployee = null;
@@ -946,7 +1014,7 @@ public static class GET
 
             return procurementsEmployee;
         }
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId)
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId) // Получть список тендеров и сотрудников по id сотрудника
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurements = null;
@@ -972,7 +1040,7 @@ public static class GET
             return procurements;
         }
         //
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string kind, KindOf kindOf, int employeeId)
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string kind, KindOf kindOf, int employeeId) // Получить список тендеров и закупок по:
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -981,7 +1049,7 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.ProcurementState:
+                    case KindOf.ProcurementState: // Статусу тендера и id сотрудника
                         procurementsEmployees = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -997,7 +1065,7 @@ public static class GET
                             .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == kind)
                             .ToList();
                         break;
-                    case KindOf.ShipmentPlane:
+                    case KindOf.ShipmentPlane: // Плану отгрузки, конкретным статусам и id сотруника
                         procurementsEmployees = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1014,7 +1082,7 @@ public static class GET
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
                             .ToList();
                         break;
-                    case KindOf.Applications:
+                    case KindOf.Applications: // Положительному наличию статуса "по заявкам" и id сотрудника
                         procurementsEmployees = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1030,7 +1098,7 @@ public static class GET
                             .Where(pe => pe.Procurement.Applications == true)
                             .ToList();
                         break;
-                    case KindOf.ExecutionState:
+                    case KindOf.ExecutionState: // Статусу обеспечения заявки, конкретным статусам тендера и id сотрудника
                         procurementsEmployees = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1048,7 +1116,7 @@ public static class GET
                             .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Оформлена БГ" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)" || pe.Procurement.ExecutionState.Kind == "Добросовестность")
                             .ToList();
                         break;
-                    case KindOf.WarrantyState:
+                    case KindOf.WarrantyState: // Статусу обеспечения гарантии, конкретным статусам тендера и id сотрудника
                         procurementsEmployees = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1073,7 +1141,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string procurementStateKind, bool isOverdue, KindOf kindOf, int employeeId)
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string procurementStateKind, bool isOverdue, KindOf kindOf, int employeeId) // Получить список тендеров и сотрудников по:
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -1082,8 +1150,8 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.Deadline:
-                        if (isOverdue)
+                    case KindOf.Deadline: // Дате окончания подачи заявок, id сотрудника и статусу тендера
+                        if (isOverdue) // Просроченные 
                         {
                             procurementsEmployees = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1101,7 +1169,7 @@ public static class GET
                                 .Where(pe => pe.Procurement.Deadline < DateTime.Now)
                                 .ToList();
                         }
-                        else
+                        else // Непросроченные 
                         {
                             procurementsEmployees = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1120,8 +1188,8 @@ public static class GET
                                 .ToList();
                         }
                         break;
-                    case KindOf.StartDate:
-                        if (isOverdue)
+                    case KindOf.StartDate: // Дате начала подачи заявок, id сотрудника и статусу тендера
+                        if (isOverdue) // Просроченные
                         {
                             procurementsEmployees = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1139,7 +1207,7 @@ public static class GET
                                 .Where(pe => pe.Procurement.StartDate < DateTime.Now)
                                 .ToList();
                         }
-                        else
+                        else // Непросроченные
                         {
                             procurementsEmployees = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1158,8 +1226,8 @@ public static class GET
                                 .ToList();
                         }
                         break;
-                    case KindOf.ContractConclusion:
-                        if (isOverdue)
+                    case KindOf.ContractConclusion: // Дате подписания контракта, id сотрудника и конкретным статусам
+                        if (isOverdue) // Просроченные
                         {
                             procurementsEmployees = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1177,7 +1245,7 @@ public static class GET
                                 .Where(pe => pe.Procurement.ConclusionDate != null)
                                 .ToList();
                         }
-                        else
+                        else // Непросроченные
                         {
                             procurementsEmployees = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1203,14 +1271,14 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(bool isOverdue, int employeeId)
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(bool isOverdue, int employeeId) // Получить тендеры, назначнные на конкретного сотрудника
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
 
             try
             {
-                if (isOverdue)
+                if (isOverdue) // Просроченные
                 {
                     procurementsEmployees = db.ProcurementsEmployees
                         .Include(pe => pe.Employee)
@@ -1229,7 +1297,7 @@ public static class GET
                         .Where(pe => pe.Procurement.RealDueDate == null)
                         .ToList();
                 }
-                else
+                else // Просроченные
                 {
                     procurementsEmployees = db.ProcurementsEmployees
                         .Include(pe => pe.Employee)
@@ -1253,7 +1321,7 @@ public static class GET
 
             return procurementsEmployees;
         }
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesNotPaid(int employeeId)
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesNotPaid(int employeeId) // Получить неоплаченные тендеры по конкретному сотруднику
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -1282,7 +1350,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(KindOf kindOf, int employeeId)
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(KindOf kindOf, int employeeId) // Получить тендеры, назначенные на конкретного сотрудника
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -1291,7 +1359,7 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.Judgement:
+                    case KindOf.Judgement: // Суд
                         procurementsEmployees = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1307,7 +1375,7 @@ public static class GET
                             .Where(pe => pe.Procurement.Judgment == true)
                             .ToList();
                         break;
-                    case KindOf.FAS:
+                    case KindOf.FAS: // ФАС
                         procurementsEmployees = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1329,8 +1397,7 @@ public static class GET
 
             return procurementsEmployees;
         }
-        //
-        public static List<ProcurementsPreference>? ProcurementsPreferencesBy(int procurementId)
+        public static List<ProcurementsPreference>? ProcurementsPreferencesBy(int procurementId) // Получить преференции по конкретному тендеру
         {
             using ParsethingContext db = new();
             List<ProcurementsPreference>? procurementsPreferences = null;
@@ -1348,7 +1415,7 @@ public static class GET
             return procurementsPreferences;
         }
 
-        public static List<ProcurementsDocument>? ProcurementsDocumentsBy(int procurementId)
+        public static List<ProcurementsDocument>? ProcurementsDocumentsBy(int procurementId) // Получить документы по конкретному тендеру
         {
             using ParsethingContext db = new();
             List<ProcurementsDocument>? procurementsDocuments = null;
@@ -1366,7 +1433,7 @@ public static class GET
             return procurementsDocuments;
         }
 
-        public static List<ProcurementState>? DistributionOfProcurementStates(string employeePosition)
+        public static List<ProcurementState>? DistributionOfProcurementStates(string employeePosition) // Получить статусы к которым имеют доступ конкретные должности
         {
             using ParsethingContext db = new();
             List<ProcurementState>? procurementStates = null;
@@ -1454,7 +1521,7 @@ public static class GET
             return procurementStates;
         }
 
-        public static List<ProcurementState>? ProcurementStates()
+        public static List<ProcurementState>? ProcurementStates() // Получить список статусов тендеров
         {
             using ParsethingContext db = new();
             List<ProcurementState>? procurementStates = null;
@@ -1465,7 +1532,7 @@ public static class GET
             return procurementStates;
         }
 
-        public static List<Region>? Regions()
+        public static List<Region>? Regions() // Получить список регионов
         {
             using ParsethingContext db = new();
             List<Region>? regions = null;
@@ -1476,7 +1543,7 @@ public static class GET
             return regions;
         }
 
-        public static List<Seller>? Sellers()
+        public static List<Seller>? Sellers() // Получить список дистрибьюторов 
         {
             using ParsethingContext db = new();
             List<Seller>? sellers = null;
@@ -1487,7 +1554,7 @@ public static class GET
             return sellers;
         }
 
-        public static List<Tag>? Tags()
+        public static List<Tag>? Tags() // Получить тэги для парсинга 
         {
             using ParsethingContext db = new();
             List<Tag>? tags = null;
@@ -1498,11 +1565,95 @@ public static class GET
             return tags;
         }
 
+        public static List<TagException>? TagExceptions() // Получить тэги для парсинга 
+        {
+            using ParsethingContext db = new();
+            List<TagException>? tagExceptions = null;
+
+            try { tagExceptions = db.TagExceptions.ToList(); }
+            catch { }
+
+            return tagExceptions;
+        }
+
+        public static List<Tuple<int,int,int>>? HistoryGroupByWins() // Получить выигранные тендеры по месяцам
+        {
+            using ParsethingContext db = new();
+            List<History>? histories = null;
+
+            try { histories = db.Histories.ToList(); }
+            catch { }
+
+            var uniqueWiningTenders = histories
+                .Where(h => h.Text == "Выигран 1ч")
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month, tender.Id })
+                .Select(group => group.First())
+                .DistinctBy(h => h.EntryId)
+                .ToList();
+
+            var winningTendersByMonth = uniqueWiningTenders
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
+                .Select(group => Tuple.Create(group.Key.Year, group.Key.Month, group.Count()))
+                .OrderBy(entry => entry.Item1)
+                .ThenBy(entry => entry.Item2)
+                .ToList();
+
+            return winningTendersByMonth;
+        }
+        public static List<Tuple<int, int, int>>? HistoryGroupBySended() // Получить отправленные тендеры по месяцам
+        {
+            using ParsethingContext db = new();
+            List<History>? histories = null;
+
+            try { histories = db.Histories.ToList(); }
+            catch { }
+
+            var uniqueWiningTenders = histories
+                .Where(h => h.Text == "Отправлен")
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month, tender.Id })
+                .Select(group => group.First())
+                .DistinctBy(h => h.EntryId)
+                .ToList();
+
+            var winningTendersByMonth = uniqueWiningTenders
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
+                .Select(group => Tuple.Create(group.Key.Year, group.Key.Month, group.Count()))
+                .OrderBy(entry => entry.Item1)
+                .ThenBy(entry => entry.Item2)
+                .ToList();
+
+            return winningTendersByMonth;
+        }
+        public static List<Tuple<int, int, int>>? HistoryGroupByCalculations() // Получить посчитанные тендеры по месяцам
+        {
+            using ParsethingContext db = new();
+            List<History>? histories = null;
+
+            try { histories = db.Histories.ToList(); }
+            catch { }
+
+            var uniqueWiningTenders = histories
+                .Where(h => h.Text == "Посчитан")
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month, tender.Id })
+                .Select(group => group.First())
+                .DistinctBy(h => h.EntryId)
+                .ToList();
+
+            var winningTendersByMonth = uniqueWiningTenders
+                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
+                .Select(group => Tuple.Create(group.Key.Year, group.Key.Month, group.Count()))
+                .OrderBy(entry => entry.Item1)
+                .ThenBy(entry => entry.Item2)
+                .ToList();
+
+            return winningTendersByMonth;
+        }
+
     }
 
     public struct Aggregate
     {
-        public static int ProcurementsCountBy(string kind, KindOf kindOf)
+        public static int ProcurementsCountBy(string kind, KindOf kindOf) // Получить количество тендеров по:
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -1511,20 +1662,20 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.ProcurementState:
+                    case KindOf.ProcurementState: // Конкретному статусу
                         count = db.Procurements
                             .Include(p => p.ProcurementState)
                             .Where(p => p.ProcurementState != null && p.ProcurementState.Kind == kind)
                             .Count();
                         break;
-                    case KindOf.ShipmentPlane:
+                    case KindOf.ShipmentPlane: // Плану отгрузки и конуретным статусам
                         count = db.Procurements
                             .Include(e => e.ShipmentPlan)
                             .Where(p => p.ShipmentPlan != null && p.ShipmentPlan.Kind == kind)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" || p.ProcurementState.Kind == "Приемка")
                             .Count();
                         break;
-                    case KindOf.Applications:
+                    case KindOf.Applications: // Положительному статусу "По заявкам"
                         count = db.Procurements
                             .Where(p => p.Applications == true)
                             .Count();
@@ -1535,14 +1686,14 @@ public static class GET
 
             return count;
         }
-        public static int ProcurementsCountBy(bool isOverdue)
+        public static int ProcurementsCountBy(bool isOverdue) // Получить количество неоплаченных тендеров
         {
             using ParsethingContext db = new();
             int count = 0;
 
             try
             {
-                if (isOverdue)
+                if (isOverdue) // Просроченных по дате оплаты
                 {
                     count = db.Procurements
                     .Include(p => p.ProcurementState)
@@ -1551,7 +1702,7 @@ public static class GET
                     .Where(p => p.RealDueDate == null)
                     .Count();
                 }
-                else
+                else // Непросроченных по дате оплаты
                 {
                     count = db.Procurements
                     .Include(p => p.ProcurementState)
@@ -1565,7 +1716,7 @@ public static class GET
 
             return count;
         }
-        public static int ProcurementsCountBy(KindOf kindOf)
+        public static int ProcurementsCountBy(KindOf kindOf) // Получить количество тендеров по:
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -1574,12 +1725,12 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.Judgement:
+                    case KindOf.Judgement: // Суд
                         count = db.Procurements
                             .Where(p => p.Judgment == true)
                             .Count();
                         break;
-                    case KindOf.FAS:
+                    case KindOf.FAS: // ФАС
                         count = db.Procurements
                             .Where(p => p.Fas == true)
                             .Count();
@@ -1591,7 +1742,7 @@ public static class GET
             return count;
         }
 
-        public static int ProcurementsCountBy(string procurementStateKind, bool isOverdue, KindOf kindOf)
+        public static int ProcurementsCountBy(string procurementStateKind, bool isOverdue, KindOf kindOf) // Получить количество тендеров по:
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -1600,8 +1751,8 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.Deadline:
-                        if (isOverdue)
+                    case KindOf.Deadline: // Дате окончания подачи заявок
+                        if (isOverdue) // Просроченные
                         {
                             count = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -1609,7 +1760,7 @@ public static class GET
                             .Where(p => p.Deadline < DateTime.Now)
                             .Count();
                         }
-                        else
+                        else // Непросроченные
                         {
                             count = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -1618,8 +1769,8 @@ public static class GET
                             .Count();
                         }
                         break;
-                    case KindOf.StartDate:
-                        if (isOverdue)
+                    case KindOf.StartDate: // Дате начала подачи заявок
+                        if (isOverdue) // Просроченные
                         {
                             count = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -1627,7 +1778,7 @@ public static class GET
                             .Where(p => p.StartDate < DateTime.Now)
                             .Count();
                         }
-                        else
+                        else // Непросроченные
                         {
                             count = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -1636,8 +1787,8 @@ public static class GET
                             .Count();
                         }
                         break;
-                    case KindOf.ContractConclusion:
-                        if (isOverdue)
+                    case KindOf.ContractConclusion: // Дате подписания контракта
+                        if (isOverdue) // Просроченные
                         {
                             count = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -1645,7 +1796,7 @@ public static class GET
                             .Where(p => p.ConclusionDate != null)
                             .Count();
                         }
-                        else
+                        else // Непросроченные
                         {
                             count = db.Procurements
                             .Include(p => p.ProcurementState)
@@ -1662,7 +1813,7 @@ public static class GET
             return count;
         }
 
-        public static int ProcurementsEmployeesCountBy(string kind, KindOf kindOf, int employeeId)
+        public static int ProcurementsEmployeesCountBy(string kind, KindOf kindOf, int employeeId) // Получить количество тендеров по:
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -1671,7 +1822,7 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.ProcurementState:
+                    case KindOf.ProcurementState: // Статусу и конкретному сотруднику
                         count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1680,7 +1831,7 @@ public static class GET
                             .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == kind)
                             .Count();
                         break;
-                    case KindOf.ShipmentPlane:
+                    case KindOf.ShipmentPlane: // Плану отгрузки и конкретному сотруднику
                         count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1691,7 +1842,7 @@ public static class GET
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
                             .Count();
                         break;
-                    case KindOf.Applications:
+                    case KindOf.Applications: // Положительному статусу "По заявкам" и конкретному сотруднику
                         count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1699,7 +1850,7 @@ public static class GET
                             .Where(pe => pe.Procurement.Applications == true)
                             .Count();
                         break;
-                    case KindOf.ExecutionState:
+                    case KindOf.ExecutionState: // Статусу обеспечения заявки по конкретному сотруднику 
                         count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1710,7 +1861,7 @@ public static class GET
                             .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Оформлена БГ" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)" || pe.Procurement.ExecutionState.Kind == "Добросовестность")
                             .Count();
                         break;
-                    case KindOf.WarrantyState:
+                    case KindOf.WarrantyState: // Статусу обеспечения гарантии заявки по конкретному сотруднику
                         count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1728,7 +1879,7 @@ public static class GET
             return count;
         }
 
-        public static int ProcurementsEmployeesCountBy(string procurementStateKind, bool isOverdue, KindOf kindOf, int employeeId)
+        public static int ProcurementsEmployeesCountBy(string procurementStateKind, bool isOverdue, KindOf kindOf, int employeeId) // Получить количество тендеров по
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -1737,8 +1888,8 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.Deadline:
-                        if (isOverdue)
+                    case KindOf.Deadline: // Дате окончания подачи заявок
+                        if (isOverdue) // Просроченные
                         {
                             count = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1749,7 +1900,7 @@ public static class GET
                                 .Where(pe => pe.Procurement.Deadline < DateTime.Now)
                                 .Count();
                         }
-                        else
+                        else // Непросроченные
                         {
                             count = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1761,8 +1912,8 @@ public static class GET
                                 .Count();
                         }
                         break;
-                    case KindOf.StartDate:
-                        if (isOverdue)
+                    case KindOf.StartDate: // Дате начала подачи заявок
+                        if (isOverdue) // Просроченные 
                         {
                             count = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1773,7 +1924,7 @@ public static class GET
                                 .Where(pe => pe.Procurement.StartDate < DateTime.Now)
                                 .Count();
                         }
-                        else
+                        else // Непросроченные
                         {
                             count = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1785,8 +1936,8 @@ public static class GET
                                 .Count();
                         }
                         break;
-                    case KindOf.ContractConclusion:
-                        if (isOverdue)
+                    case KindOf.ContractConclusion: // Дате подписания контракта
+                        if (isOverdue) // Просроченные
                         {
                             count = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1797,7 +1948,7 @@ public static class GET
                                 .Where(pe => pe.Procurement.ConclusionDate != null)
                                 .Count();
                         }
-                        else
+                        else // Непросроченные
                         {
                             count = db.ProcurementsEmployees
                                 .Include(pe => pe.Employee)
@@ -1816,14 +1967,14 @@ public static class GET
             return count;
         }
 
-        public static int ProcurementsEmployeesCountBy(bool isOverdue, int employeeId)
+        public static int ProcurementsEmployeesCountBy(bool isOverdue, int employeeId) // Получить количество тендеров и сотрудников по сотрудникам
         {
             using ParsethingContext db = new();
             int count = 0;
 
             try
             {
-                if (isOverdue)
+                if (isOverdue) // Просросроченных неоплаченных
                 {
                     count = db.ProcurementsEmployees
                         .Include(pe => pe.Employee)
@@ -1835,7 +1986,7 @@ public static class GET
                         .Where(pe => pe.Procurement.RealDueDate == null)
                         .Count();
                 }
-                else
+                else // Непросроченных неоплаченных
                 {
                     count = db.ProcurementsEmployees
                         .Include(pe => pe.Employee)
@@ -1852,7 +2003,7 @@ public static class GET
 
             return count;
         }
-        public static int ProcurementsEmployeesCountNotPaid(int employeeId)
+        public static int ProcurementsEmployeesCountNotPaid(int employeeId) // Получить количество неоплаченных принятых тендеров и сотрудников по конкретному сотруднику
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -1874,7 +2025,7 @@ public static class GET
             return count;
         }
 
-        public static int ProcurementsEmployeesCountBy(KindOf kindOf, int employeeId)
+        public static int ProcurementsEmployeesCountBy(KindOf kindOf, int employeeId) // Получить количество тендеров по конкретному сотруднику 
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -1883,7 +2034,7 @@ public static class GET
             {
                 switch (kindOf)
                 {
-                    case KindOf.Judgement:
+                    case KindOf.Judgement: // Суд
                         count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1891,7 +2042,7 @@ public static class GET
                             .Where(pe => pe.Procurement.Judgment == true)
                             .Count();
                         break;
-                    case KindOf.FAS:
+                    case KindOf.FAS: // ФАС
                         count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
@@ -1908,23 +2059,38 @@ public static class GET
         }
 
     }
-    public class ProcurementsEmployeesGrouping
+
+    public class SupplyMonitoringList // Класс для формирования результатов запросов на получение списка сгруппированных комплектующих
+    {
+        public string? SupplierName { get; set; }
+        public string? ManufacturerName { get; set; }
+        public string? ComponentName { get; set; }
+        public string? ComponentStatus { get; set; }
+        public decimal? AveragePrice { get; set; }
+        public int? TotalCount { get; set; }
+        public string? SellerName { get; set; }
+        public int? TenderNumber { get; set; }
+        public decimal? TotalAmount { get; set; }
+    }
+
+    public class ProcurementsEmployeesGrouping // Класс для формирования результатов запросов на группировку
     {
         public string Id { get; set; }
         public int CountOfProcurements { get; set; }
     }
-    public enum KindOf
+
+    public enum KindOf // Перечисление для типизации запросов
     {
-        ProcurementState,
-        ShipmentPlane,
-        Applications,
-        StartDate,
-        Deadline,
-        Judgement,
-        FAS,
-        ContractConclusion,
-        ExecutionState,
-        WarrantyState
+        ProcurementState, // Статус тендера
+        ShipmentPlane, // План отгрузки
+        Applications, // Статус "По заявкам"
+        StartDate, // Дата начала подачи заявок
+        Deadline, // Дата окончания подачи заявок
+        Judgement, // Суд
+        FAS, // ФАС
+        ContractConclusion, // Дата подписания контракта
+        ExecutionState, // Статус обеспечения исполнения заявки
+        WarrantyState // Статус обеспечения гарантии заявки
     }
     
 }
