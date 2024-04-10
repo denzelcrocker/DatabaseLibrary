@@ -246,6 +246,21 @@ public static class DELETE
         return isSaved;
     }
 
+    public static bool TagException(TagException tagException)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.TagExceptions.Remove(tagException);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool Procurement(Procurement procurement)
     {
         using ParsethingContext db = new();

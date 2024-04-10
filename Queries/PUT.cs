@@ -429,6 +429,21 @@ public static class PUT
         return isSaved;
     }
 
+    public static bool TagException(TagException tagException)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            _ = db.TagExceptions.Add(tagException);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool TimeZone(TimeZone timeZone)
     {
         using ParsethingContext db = new();

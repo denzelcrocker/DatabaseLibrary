@@ -482,4 +482,24 @@ public static class PULL
 
         return isSaved;
     }
+    public static bool TagException(TagException tagException)
+    {
+        using ParsethingContext db = new();
+        TagException? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.TagExceptions
+                .Where(t => t.Id == tagException.Id)
+                .First();
+
+            def.Keyword = tagException.Keyword;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
 }

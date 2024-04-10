@@ -1532,6 +1532,17 @@ public static class GET
             return tags;
         }
 
+        public static List<TagException>? TagExceptions() // Получить тэги для парсинга 
+        {
+            using ParsethingContext db = new();
+            List<TagException>? tagExceptions = null;
+
+            try { tagExceptions = db.TagExceptions.ToList(); }
+            catch { }
+
+            return tagExceptions;
+        }
+
         public static List<Tuple<int,int,int>>? HistoryGroupByWins() // Получить выигранные тендеры по месяцам
         {
             using ParsethingContext db = new();

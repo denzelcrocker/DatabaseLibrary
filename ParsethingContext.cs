@@ -32,6 +32,7 @@ public partial class ParsethingContext : DbContext
     public virtual DbSet<Seller> Sellers { get; set; } = null!;
     public virtual DbSet<ShipmentPlan> ShipmentPlans { get; set; } = null!;
     public virtual DbSet<SignedOriginal> SignedOriginals { get; set; } = null!;
+    public virtual DbSet<TagException> TagExceptions { get; set; } = null!;
     public virtual DbSet<Tag> Tags { get; set; } = null!;
     public virtual DbSet<TimeZone> TimeZones { get; set; } = null!;
     public virtual DbSet<WarrantyState> WarrantyStates { get; set; } = null!;
@@ -291,6 +292,11 @@ public partial class ParsethingContext : DbContext
         _ = modelBuilder.Entity<Tag>(entity =>
         {
             _ = entity.HasKey(e => e.Id).HasName("PK_TagsForParsing");
+        });
+
+        _ = modelBuilder.Entity<TagException>(entity =>
+        {
+            _ = entity.HasKey(e => e.Id).HasName("PK_TagExceptionsForParsing");
         });
 
         _ = modelBuilder.Entity<TimeZone>(entity =>
