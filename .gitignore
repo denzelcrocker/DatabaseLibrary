@@ -26,3 +26,8 @@
 /obj/Release/net6.0/DatabaseLibrary.genruntimeconfig.cache
 /obj/Release/net6.0/DatabaseLibrary.csproj.FileListAbsolute.txt
 /obj/Release/net6.0/DatabaseLibrary.dll
+/.vs/DatabaseLibrary/DesignTimeBuild/.dtbcache.v2
+/.vs/DatabaseLibrary/v17/.futdcache.v2
+/.vs/ProjectEvaluation/databaselibrary.metadata.v7.bin
+/.vs/ProjectEvaluation/databaselibrary.projects.v7.bin
+/.gitignore
