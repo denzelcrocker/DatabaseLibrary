@@ -509,30 +509,30 @@ public static class GET
                             join s in dbContext.Sellers on cc.SellerId equals s.Id
                             join m in dbContext.Manufacturers on cc.ManufacturerId equals m.Id
                             join cs in dbContext.ComponentStates on cc.ComponentStateId equals cs.Id
-                            where tenderIds.Contains(cc.ProcurementId)
-                            group new { cc, s, m, cs } by new { s.Name, m.ManufacturerName, cc.ComponentName, cs.Kind, cc.ProcurementId } into g
+                            where tenderIds.Contains(cc.ProcurementId) &&
+                                  (componentStatuses == null || componentStatuses.Contains(cs.Kind))
                             select new SupplyMonitoringList
                             {
-                                SupplierName = g.Key.Name,
-                                ManufacturerName = g.Key.ManufacturerName,
-                                ComponentName = g.Key.ComponentName,
-                                ComponentStatus = g.Key.Kind,
-                                AveragePrice = g.Average(x => x.cc.PricePurchase),
-                                TotalCount = g.Sum(x => x.cc.Count),
-                                SellerName = g.Key.Name,
-                                TenderNumber = g.Key.ProcurementId,
-                                TotalAmount = g.Sum(x => x.cc.PricePurchase * x.cc.Count)
+                                SupplierName = s.Name,
+                                ManufacturerName = m.ManufacturerName,
+                                ComponentName = cc.ComponentName,
+                                ComponentStatus = cs.Kind,
+                                AveragePrice = dbContext.ComponentCalculations
+                                                          .Where(x => x.SellerId == s.Id && x.ManufacturerId == m.Id)
+                                                          .Average(x => x.PricePurchase),
+                                TotalCount = dbContext.ComponentCalculations
+                                                     .Where(x => x.SellerId == s.Id && x.ManufacturerId == m.Id)
+                                                     .Sum(x => x.Count),
+                                SellerName = s.Name,
+                                TenderNumber = cc.ProcurementId,
+                                TotalAmount = dbContext.ComponentCalculations
+                                                       .Where(x => x.SellerId == s.Id && x.ManufacturerId == m.Id)
+                                                       .Sum(x => x.PricePurchase * x.Count)
                             };
-
-                if (componentStatuses != null && componentStatuses.Any())
-                {
-                    query = query.Where(x => componentStatuses.Contains(x.ComponentStatus));
-                }
 
                 return query.ToList();
             }
         }
-
         public static List<Method>? Methods() // Получить все методы определения поставщика
         {
             using ParsethingContext db = new();
