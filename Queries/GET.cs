@@ -499,7 +499,7 @@ public static class GET
             return componentCalculations;
         }
 
-        public static List<SupplyMonitoringList> GetSupplyMonitoringLists(List<Procurement> procurements, List<string> componentStatuses) // Получить комплектующие по статусам и тендерам
+        public static List<SupplyMonitoringList> GetSupplyMonitoringLists(List<Procurement> procurements, List<string> componentStatuses)
         {
             using (var dbContext = new ParsethingContext())
             {
@@ -511,26 +511,35 @@ public static class GET
                             join cs in dbContext.ComponentStates on cc.ComponentStateId equals cs.Id
                             where tenderIds.Contains(cc.ProcurementId) &&
                                   (componentStatuses == null || componentStatuses.Contains(cs.Kind))
-                            select new SupplyMonitoringList
+                            select new
                             {
-                                SupplierName = s.Name,
-                                ManufacturerName = m.ManufacturerName,
-                                ComponentName = cc.ComponentName,
-                                ComponentStatus = cs.Kind,
-                                AveragePrice = dbContext.ComponentCalculations
-                                                          .Where(x => x.SellerId == s.Id && x.ManufacturerId == m.Id)
-                                                          .Average(x => x.PricePurchase),
-                                TotalCount = dbContext.ComponentCalculations
-                                                     .Where(x => x.SellerId == s.Id && x.ManufacturerId == m.Id)
-                                                     .Sum(x => x.Count),
-                                SellerName = s.Name,
-                                TenderNumber = cc.ProcurementId,
-                                TotalAmount = dbContext.ComponentCalculations
-                                                       .Where(x => x.SellerId == s.Id && x.ManufacturerId == m.Id)
-                                                       .Sum(x => x.PricePurchase * x.Count)
+                                cc,
+                                s,
+                                m,
+                                cs
                             };
 
-                return query.ToList();
+                var supplyMonitoringLists = new List<SupplyMonitoringList>();
+
+                foreach (var item in query)
+                {
+                    var supplyMonitoring = new SupplyMonitoringList
+                    {
+                        SupplierName = item.s.Name,
+                        ManufacturerName = item.m.ManufacturerName,
+                        ComponentName = item.cc.ComponentName,
+                        ComponentStatus = item.cs.Kind,
+                        AveragePrice = item.cc.PricePurchase,
+                        TotalCount = item.cc.Count,
+                        SellerName = item.s.Name,
+                        TenderNumber = item.cc.ProcurementId,
+                        TotalAmount = item.cc.PricePurchase * item.cc.Count
+                    };
+
+                    supplyMonitoringLists.Add(supplyMonitoring);
+                }
+
+                return supplyMonitoringLists;
             }
         }
         public static List<Method>? Methods() // Получить все методы определения поставщика
@@ -950,27 +959,23 @@ public static class GET
             return procurementsEmployees;
         }
 
-        //public static List<ProcurementsEmployee>? ProcurementsEmployeesQueue() // Очередь расчета
-        //{
-        //    using ParsethingContext db = new();
-        //    List<ProcurementsEmployee>? procurements = null;
+        public static List<Procurement>? ProcurementsQueue() // Очередь расчета
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
 
-        //    try
-        //    {
-        //        procurements = db.ProcurementsEmployees
-        //            .Include(pe => pe.Procurement)
-        //            .Include(pe => pe.Procurement.ProcurementState)
-        //            .Include(pe => pe.Employee)
-        //            .Include(pe => pe.Employee.Position)
-        //            .Include(pe => pe.Procurement.Law)
-        //            .Where(pe => pe.Procurement.ProcurementState.Kind == "Новый")
-        //            .Where(pe => pe.Employee.Position.Kind != "Специалист отдела расчетов")
-        //            .ToList();
-        //    }
-        //    catch { }
+            try
+            {
+                procurements = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Where(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id))
+                    .ToList();
+            }
+            catch { }
 
-        //    return procurements;
-        //}
+            return procurements;
+        }
 
         public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind) // Получить список тендеров и сотудиков, по статусу и id сотрудника
         {
