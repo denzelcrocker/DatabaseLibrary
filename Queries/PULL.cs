@@ -387,7 +387,7 @@ public static class PULL
         return isSaved;
     }
 
-    public static bool ProcurementSource(Procurement procurement, Procurement def, bool isGetted)
+    public static bool ProcurementSource(Procurement procurement, Procurement def)
     {
         using ParsethingContext db = new();
         bool isSaved = true;
@@ -396,21 +396,18 @@ public static class PULL
         {
             def.LawId = procurement.LawId;
             def.Object = procurement.Object;
-            def.InitialPrice = Convert.ToDecimal(DbValueConverter.ToNullableString(Convert.ToString( procurement.InitialPrice))) ;
+            def.InitialPrice = Convert.ToDecimal(DbValueConverter.ToNullableString(Convert.ToString(procurement.InitialPrice)));
             def.OrganizationId = procurement.OrganizationId;
-            if (isGetted)
-            {
-                def.MethodId = procurement.MethodId;
-                def.PlatformId = procurement.PlatformId;
-                def.Location = procurement.Location;
-                def.StartDate = procurement.StartDate;
-                def.Deadline = procurement.Deadline;
-                def.TimeZoneId = procurement.TimeZoneId;
-                def.Securing = procurement.Securing;
-                def.Enforcement = procurement.Enforcement;
-                def.Warranty = procurement.Warranty;
-            }
-            
+            def.MethodId = procurement.MethodId;
+            def.PlatformId = procurement.PlatformId;
+            def.Location = procurement.Location;
+            def.StartDate = procurement.StartDate;
+            def.Deadline = procurement.Deadline;
+            def.TimeZoneId = procurement.TimeZoneId;
+            def.Securing = procurement.Securing;
+            def.Enforcement = procurement.Enforcement;
+            def.Warranty = procurement.Warranty;
+
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }

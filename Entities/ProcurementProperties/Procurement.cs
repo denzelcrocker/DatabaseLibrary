@@ -1,4 +1,5 @@
-﻿using DatabaseLibrary.Queries;
+﻿using Azure;
+using DatabaseLibrary.Queries;
 
 namespace DatabaseLibrary.Entities.ProcurementProperties;
 
@@ -125,4 +126,14 @@ public partial class Procurement
     //        TimeZoneId = GET.TimeZoneId(TimeZone);
     //    TimeZone = null;
     //}
+
+    public string ToInsert()
+    {
+        return $"{RequestUri}, '{Number}', {LawId}, '{Object}', {InitialPrice}, {OrganizationId}, {(MethodId != null ? $"{MethodId}" : "null")}, {(PlatformId != null ? $"{PlatformId}" : "null")}, {(Location != null ? $"'{Location}'" : "null")}, {(PostingDate != null ? $"'{PostingDate}'" : "null")}, {(StartDate != null ? $"'{StartDate}'" : "null")}, {(Deadline != null ? $"'{Deadline}'" : "null")}, {(TimeZoneId != null ? $"{TimeZoneId}" : "null")}, {(Securing != null ? $"'{Securing}'" : "null")}, {(Enforcement != null ? $"'{Enforcement}'" : "null")}, {(Warranty != null ? $"'{Warranty}'" : "null")}, {(RegionId != null ? $"{RegionId}" : "null")}";
+    }
+
+    public string ToUpdate()
+    {
+        return $"\"RequestUri\" = {RequestUri}, \"Number\" = '{Number}', \"LawId\" = {LawId}, \"Object\" = '{Object}', \"InitialPrice\" = {InitialPrice}, \"OrganizationId\" = {OrganizationId}, \"MethodId\" = {(MethodId != null ? $"{MethodId}" : "null")}, \"PlatformId\" = {(PlatformId != null ? $"{PlatformId}" : "null")}, \"Location\" = {(Location != null ? $"'{Location}'" : "null")}, \"PostingDate\" = {(PostingDate != null ? $"'{PostingDate}'" : "null")}, \"StartDate\" = {(StartDate != null ? $"'{StartDate}'" : "null")}, \"Deadline\" = {(Deadline != null ? $"'{Deadline}'" : "null")}, \"TimeZoneId\" = {(TimeZoneId != null ? $"{TimeZoneId}" : "null")}, \"Securing\" = {(Securing != null ? $"'{Securing}'" : "null")}, \"Enforcement\" = {(Enforcement != null ? $"'{Enforcement}'" : "null")}, \"Warranty\" = {(Warranty != null ? $"'{Warranty}'" : "null")}, \"RegionId\" = {(RegionId != null ? $"{RegionId}" : "null")}";
+    }
 }

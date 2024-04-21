@@ -1,4 +1,6 @@
-﻿namespace DatabaseLibrary.Queries;
+﻿using System.Data.SqlClient;
+
+namespace DatabaseLibrary.Queries;
 
 public static class PUT
 {
@@ -285,7 +287,7 @@ public static class PUT
         return isSaved;
     }
 
-    public static bool ProcurementSource(Procurement procurement, bool isGetted)
+    public static bool ProcurementSource(Procurement procurement)
     {
         using ParsethingContext db = new();
         bool isSaved = true;
@@ -308,7 +310,7 @@ public static class PUT
                 _ = db.Procurements.Add(procurement);
                 _ = db.SaveChanges();
             }
-            else if (!PULL.ProcurementSource(procurement, def, isGetted))
+            else if (!PULL.ProcurementSource(procurement, def))
                 throw new Exception();
         }
         catch { isSaved = false; }
@@ -316,7 +318,7 @@ public static class PUT
         return isSaved;
     }
 
-    
+
 
     public static bool ProcurementsEmployeesBy(ProcurementsEmployee procurementsEmployee, string premierPosition, string secondPosition, string thirdPosition)
     {
@@ -335,12 +337,12 @@ public static class PUT
             procurementsEmployee.Employee = null;
         }
         catch { isSaved = false; }
-        try 
+        try
         {
             def = db.ProcurementsEmployees
                 .Include(pe => pe.Employee)
                 .Include(pe => pe.Employee.Position)
-                .Where(pe => pe.ProcurementId == procurementsEmployee.ProcurementId &&( pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition))
+                .Where(pe => pe.ProcurementId == procurementsEmployee.ProcurementId && (pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition))
                 .First();
         }
         catch { }

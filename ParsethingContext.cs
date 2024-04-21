@@ -1,4 +1,7 @@
-﻿namespace DatabaseLibrary;
+﻿using System.Reflection.Metadata;
+using Document = DatabaseLibrary.Entities.DocumentMuchToMany.Document;
+
+namespace DatabaseLibrary;
 
 public partial class ParsethingContext : DbContext
 {
@@ -58,6 +61,8 @@ public partial class ParsethingContext : DbContext
         {
             _ = entity.HasKey(e => e.Id).HasName("PK_ConmmisioningWorks");
         });
+
+        modelBuilder.Entity<Procurement>().ToTable(tb => tb.HasTrigger("OnProcurementAfterInsert"));
 
         //_ = modelBuilder.Entity<Component>(entity =>
         //{
