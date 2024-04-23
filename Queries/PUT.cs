@@ -362,6 +362,35 @@ public static class PUT
         return isSaved;
     }
 
+    public static bool ProcurementsEmployeesBy(int employeeId)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+
+        try
+        {
+            var procurementToAssign = db.Procurements
+                .Include(p => p.ProcurementState)
+                .Include(p => p.Law)
+                .FirstOrDefault(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id));
+
+            if (procurementToAssign != null)
+            {
+                ProcurementsEmployee procurementEmployee = new ProcurementsEmployee
+                {
+                    ProcurementId = procurementToAssign.Id,
+                    EmployeeId = employeeId
+                };
+
+                db.ProcurementsEmployees.Add(procurementEmployee);
+                db.SaveChanges();
+            }
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool ProcurementsEmployees(ProcurementsEmployee procurementsEmployee)
     {
         using ParsethingContext db = new();
