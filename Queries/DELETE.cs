@@ -1,4 +1,6 @@
-﻿namespace DatabaseLibrary.Queries;
+﻿using DatabaseLibrary.Entities.PreferenceMuchToMany;
+
+namespace DatabaseLibrary.Queries;
 
 public static class DELETE
 {
@@ -29,6 +31,20 @@ public static class DELETE
         }
         catch { isSaved = false; }
 
+        return isSaved;
+    }
+    public static bool ComponentCalculation(int id)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+        try
+        {
+            var componentCalculationToDelete = db.ComponentCalculations.FirstOrDefault(cc => cc.Id == id);
+            _ = db.ComponentCalculations.Remove(componentCalculationToDelete);
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
         return isSaved;
     }
 
