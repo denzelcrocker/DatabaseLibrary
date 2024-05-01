@@ -17,6 +17,7 @@ public partial class ComponentCalculation
     public int? ComponentStateId { get; set; }
     public DateTime? Date { get; set; }
     public string? Reserve { get; set; }
+    public string? ReservePurchase { get; set; }
     public string? Note { get; set; }
     public string? NotePurchase { get; set; }
     public int? ComponentTypeId { get; set; }
