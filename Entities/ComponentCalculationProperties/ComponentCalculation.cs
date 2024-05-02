@@ -6,6 +6,7 @@ public partial class ComponentCalculation
     public int ProcurementId { get; set; }
     public string? PartNumber { get; set; }
     public string? ComponentName { get; set; }
+    public string? ComponentNamePurchase { get; set; }
     public int? ManufacturerId { get; set; }
     public int? ManufacturerIdPurchase { get; set; }
     public decimal? Price { get; set; }
@@ -25,7 +26,7 @@ public partial class ComponentCalculation
     public bool? IsDeleted { get; set; }
     public bool? IsAdded { get; set; }
     public bool? IsHeader { get; set; }
-    public string? ParentName { get; set; }
+    public int? ParentName { get; set; }
 
 
 

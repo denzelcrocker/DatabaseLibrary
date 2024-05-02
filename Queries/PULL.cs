@@ -108,6 +108,7 @@ public static class PULL
 
             def.PartNumber = componentCalculation.PartNumber;
             def.ComponentName = componentCalculation.ComponentName;
+            def.ComponentNamePurchase = componentCalculation.ComponentNamePurchase;
             def.ManufacturerId = componentCalculation.ManufacturerId;
             def.ManufacturerIdPurchase = componentCalculation.ManufacturerIdPurchase;
             def.Price = componentCalculation.Price;
@@ -119,6 +120,7 @@ public static class PULL
             def.ComponentStateId = componentCalculation.ComponentStateId;
             def.Date = componentCalculation.Date;
             def.Reserve = componentCalculation.Reserve;
+            def.ReservePurchase = componentCalculation.ReservePurchase;
             def.Note = componentCalculation.Note;
             def.NotePurchase = componentCalculation.NotePurchase;
             def.AssemblyMap = componentCalculation.AssemblyMap;

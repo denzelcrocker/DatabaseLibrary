@@ -39,8 +39,8 @@ public static class DELETE
         bool isSaved = true;
         try
         {
-            var componentCalculationToDelete = db.ComponentCalculations.FirstOrDefault(cc => cc.Id == id);
-            _ = db.ComponentCalculations.Remove(componentCalculationToDelete);
+            var componentCalculationToDelete = db.ComponentCalculations.Where(cc => cc.Id == id || cc.ParentName == id);
+            db.ComponentCalculations.RemoveRange(componentCalculationToDelete);
 
             _ = db.SaveChanges();
         }

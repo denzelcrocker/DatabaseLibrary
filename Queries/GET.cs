@@ -506,8 +506,8 @@ public static class GET
                 var tenderIds = procurements.Select(p => p.Id).ToList();
 
                 var query = from cc in dbContext.ComponentCalculations
-                            join s in dbContext.Sellers on cc.SellerId equals s.Id
-                            join m in dbContext.Manufacturers on cc.ManufacturerId equals m.Id
+                            join s in dbContext.Sellers on cc.SellerIdPurchase equals s.Id
+                            join m in dbContext.Manufacturers on cc.ManufacturerIdPurchase equals m.Id
                             join cs in dbContext.ComponentStates on cc.ComponentStateId equals cs.Id
                             where tenderIds.Contains(cc.ProcurementId) &&
                                   (componentStatuses == null || componentStatuses.Contains(cs.Kind))
@@ -527,13 +527,13 @@ public static class GET
                     {
                         SupplierName = item.s.Name,
                         ManufacturerName = item.m.ManufacturerName,
-                        ComponentName = item.cc.ComponentName,
+                        ComponentName = item.cc.ComponentNamePurchase,
                         ComponentStatus = item.cs.Kind,
                         AveragePrice = item.cc.PricePurchase,
-                        TotalCount = item.cc.Count,
+                        TotalCount = item.cc.CountPurchase,
                         SellerName = item.s.Name,
                         TenderNumber = item.cc.ProcurementId,
-                        TotalAmount = item.cc.PricePurchase * item.cc.Count
+                        TotalAmount = item.cc.PricePurchase * item.cc.CountPurchase
                     };
 
                     supplyMonitoringLists.Add(supplyMonitoring);

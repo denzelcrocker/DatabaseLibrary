@@ -118,6 +118,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ConnectionString" xml:space="preserve">
-    <value>Password=PassSolution;Persist Security Info=True;User ID=ParsethingSolution;Initial Catalog=Parsething;Data Source=192.168.0.121, 1433;Trust Server Certificate=True</value>
+    <value>Password=PassSolution;Persist Security Info=True;User ID=ParsethingSolution;Initial Catalog=Parsething;Data Source=192.168.1.128, 1433;Trust Server Certificate=True</value>
   </data>
 </root>
