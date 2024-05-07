@@ -311,6 +311,10 @@ public static class PULL
             def.PostingDate = procurement.PostingDate;
             def.CalculatingAmount = procurement.CalculatingAmount;
             def.PurchaseAmount = procurement.PurchaseAmount;
+            def.PassportOfMonitor = procurement.PassportOfMonitor;
+            def.PassportOfPC = procurement.PassportOfPC;
+            def.PassportOfMonoblock = procurement.PassportOfMonoblock;
+            def.PassportOfNotebook = procurement.PassportOfNotebook;
 
             _ = db.SaveChanges();
         }

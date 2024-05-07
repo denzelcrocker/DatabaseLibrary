@@ -80,6 +80,10 @@ public partial class Procurement
     public int? ProcurementStateId { get; set; }
     public decimal? CalculatingAmount { get; set; }
     public decimal? PurchaseAmount { get; set; }
+    public string? PassportOfMonitor { get; set; }
+    public string? PassportOfPC { get; set; }
+    public string? PassportOfMonoblock { get; set; }
+    public string? PassportOfNotebook { get; set; }
 
 
 
