@@ -5,6 +5,7 @@ public partial class ComponentCalculation
     public int Id { get; set; }
     public int ProcurementId { get; set; }
     public string? PartNumber { get; set; }
+    public int? HeaderTypeId { get; set; }
     public string? ComponentName { get; set; }
     public string? ComponentNamePurchase { get; set; }
     public int? ManufacturerId { get; set; }
@@ -37,4 +38,6 @@ public partial class ComponentCalculation
     public virtual Seller? Seller { get; set; }
     public virtual ComponentState? ComponentState { get; set; }
     public virtual ComponentType? ComponentType { get; set; }
+    public virtual ComponentHeaderType? ComponentHeaderType { get; set; }
+
 }

@@ -10,6 +10,7 @@ public partial class ParsethingContext : DbContext
     public virtual DbSet<Comment> Comments { get; set; } = null!;
     public virtual DbSet<CommisioningWork> CommisioningWorks { get; set; } = null!;
     public virtual DbSet<ComponentCalculation> ComponentCalculations { get; set; } = null!;
+    public virtual DbSet<ComponentHeaderType> ComponentHeaderTypes { get; set; } = null!;
     public virtual DbSet<ComponentState> ComponentStates { get; set; } = null!;
     public virtual DbSet<ComponentType> ComponentTypes { get; set; } = null!;
     public virtual DbSet<Document> Documents { get; set; } = null!;
@@ -107,11 +108,19 @@ public partial class ParsethingContext : DbContext
             _ = entity.HasOne(d => d.ComponentType).WithMany(p => p.ComponentCalculations)
                 .HasForeignKey(d => d.ComponentTypeId)
                 .HasConstraintName("FK_ComponentCalculations_ComponentTypes");
+
+            _ = entity.HasOne(d => d.ComponentHeaderType).WithMany(p => p.ComponentCalculations)
+                .HasForeignKey(d => d.HeaderTypeId)
+                .HasConstraintName("FK_ComponentCalculations_ComponentHeaderTypes");
         });
 
         _ = modelBuilder.Entity<ComponentState>(entity =>
         {
             _ = entity.HasKey(e => e.Id).HasName("PK_StatusesOfProduct");
+        });
+        _ = modelBuilder.Entity<ComponentHeaderType>(entity =>
+        {
+            _ = entity.HasKey(e => e.Id).HasName("PK_ComponentHeaderTypes");
         });
 
         _ = modelBuilder.Entity<Employee>(entity =>

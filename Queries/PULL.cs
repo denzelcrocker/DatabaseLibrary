@@ -46,7 +46,26 @@ public static class PULL
 
         return isSaved;
     }
+    public static bool ComponentHeaderType(ComponentHeaderType componentHeaderType)
+    {
+        using ParsethingContext db = new();
+        ComponentHeaderType? def = null;
+        bool isSaved = true;
 
+        try
+        {
+            def = db.ComponentHeaderTypes
+                .Where(ct => ct.Id == componentHeaderType.Id)
+                .First();
+
+            def.Kind = componentHeaderType.Kind;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
     public static bool Document(Document document)
     {
         using ParsethingContext db = new();
@@ -107,6 +126,7 @@ public static class PULL
                 .First();
 
             def.PartNumber = componentCalculation.PartNumber;
+            def.HeaderTypeId = componentCalculation.HeaderTypeId;
             def.ComponentName = componentCalculation.ComponentName;
             def.ComponentNamePurchase = componentCalculation.ComponentNamePurchase;
             def.ManufacturerId = componentCalculation.ManufacturerId;

@@ -1,4 +1,5 @@
 ﻿using DatabaseLibrary.Entities.ComponentCalculationProperties;
+using DatabaseLibrary.Entities.EmployeeMuchToMany;
 
 namespace DatabaseLibrary.Queries;
 
@@ -410,7 +411,16 @@ public static class GET
 
             return procurements;
         }
+        public static List<ComponentHeaderType>? ComponentHeaderTypes() // Получить список заголовков расчета и закупки
+        {
+            using ParsethingContext db = new();
+            List<ComponentHeaderType>? componentHeaderTypes = null;
 
+            try { componentHeaderTypes = db.ComponentHeaderTypes.ToList(); }
+            catch { }
+
+            return componentHeaderTypes;
+        }
         public static List<ComponentCalculation>? ComponentCalculationsBy(string kind) // Получить список комплектующих по их статусу 
         {
             using ParsethingContext db = new();
@@ -420,6 +430,7 @@ public static class GET
             {
                 componentCalculations = db.ComponentCalculations
                     .Include(cc => cc.ComponentState)
+                    .Include(cc => cc.ComponentHeaderType)
                     .Include(cc => cc.Procurement)
                     .Include(cc => cc.Procurement.Law)
                     .Include(cc => cc.Procurement.ProcurementState)
@@ -449,6 +460,7 @@ public static class GET
             {
                 componentCalculations = db.ComponentCalculations
                     .Include(cc => cc.ComponentState)
+                    .Include(cc => cc.ComponentHeaderType)
                     .Include(cc => cc.Procurement)
                     .Include(cc => cc.Procurement.Law)
                     .Include(cc => cc.Procurement.ProcurementState)
@@ -480,6 +492,7 @@ public static class GET
             {
                 componentCalculations = db.ComponentCalculations
                     .Include(cc => cc.ComponentState)
+                    .Include(cc => cc.ComponentHeaderType)
                     .Include(cc => cc.Procurement)
                     .Include(cc => cc.Procurement.Law)
                     .Include(cc => cc.Procurement.ProcurementState)
@@ -837,35 +850,48 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber, string searchLaw, string searchProcurementState, string searchInn) // Запрос для поиска
+        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, int employeeId)
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
 
-            var query = db.Procurements.AsQueryable();
+            var query = db.ProcurementsEmployees.AsQueryable();
+
+            if (employeeId != 0)
+            {
+                query = query.Where(pe => pe.EmployeeId == employeeId);
+            }
+            else
+            {
+                return new List<Procurement>();
+            }
+
+            var procurementIds = query.Select(pe => pe.ProcurementId).ToList();
+
+            var procurementQuery = db.Procurements.Where(p => procurementIds.Contains(p.Id));
 
             if (searchId != 0)
-                query = query.Where(p => p.Id == searchId);
+                procurementQuery = procurementQuery.Where(p => p.Id == searchId);
             if (!string.IsNullOrEmpty(searchNumber))
-                query = query.Where(p => p.Number == searchNumber);
+                procurementQuery = procurementQuery.Where(p => p.Number == searchNumber);
             if (!string.IsNullOrEmpty(searchLaw))
-                query = query.Where(p => p.Law.Number == searchLaw);
+                procurementQuery = procurementQuery.Where(p => p.Law.Number == searchLaw);
             if (!string.IsNullOrEmpty(searchProcurementState))
-                query = query.Where(p => p.ProcurementState.Kind == searchProcurementState);
+                procurementQuery = procurementQuery.Where(p => p.ProcurementState.Kind == searchProcurementState);
             if (!string.IsNullOrEmpty(searchInn))
-                query = query.Where(p => p.Inn == searchInn);
+                procurementQuery = procurementQuery.Where(p => p.Inn == searchInn);
 
-            query = query.Include(p => p.ProcurementState);
-            query = query.Include(p => p.Law);
-            query = query.Include(p => p.Method);
-            query = query.Include(p => p.Platform);
-            query = query.Include(p => p.TimeZone);
-            query = query.Include(p => p.Region);
-            query = query.Include(p => p.ShipmentPlan);
-            query = query.Include(p => p.Organization);
+            procurementQuery = procurementQuery
+                .Include(p => p.ProcurementState)
+                .Include(p => p.Law)
+                .Include(p => p.Method)
+                .Include(p => p.Platform)
+                .Include(p => p.TimeZone)
+                .Include(p => p.Region)
+                .Include(p => p.ShipmentPlan)
+                .Include(p => p.Organization);
 
-            procurements = query.ToList();
-
+            procurements = procurementQuery.ToList();
             return procurements;
         }
 
