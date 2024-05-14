@@ -850,48 +850,77 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, int employeeId)
+        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName)
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
 
             var query = db.ProcurementsEmployees.AsQueryable();
 
-            if (employeeId != 0)
+            if (!string.IsNullOrEmpty(searchEmployeeName))
             {
-                query = query.Where(pe => pe.EmployeeId == employeeId);
-            }
-            else
-            {
-                return new List<Procurement>();
+                query = query.Where(pe => pe.Employee.FullName == searchEmployeeName);
             }
 
             var procurementIds = query.Select(pe => pe.ProcurementId).ToList();
 
-            var procurementQuery = db.Procurements.Where(p => procurementIds.Contains(p.Id));
+            // Если нет условия по имени сотрудника или не найдено связанных записей,
+            // просто запросим все тендеры без фильтрации по сотруднику.
+            if (string.IsNullOrEmpty(searchEmployeeName) || procurementIds.Count == 0)
+            {
+                var procurementQuery = db.Procurements.AsQueryable();
 
-            if (searchId != 0)
-                procurementQuery = procurementQuery.Where(p => p.Id == searchId);
-            if (!string.IsNullOrEmpty(searchNumber))
-                procurementQuery = procurementQuery.Where(p => p.Number == searchNumber);
-            if (!string.IsNullOrEmpty(searchLaw))
-                procurementQuery = procurementQuery.Where(p => p.Law.Number == searchLaw);
-            if (!string.IsNullOrEmpty(searchProcurementState))
-                procurementQuery = procurementQuery.Where(p => p.ProcurementState.Kind == searchProcurementState);
-            if (!string.IsNullOrEmpty(searchInn))
-                procurementQuery = procurementQuery.Where(p => p.Inn == searchInn);
+                if (searchId != 0)
+                    procurementQuery = procurementQuery.Where(p => p.Id == searchId);
+                if (!string.IsNullOrEmpty(searchNumber))
+                    procurementQuery = procurementQuery.Where(p => p.Number == searchNumber);
+                if (!string.IsNullOrEmpty(searchLaw))
+                    procurementQuery = procurementQuery.Where(p => p.Law.Number == searchLaw);
+                if (!string.IsNullOrEmpty(searchProcurementState))
+                    procurementQuery = procurementQuery.Where(p => p.ProcurementState.Kind == searchProcurementState);
+                if (!string.IsNullOrEmpty(searchInn))
+                    procurementQuery = procurementQuery.Where(p => p.Inn == searchInn);
 
-            procurementQuery = procurementQuery
-                .Include(p => p.ProcurementState)
-                .Include(p => p.Law)
-                .Include(p => p.Method)
-                .Include(p => p.Platform)
-                .Include(p => p.TimeZone)
-                .Include(p => p.Region)
-                .Include(p => p.ShipmentPlan)
-                .Include(p => p.Organization);
+                procurementQuery = procurementQuery
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include(p => p.Method)
+                    .Include(p => p.Platform)
+                    .Include(p => p.TimeZone)
+                    .Include(p => p.Region)
+                    .Include(p => p.ShipmentPlan)
+                    .Include(p => p.Organization);
 
-            procurements = procurementQuery.ToList();
+                procurements = procurementQuery.ToList();
+            }
+            else
+            {
+                var procurementQuery = db.Procurements.Where(p => procurementIds.Contains(p.Id));
+
+                if (searchId != 0)
+                    procurementQuery = procurementQuery.Where(p => p.Id == searchId);
+                if (!string.IsNullOrEmpty(searchNumber))
+                    procurementQuery = procurementQuery.Where(p => p.Number == searchNumber);
+                if (!string.IsNullOrEmpty(searchLaw))
+                    procurementQuery = procurementQuery.Where(p => p.Law.Number == searchLaw);
+                if (!string.IsNullOrEmpty(searchProcurementState))
+                    procurementQuery = procurementQuery.Where(p => p.ProcurementState.Kind == searchProcurementState);
+                if (!string.IsNullOrEmpty(searchInn))
+                    procurementQuery = procurementQuery.Where(p => p.Inn == searchInn);
+
+                procurementQuery = procurementQuery
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include(p => p.Method)
+                    .Include(p => p.Platform)
+                    .Include(p => p.TimeZone)
+                    .Include(p => p.Region)
+                    .Include(p => p.ShipmentPlan)
+                    .Include(p => p.Organization);
+
+                procurements = procurementQuery.ToList();
+            }
+
             return procurements;
         }
 

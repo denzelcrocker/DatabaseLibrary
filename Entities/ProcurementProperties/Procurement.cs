@@ -84,6 +84,12 @@ public partial class Procurement
     public string? PassportOfPC { get; set; }
     public string? PassportOfMonoblock { get; set; }
     public string? PassportOfNotebook { get; set; }
+    public bool? IsProcurementBlocked { get; set; }
+    public bool? IsPurchaseBlocked { get; set; }
+    public bool? IsCalculationBlocked { get; set; }
+    public int? ProcurementUserId { get; set; }
+    public int? PurchaseUserId { get; set; }
+    public int? CalculatingUserId { get; set; }
 
 
 

@@ -105,6 +105,7 @@ public static class PULL
             def.Password = employee.Password;
             def.PositionId = employee.PositionId;
             def.Photo = employee.Photo;
+            def.IsAvailable = employee.IsAvailable;
 
             _ = db.SaveChanges();
         }
@@ -335,6 +336,12 @@ public static class PULL
             def.PassportOfPC = procurement.PassportOfPC;
             def.PassportOfMonoblock = procurement.PassportOfMonoblock;
             def.PassportOfNotebook = procurement.PassportOfNotebook;
+            def.IsProcurementBlocked = procurement.IsProcurementBlocked;
+            def.IsPurchaseBlocked = procurement.IsPurchaseBlocked;
+            def.IsCalculationBlocked = procurement.IsCalculationBlocked;
+            def.ProcurementUserId = procurement.ProcurementUserId;
+            def.PurchaseUserId = procurement.PurchaseUserId;
+            def.CalculatingUserId = procurement.CalculatingUserId;
 
             _ = db.SaveChanges();
         }
