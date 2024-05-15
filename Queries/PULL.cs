@@ -350,6 +350,52 @@ public static class PULL
         return isSaved;
     }
 
+    public static bool ClosingActiveSessionsByEmployee(int employeeId)
+    {
+        using ParsethingContext db = new();
+        Procurement? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.Procurements
+                .FirstOrDefault(p => p.CalculatingUserId == employeeId || p.PurchaseUserId == employeeId || p.ProcurementUserId == employeeId);
+
+            if (def != null)
+            {
+                if (def.CalculatingUserId == employeeId)
+                {
+                    def.CalculatingUserId = null;
+                    def.IsCalculationBlocked = false;
+                }
+
+                if (def.PurchaseUserId == employeeId)
+                {
+                    def.PurchaseUserId = null;
+                    def.IsPurchaseBlocked = false;
+                }
+
+                if (def.ProcurementUserId == employeeId)
+                {
+                    def.ProcurementUserId = null;
+                    def.IsProcurementBlocked = false;
+                }
+
+                _ = db.SaveChanges();
+            }
+            else
+            {
+                isSaved = false;
+            }
+        }
+        catch
+        {
+            isSaved = false;
+        }
+
+        return isSaved;
+    }
+
     public static bool ProcurementsEmployee(ProcurementsEmployee procurementsEmployee, string premierPosition, string secondPosition, string thirdPosition)
     {
         using ParsethingContext db = new();
