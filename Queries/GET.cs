@@ -411,6 +411,29 @@ public static class GET
 
             return procurements;
         }
+        public static Procurement? ProcurementBy(int id) // Получить тендер по Id
+        {
+            using ParsethingContext db = new();
+            Procurement? procurement = null;
+
+            try
+            {
+                procurement = db.Procurements
+                    .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Include(p => p.Organization)
+                    .Where(p => p.Id == id)
+                    .First();
+            }
+            catch { }
+
+            return procurement;
+        }
         public static List<ComponentHeaderType>? ComponentHeaderTypes() // Получить список заголовков расчета и закупки
         {
             using ParsethingContext db = new();
@@ -1771,6 +1794,22 @@ public static class GET
                     .Where(p => p.RealDueDate == null)
                     .Count();
                 }
+            }
+            catch { }
+
+            return count;
+        }
+        public static int ProcurementsQueueCount() // Очередь расчета
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+            try
+            {
+                count = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Where(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id))
+                    .Count();
             }
             catch { }
 
