@@ -164,6 +164,7 @@ public partial class ParsethingContext : DbContext
             _ = entity.Property(e => e.ContractAmount).HasColumnType("decimal(19, 2)");
             _ = entity.Property(e => e.CorrectionDate).HasColumnType("datetime");
             _ = entity.Property(e => e.Deadline).HasColumnType("datetime");
+            _ = entity.Property(e => e.ResultDate).HasColumnType("datetime");
             _ = entity.Property(e => e.DeliveryDate).HasColumnType("datetime");
             _ = entity.Property(e => e.DepartureDate).HasColumnType("datetime");
             _ = entity.Property(e => e.Fas).HasColumnName("FAS");
@@ -173,6 +174,10 @@ public partial class ParsethingContext : DbContext
             _ = entity.Property(e => e.MaxDueDate).HasColumnType("datetime");
             _ = entity.Property(e => e.MinimalPrice).HasColumnType("decimal(19, 2)");
             _ = entity.Property(e => e.ProtocolDate).HasColumnType("datetime");
+            _ = entity.Property(e => e.ExecutionPrice).HasColumnType("decimal(19, 2)");
+            _ = entity.Property(e => e.ExecutionDate).HasColumnType("datetime");
+            _ = entity.Property(e => e.WarrantyPrice).HasColumnType("decimal(19, 2)");
+            _ = entity.Property(e => e.WarrantyDate).HasColumnType("datetime");
             _ = entity.Property(e => e.PostingDate).HasColumnType("datetime");
             _ = entity.Property(e => e.RealDueDate).HasColumnType("datetime");
             _ = entity.Property(e => e.ReserveContractAmount).HasColumnType("decimal(19, 2)");

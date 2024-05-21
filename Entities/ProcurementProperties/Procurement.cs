@@ -18,6 +18,7 @@ public partial class Procurement
     public DateTime? PostingDate { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? Deadline { get; set; }
+    public DateTime? ResultDate { get; set; }
     public int? TimeZoneId { get; set; }
     public string? Securing { get; set; }
     public string? Enforcement { get; set; }
@@ -45,6 +46,7 @@ public partial class Procurement
     public string? GuaranteePeriod { get; set; }
     public string? Inn { get; set; }
     public string? ContractNumber { get; set; }
+    public string? OrganizationEmail { get; set; }
     public int? EmployeeId { get; set; }
     public bool? AssemblyNeed { get; set; }
     public int? MinopttorgId { get; set; }
@@ -55,12 +57,17 @@ public partial class Procurement
     public decimal? ContractAmount { get; set; }
     public decimal? ReserveContractAmount { get; set; }
     public DateTime? ProtocolDate { get; set; }
+    public string? HeadOfAcceptance { get; set; }
     public int? ShipmentPlanId { get; set; }
     public bool? WaitingList { get; set; }
     public bool? Calculating { get; set; }
     public bool? Purchase { get; set; }
     public int? ExecutionStateId { get; set; }
+    public decimal? ExecutionPrice { get; set; }
+    public DateTime? ExecutionDate { get; set; }
     public int? WarrantyStateId { get; set; }
+    public decimal? WarrantyPrice { get; set; }
+    public DateTime? WarrantyDate { get; set; }
     public DateTime? SigningDeadline { get; set; }
     public DateTime? SigningDate { get; set; }
     public DateTime? ConclusionDate { get; set; }

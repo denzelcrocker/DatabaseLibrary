@@ -274,6 +274,9 @@ public static class PULL
                 .Where(p => p.Id == procurement.Id)
                 .First();
 
+            def.Securing = procurement.Securing;
+            def.Enforcement = procurement.Enforcement;
+            def.Warranty = procurement.Warranty;
             def.RegionId = procurement.RegionId;
             def.OrganizationContractName = procurement.OrganizationContractName;
             def.OrganizationContractPostalAddress = procurement.OrganizationContractPostalAddress;
@@ -297,6 +300,7 @@ public static class PULL
             def.GuaranteePeriod = procurement.GuaranteePeriod;
             def.Inn = procurement.Inn;
             def.ContractNumber = procurement.ContractNumber;
+            def.OrganizationEmail = procurement.OrganizationEmail;
             def.AssemblyNeed = procurement.AssemblyNeed;
             def.MinopttorgId = procurement.MinopttorgId;
             def.LegalEntityId = procurement.LegalEntityId;
@@ -306,12 +310,17 @@ public static class PULL
             def.ContractAmount = procurement.ContractAmount;
             def.ReserveContractAmount = procurement.ReserveContractAmount;
             def.ProtocolDate = procurement.ProtocolDate;
+            def.HeadOfAcceptance = procurement.HeadOfAcceptance;
             def.ShipmentPlanId = procurement.ShipmentPlanId;
             def.WaitingList = procurement.WaitingList;
             def.Calculating = procurement.Calculating;
             def.Purchase = procurement.Purchase;
             def.ExecutionStateId = procurement.ExecutionStateId;
+            def.ExecutionPrice = procurement.ExecutionPrice;
+            def.ExecutionDate = procurement.ExecutionDate;
             def.WarrantyStateId = procurement.WarrantyStateId;
+            def.WarrantyPrice = procurement.WarrantyPrice;
+            def.WarrantyDate = procurement.WarrantyDate;
             def.SigningDeadline = procurement.SigningDeadline;
             def.SigningDate = procurement.SigningDate;
             def.ConclusionDate = procurement.ConclusionDate;
@@ -490,6 +499,7 @@ public static class PULL
             def.Location = procurement.Location;
             def.StartDate = procurement.StartDate;
             def.Deadline = procurement.Deadline;
+            def.ResultDate = procurement.ResultDate;
             def.TimeZoneId = procurement.TimeZoneId;
             def.Securing = procurement.Securing;
             def.Enforcement = procurement.Enforcement;

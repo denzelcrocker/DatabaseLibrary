@@ -625,7 +625,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.ProcurementState)
                             .Where(p => p.ShipmentPlan != null && p.ShipmentPlan.Kind == kind)
-                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" || p.ProcurementState.Kind == "Приемка")
+                            .Where(p => p.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
                         break;
                     case KindOf.Applications: // Выигранным по заявкам
@@ -639,6 +639,19 @@ public static class GET
                             .Include(p => p.Region)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Applications == true)
+                            .ToList();
+                        break;
+                    case KindOf.CorrectionDate: // Тендерам на исправлении
+                        procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.CorrectionDate != null && p.ProcurementState.Kind == kind)
                             .ToList();
                         break;
                 }
@@ -718,6 +731,38 @@ public static class GET
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ProcurementState.Kind == procurementStateKind)
                             .Where(p => p.StartDate > DateTime.Now)
+                            .ToList();
+                        }
+                        break;
+                    case KindOf.ResultDate: // Дата подведения итогов
+                        if (isOverdue) // Просроченных по статусу 
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.ResultDate < DateTime.Now)
+                            .ToList();
+                        }
+                        else // Непросроченных по статусу
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.ResultDate > DateTime.Now)
                             .ToList();
                         }
                         break;
@@ -1162,7 +1207,7 @@ public static class GET
                             .Include(pe => pe.Procurement.ProcurementState)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.ShipmentPlan != null && pe.Procurement.ShipmentPlan.Kind == kind)
-                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
                         break;
                     case KindOf.Applications: // Положительному наличию статуса "по заявкам" и id сотрудника
@@ -1196,7 +1241,7 @@ public static class GET
                             .Include(pe => pe.Procurement.ExecutionState)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
-                            .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Оформлена БГ" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)" || pe.Procurement.ExecutionState.Kind == "Добросовестность")
+                            .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "На согласовании заказчика" || pe.Procurement.ExecutionState.Kind == "Внесение правок" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Ожидает оплаты" || pe.Procurement.ExecutionState.Kind == "Оформлена БГ" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)" || pe.Procurement.ExecutionState.Kind == "Добросовестность")
                             .ToList();
                         break;
                     case KindOf.WarrantyState: // Статусу обеспечения гарантии, конкретным статусам тендера и id сотрудника
@@ -1214,7 +1259,25 @@ public static class GET
                             .Include(pe => pe.Procurement.WarrantyState)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
-                            .Where(pe => pe.Procurement.WarrantyState.Kind == "Запрошена БГ" || pe.Procurement.WarrantyState.Kind == "Согласована БГ" || pe.Procurement.WarrantyState.Kind == "Оформлена БГ" || pe.Procurement.WarrantyState.Kind == "Деньги(Возвратные)" || pe.Procurement.WarrantyState.Kind == "Добросовестность")
+                            .Where(pe => pe.Procurement.WarrantyState.Kind == "Запрошена БГ" || pe.Procurement.WarrantyState.Kind == "На согласовании заказчика" || pe.Procurement.WarrantyState.Kind == "Внесение правок" || pe.Procurement.WarrantyState.Kind == "Согласована БГ" || pe.Procurement.WarrantyState.Kind == "Ожидает оплаты" || pe.Procurement.WarrantyState.Kind == "Оформлена БГ" || pe.Procurement.WarrantyState.Kind == "Деньги(Возвратные)" || pe.Procurement.WarrantyState.Kind == "Добросовестность")
+                            .ToList();
+                        break;
+                    case KindOf.CorrectionDate: // Статусу обеспечения гарантии, конкретным статусам тендера и id сотрудника
+                        procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Include(pe => pe.Procurement.WarrantyState)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == kind)
+                            .Where(pe => pe.Procurement.CorrectionDate != null)
                             .ToList();
                         break;
                 }
@@ -1540,7 +1603,7 @@ public static class GET
                         break;
                     case "Специалист отдела расчетов":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен")
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформлен")
                             .ToList();
                         break;
                     case "Руководитель тендерного отдела":
@@ -1560,7 +1623,7 @@ public static class GET
                         break;
                     case "Специалист по работе с электронными площадками":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
+                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
                             .ToList();
                         break;
                     case "Руководитель отдела закупки":
@@ -1755,12 +1818,18 @@ public static class GET
                         count = db.Procurements
                             .Include(e => e.ShipmentPlan)
                             .Where(p => p.ShipmentPlan != null && p.ShipmentPlan.Kind == kind)
-                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" || p.ProcurementState.Kind == "Приемка")
+                            .Where(p => p.ProcurementState.Kind == "Выигран 2ч")
                             .Count();
                         break;
                     case KindOf.Applications: // Положительному статусу "По заявкам"
                         count = db.Procurements
                             .Where(p => p.Applications == true)
+                            .Count();
+                        break;
+                    case KindOf.CorrectionDate: // По тендерам на исправлении
+                        count = db.Procurements
+                            .Where(p => p.CorrectionDate != null)
+                            .Where(p => p.ProcurementState.Kind == kind)
                             .Count();
                         break;
                 }
@@ -1886,6 +1955,24 @@ public static class GET
                             .Count();
                         }
                         break;
+                    case KindOf.ResultDate: // Дате начала подачи заявок
+                        if (isOverdue) // Просроченные
+                        {
+                            count = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.ResultDate < DateTime.Now)
+                            .Count();
+                        }
+                        else // Непросроченные
+                        {
+                            count = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Where(p => p.ProcurementState.Kind == procurementStateKind)
+                            .Where(p => p.ResultDate > DateTime.Now)
+                            .Count();
+                        }
+                        break;
                     case KindOf.ContractConclusion: // Дате подписания контракта
                         if (isOverdue) // Просроченные
                         {
@@ -1938,7 +2025,7 @@ public static class GET
                             .Include(pe => pe.Procurement.ProcurementState)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.ShipmentPlan != null && pe.Procurement.ShipmentPlan.Kind == kind)
-                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Count();
                         break;
                     case KindOf.Applications: // Положительному статусу "По заявкам" и конкретному сотруднику
@@ -1957,7 +2044,7 @@ public static class GET
                             .Include(pe => pe.Procurement.ProcurementState)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
-                            .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Оформлена БГ" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)" || pe.Procurement.ExecutionState.Kind == "Добросовестность")
+                            .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "На согласовании заказчика" || pe.Procurement.ExecutionState.Kind == "Внесение правок" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Ожидает оплаты" || pe.Procurement.ExecutionState.Kind == "Оформлена БГ" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)" || pe.Procurement.ExecutionState.Kind == "Добросовестность")
                             .Count();
                         break;
                     case KindOf.WarrantyState: // Статусу обеспечения гарантии заявки по конкретному сотруднику
@@ -1968,7 +2055,18 @@ public static class GET
                             .Include(pe => pe.Procurement.ProcurementState)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
-                            .Where(pe => pe.Procurement.WarrantyState.Kind == "Запрошена БГ" || pe.Procurement.WarrantyState.Kind == "Согласована БГ" || pe.Procurement.WarrantyState.Kind == "Оформлена БГ" || pe.Procurement.WarrantyState.Kind == "Деньги(Возвратные)" || pe.Procurement.WarrantyState.Kind == "Добросовестность")
+                            .Where(pe => pe.Procurement.WarrantyState.Kind == "Запрошена БГ" || pe.Procurement.WarrantyState.Kind == "На согласовании заказчика" || pe.Procurement.WarrantyState.Kind == "Внесение правок" || pe.Procurement.WarrantyState.Kind == "Согласована БГ" || pe.Procurement.WarrantyState.Kind == "Ожидает оплаты" || pe.Procurement.WarrantyState.Kind == "Оформлена БГ" || pe.Procurement.WarrantyState.Kind == "Деньги(Возвратные)" || pe.Procurement.WarrantyState.Kind == "Добросовестность")
+                            .Count();
+                        break;
+                    case KindOf.CorrectionDate: // По тендерам на исправлении
+                        count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.WarrantyState)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == kind)
+                            .Where(pe => pe.Procurement.CorrectionDate != null)
                             .Count();
                         break;
                 }
@@ -2032,6 +2130,30 @@ public static class GET
                                 .Where(pe => pe.Employee.Id == employeeId)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.StartDate > DateTime.Now)
+                                .Count();
+                        }
+                        break;
+                    case KindOf.ResultDate: // Дате подведения итогов
+                        if (isOverdue) // Просроченные 
+                        {
+                            count = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.ResultDate < DateTime.Now)
+                                .Count();
+                        }
+                        else // Непросроченные
+                        {
+                            count = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.ResultDate > DateTime.Now)
                                 .Count();
                         }
                         break;
@@ -2185,11 +2307,15 @@ public static class GET
         Applications, // Статус "По заявкам"
         StartDate, // Дата начала подачи заявок
         Deadline, // Дата окончания подачи заявок
+        ResultDate, // Дата подведения итогов
+        CorrectionDate,
         Judgement, // Суд
         FAS, // ФАС
         ContractConclusion, // Дата подписания контракта
         ExecutionState, // Статус обеспечения исполнения заявки
-        WarrantyState // Статус обеспечения гарантии заявки
+        WarrantyState, // Статус обеспечения гарантии заявки
+        Calculating, // Виза расчетчиков
+        Purchase // Виза закупки
     }
     
 }
