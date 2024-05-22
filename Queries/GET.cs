@@ -917,77 +917,151 @@ public static class GET
 
             return procurements;
         }
-
-        public static List<Procurement>? ProcurementsBy(int searchId, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName)
+        public static List<Procurement>? ProcurementsBy(bool isTrue, KindOf kindOf) // Получить список тендеров: 
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
 
-            var query = db.ProcurementsEmployees.AsQueryable();
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Calculating: // По визе расчета
+                        if (isTrue)
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.Calculating == true)
+                            .ToList();
+                        }
+                        else
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.Calculating == false || p.Calculating == null)
+                            .ToList();
+                        }
+                        break;
+                    case KindOf.Purchase: // По визе закупки
+                        if (isTrue)
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.Purchase == true)
+                            .ToList();
+                        }
+                        else
+                        {
+                            procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.Purchase == false || p.Purchase == null)
+                            .ToList();
+                        }
+                        break;
+                }
+            }
+            catch { }
 
+            return procurements;
+        }
+
+        public static List<Procurement>? ProcurementsBy(string searchIds, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName, string searchOrganizationName)
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            var procurementQuery = db.Procurements.AsQueryable();
+
+            // Обрабатываем поле searchIds, чтобы избежать ошибок при вводе букв
+            var ids = searchIds.Split(',')
+                               .Select(id => int.TryParse(id.Trim(), out int intId) ? intId : (int?)null)
+                               .Where(id => id.HasValue)
+                               .Select(id => id.Value)
+                               .ToList();
+
+            // Если нет выбранных идентификаторов тендеров, сотрудника и остальные поля также пусты, возвращаем пустой список тендеров
+            if (ids.Count == 0 && string.IsNullOrEmpty(searchEmployeeName)
+                && string.IsNullOrEmpty(searchNumber) && string.IsNullOrEmpty(searchLaw)
+                && string.IsNullOrEmpty(searchProcurementState) && string.IsNullOrEmpty(searchInn)
+                && string.IsNullOrEmpty(searchOrganizationName))
+            {
+                return new List<Procurement>();
+            }
+
+            // Фильтруем тендеры по выбранным параметрам
+            if (ids.Count > 0)
+            {
+                procurementQuery = procurementQuery.Where(p => ids.Contains(p.Id));
+            }
+
+            if (!string.IsNullOrEmpty(searchNumber))
+                procurementQuery = procurementQuery.Where(p => p.Number == searchNumber);
+            if (!string.IsNullOrEmpty(searchLaw))
+                procurementQuery = procurementQuery.Where(p => p.Law.Number == searchLaw);
+            if (!string.IsNullOrEmpty(searchProcurementState))
+                procurementQuery = procurementQuery.Where(p => p.ProcurementState.Kind == searchProcurementState);
+            if (!string.IsNullOrEmpty(searchInn))
+                procurementQuery = procurementQuery.Where(p => p.Inn == searchInn);
+            if (!string.IsNullOrEmpty(searchOrganizationName))
+                procurementQuery = procurementQuery.Where(p => p.Organization.Name.Contains(searchOrganizationName));
+
+            // Если выбран сотрудник, проверяем есть ли у него связанные тендеры
             if (!string.IsNullOrEmpty(searchEmployeeName))
             {
-                query = query.Where(pe => pe.Employee.FullName == searchEmployeeName);
+                var query = db.ProcurementsEmployees
+                              .Where(pe => pe.Employee.FullName == searchEmployeeName)
+                              .Select(pe => pe.ProcurementId)
+                              .ToList();
+
+                if (query.Count == 0)
+                {
+                    return new List<Procurement>();
+                }
+
+                procurementQuery = procurementQuery.Where(p => query.Contains(p.Id));
             }
 
-            var procurementIds = query.Select(pe => pe.ProcurementId).ToList();
+            // Запросы Include и ToList остаются без изменений
+            procurementQuery = procurementQuery
+                .Include(p => p.ProcurementState)
+                .Include(p => p.Law)
+                .Include(p => p.Method)
+                .Include(p => p.Platform)
+                .Include(p => p.TimeZone)
+                .Include(p => p.Region)
+                .Include(p => p.ShipmentPlan)
+                .Include(p => p.Organization);
 
-            // Если нет условия по имени сотрудника или не найдено связанных записей,
-            // просто запросим все тендеры без фильтрации по сотруднику.
-            if (string.IsNullOrEmpty(searchEmployeeName) || procurementIds.Count == 0)
-            {
-                var procurementQuery = db.Procurements.AsQueryable();
-
-                if (searchId != 0)
-                    procurementQuery = procurementQuery.Where(p => p.Id == searchId);
-                if (!string.IsNullOrEmpty(searchNumber))
-                    procurementQuery = procurementQuery.Where(p => p.Number == searchNumber);
-                if (!string.IsNullOrEmpty(searchLaw))
-                    procurementQuery = procurementQuery.Where(p => p.Law.Number == searchLaw);
-                if (!string.IsNullOrEmpty(searchProcurementState))
-                    procurementQuery = procurementQuery.Where(p => p.ProcurementState.Kind == searchProcurementState);
-                if (!string.IsNullOrEmpty(searchInn))
-                    procurementQuery = procurementQuery.Where(p => p.Inn == searchInn);
-
-                procurementQuery = procurementQuery
-                    .Include(p => p.ProcurementState)
-                    .Include(p => p.Law)
-                    .Include(p => p.Method)
-                    .Include(p => p.Platform)
-                    .Include(p => p.TimeZone)
-                    .Include(p => p.Region)
-                    .Include(p => p.ShipmentPlan)
-                    .Include(p => p.Organization);
-
-                procurements = procurementQuery.ToList();
-            }
-            else
-            {
-                var procurementQuery = db.Procurements.Where(p => procurementIds.Contains(p.Id));
-
-                if (searchId != 0)
-                    procurementQuery = procurementQuery.Where(p => p.Id == searchId);
-                if (!string.IsNullOrEmpty(searchNumber))
-                    procurementQuery = procurementQuery.Where(p => p.Number == searchNumber);
-                if (!string.IsNullOrEmpty(searchLaw))
-                    procurementQuery = procurementQuery.Where(p => p.Law.Number == searchLaw);
-                if (!string.IsNullOrEmpty(searchProcurementState))
-                    procurementQuery = procurementQuery.Where(p => p.ProcurementState.Kind == searchProcurementState);
-                if (!string.IsNullOrEmpty(searchInn))
-                    procurementQuery = procurementQuery.Where(p => p.Inn == searchInn);
-
-                procurementQuery = procurementQuery
-                    .Include(p => p.ProcurementState)
-                    .Include(p => p.Law)
-                    .Include(p => p.Method)
-                    .Include(p => p.Platform)
-                    .Include(p => p.TimeZone)
-                    .Include(p => p.Region)
-                    .Include(p => p.ShipmentPlan)
-                    .Include(p => p.Organization);
-
-                procurements = procurementQuery.ToList();
-            }
+            // Получаем список тендеров
+            procurements = procurementQuery.ToList();
 
             return procurements;
         }
@@ -1543,6 +1617,93 @@ public static class GET
 
             return procurementsEmployees;
         }
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(bool isTrue, KindOf kindOf, int employeeId) // Получить тендеры, назначенные на конкретного сотрудника
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurementsEmployees = null;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Calculating: // По визе расчета
+                        if (isTrue)
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Calculating == true)
+                            .ToList();
+                        }
+                        else
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Calculating == false || pe.Procurement.Calculating == null)
+                            .ToList();
+                        }
+                        break;
+                    case KindOf.Purchase: // По визе закупки
+                        if (isTrue)
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Purchase == true)
+                            .ToList();
+                        }
+                        else
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Purchase == false || pe.Procurement.Purchase == null)
+                            .ToList();
+                        }
+                        break;
+                }
+            }
+            catch { }
+
+            return procurementsEmployees;
+        }
         public static List<ProcurementsPreference>? ProcurementsPreferencesBy(int procurementId) // Получить преференции по конкретному тендеру
         {
             using ParsethingContext db = new();
@@ -1909,6 +2070,49 @@ public static class GET
 
             return count;
         }
+        public static int ProcurementsCountBy(bool isTrue, KindOf kindOf) // Получить количество тендеров по:
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Calculating: // По визе расчета
+                        if (isTrue)
+                        {
+                            count = db.Procurements
+                              .Where(p => p.Calculating == true)
+                              .Count();
+                        }
+                        else
+                        {
+                            count = db.Procurements
+                              .Where(p => p.Calculating == false || p.Calculating == null)
+                              .Count();
+                        }
+                        break;
+                    case KindOf.Purchase: // По визе закупки
+                        if (isTrue)
+                        {
+                            count = db.Procurements
+                              .Where(p => p.Purchase == true)
+                              .Count();
+                        }
+                        else
+                        {
+                            count = db.Procurements
+                              .Where(p => p.Purchase == false || p.Purchase == null)
+                              .Count();
+                        }
+                        break;
+                }
+            }
+            catch { }
+
+            return count;
+        }
 
         public static int ProcurementsCountBy(string procurementStateKind, bool isOverdue, KindOf kindOf) // Получить количество тендеров по:
         {
@@ -2181,6 +2385,7 @@ public static class GET
                                 .Count();
                         }
                         break;
+
                 }
             }
             catch { }
@@ -2270,6 +2475,62 @@ public static class GET
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Fas == true)
                             .Count();
+                        break;
+                }
+            }
+            catch { }
+
+            return count;
+
+        }
+        public static int ProcurementsEmployeesCountBy(bool isTrue, KindOf kindOf, int employeeId) // Получить количество тендеров по конкретному сотруднику 
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                switch (kindOf)
+                {
+                    case KindOf.Calculating: // По визе расчета
+                        if (isTrue) // Есть
+                        {
+                            count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Calculating == true)
+                            .Count();
+                        }
+                        else // Нет
+                        {
+                            count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Calculating == false || pe.Procurement.Calculating == null)
+                            .Count();
+                        }
+                        break;
+                    case KindOf.Purchase: // По визе закупки
+                        if (isTrue)// Есть
+                        {
+                            count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Purchase == true)
+                            .Count();
+                        }
+                        else // Нет
+                        {
+                            count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Procurement.Purchase == false || pe.Procurement.Purchase == null)
+                            .Count();
+                        }
                         break;
                 }
             }
