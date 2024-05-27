@@ -939,6 +939,7 @@ public static class GET
                             .Include(p => p.Region)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Calculating == true)
+                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
                         }
                         else
@@ -953,6 +954,7 @@ public static class GET
                             .Include(p => p.Region)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Calculating == false || p.Calculating == null)
+                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
                         }
                         break;
@@ -969,6 +971,7 @@ public static class GET
                             .Include(p => p.Region)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Purchase == true)
+                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
                         }
                         else
@@ -983,6 +986,7 @@ public static class GET
                             .Include(p => p.Region)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Purchase == false || p.Purchase == null)
+                            .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
                         }
                         break;
@@ -1167,6 +1171,23 @@ public static class GET
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
                     .Where(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id))
+                    .ToList();
+            }
+            catch { }
+
+            return procurements;
+        }
+        public static List<Procurement>? ProcurementsManagersQueue()
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            try
+            {
+                procurements = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8))
                     .ToList();
             }
             catch { }
@@ -1642,6 +1663,7 @@ public static class GET
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Calculating == true)
+                            .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
                         }
                         else
@@ -1659,6 +1681,7 @@ public static class GET
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Calculating == false || pe.Procurement.Calculating == null)
+                            .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
                         }
                         break;
@@ -1678,6 +1701,7 @@ public static class GET
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Purchase == true)
+                            .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
                         }
                         else
@@ -1695,6 +1719,7 @@ public static class GET
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Purchase == false || pe.Procurement.Purchase == null)
+                            .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
                         }
                         break;
@@ -2045,6 +2070,22 @@ public static class GET
 
             return count;
         }
+        public static int ProcurementsManagersQueueCount() // Тендеры, не назначенные не конкретного менеджера (количество)
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+            try
+            {
+                count = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8))
+                    .Count();
+            }
+            catch { }
+
+            return count;
+        }
         public static int ProcurementsCountBy(KindOf kindOf) // Получить количество тендеров по:
         {
             using ParsethingContext db = new();
@@ -2084,12 +2125,14 @@ public static class GET
                         {
                             count = db.Procurements
                               .Where(p => p.Calculating == true)
+                              .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
                               .Count();
                         }
                         else
                         {
                             count = db.Procurements
                               .Where(p => p.Calculating == false || p.Calculating == null)
+                              .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
                               .Count();
                         }
                         break;
@@ -2098,12 +2141,14 @@ public static class GET
                         {
                             count = db.Procurements
                               .Where(p => p.Purchase == true)
+                              .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
                               .Count();
                         }
                         else
                         {
                             count = db.Procurements
                               .Where(p => p.Purchase == false || p.Purchase == null)
+                              .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
                               .Count();
                         }
                         break;
@@ -2500,6 +2545,7 @@ public static class GET
                             .Include(pe => pe.Procurement)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Calculating == true)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Count();
                         }
                         else // Нет
@@ -2509,6 +2555,7 @@ public static class GET
                             .Include(pe => pe.Procurement)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Calculating == false || pe.Procurement.Calculating == null)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Count();
                         }
                         break;
@@ -2520,6 +2567,7 @@ public static class GET
                             .Include(pe => pe.Procurement)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Purchase == true)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Count();
                         }
                         else // Нет
@@ -2529,6 +2577,7 @@ public static class GET
                             .Include(pe => pe.Procurement)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Purchase == false || pe.Procurement.Purchase == null)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Count();
                         }
                         break;
