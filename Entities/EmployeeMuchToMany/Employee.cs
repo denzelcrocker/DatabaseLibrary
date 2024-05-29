@@ -8,7 +8,7 @@ public partial class Employee
     public string Password { get; set; } = null!;
     public int PositionId { get; set; }
     public string? Photo { get; set; }
-    public bool? IsAvailable { get; set; }
+    public bool IsAvailable { get; set; }
 
     public virtual ICollection<Comment> Comments { get; } = new List<Comment>();
     public virtual ICollection<History> Histories { get; } = new List<History>();

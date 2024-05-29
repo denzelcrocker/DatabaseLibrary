@@ -1079,7 +1079,12 @@ public static class GET
                 .Where(p => p.Method != null)
                 .Where(p => p.ProcurementState.Kind == "Отправлен")
                 .GroupBy(p => p.Method.Text)
-                .Select(g => new ProcurementsEmployeesGrouping { Id = g.Key, CountOfProcurements = g.Count() })
+                .Select(g => new ProcurementsEmployeesGrouping
+                {
+                    Id = g.Key,
+                    CountOfProcurements = g.Count(),
+                    Procurements = g.ToList() // Добавлено
+                })
                 .ToList();
 
             return procurementsEmployees;
@@ -1119,7 +1124,12 @@ public static class GET
                 .Include(pe => pe.Procurement)
                 .Where(pe => pe.EmployeeId == employeeId)
                 .GroupBy(pe => pe.Employee.FullName)
-                .Select(g => new ProcurementsEmployeesGrouping {Id = g.Key, CountOfProcurements = g.Count() })
+                .Select(g => new ProcurementsEmployeesGrouping
+                {
+                    Id = g.Key,
+                    CountOfProcurements = g.Count(),
+                    Procurements = g.Select(pe => pe.Procurement).ToList() // Добавлено
+                })
                 .ToList();
 
             return procurementsEmployees;
@@ -1137,7 +1147,12 @@ public static class GET
                 .Where(pe => pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition)
                 .Where(pe => pe.Procurement.ProcurementState.Kind == premierProcurementState || pe.Procurement.ProcurementState.Kind == secondProcurementState || pe.Procurement.ProcurementState.Kind == thirdProcurementState)
                 .GroupBy(pe => pe.Employee.FullName)
-                .Select(g => new ProcurementsEmployeesGrouping { Id = g.Key , CountOfProcurements = g.Count() })
+                .Select(g => new ProcurementsEmployeesGrouping
+                {
+                    Id = g.Key,
+                    CountOfProcurements = g.Count(),
+                    Procurements = g.Select(pe => pe.Procurement).ToList() // Добавлено
+                })
                 .ToList();
 
             return procurementsEmployees;
@@ -1154,7 +1169,12 @@ public static class GET
                 .Include(pe => pe.Procurement)
                 .Where(pe => pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition)
                 .GroupBy(pe => pe.Employee.FullName)
-                .Select(g => new ProcurementsEmployeesGrouping { Id = g.Key, CountOfProcurements = g.Count() })
+                .Select(g => new ProcurementsEmployeesGrouping
+                {
+                    Id = g.Key,
+                    CountOfProcurements = g.Count(),
+                    Procurements = g.Select(pe => pe.Procurement).ToList() // Добавлено
+                })
                 .ToList();
 
             return procurementsEmployees;
@@ -2608,6 +2628,8 @@ public static class GET
     {
         public string Id { get; set; }
         public int CountOfProcurements { get; set; }
+        public List<Procurement> Procurements { get; set; }
+
     }
 
     public enum KindOf // Перечисление для типизации запросов
