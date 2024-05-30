@@ -187,7 +187,19 @@ public static class GET
 
             return laws;
         }
+        public static List<Organization>? Organizations() // Получить все законы
+        {
+            using ParsethingContext db = new();
+            List<Organization> organizations = null;
+            try
+            {
+                organizations = db.Organizations
+                    .ToList();
+            }
+            catch { }
 
+            return organizations;
+        }
         public static List<ComponentState>? ComponentStates() // Получить все статусы тендеров
         {
             using ParsethingContext db = new();
