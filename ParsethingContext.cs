@@ -249,7 +249,10 @@ public partial class ParsethingContext : DbContext
             _ = entity.HasOne(d => d.WarrantyState).WithMany(p => p.Procurements)
                 .HasForeignKey(d => d.WarrantyStateId)
                 .HasConstraintName("FK_Procurements_WarrantyStates");
+
+
         });
+        modelBuilder.Entity<ComponentStateCount>().HasNoKey();
 
         _ = modelBuilder.Entity<ProcurementState>(entity =>
         {

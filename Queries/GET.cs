@@ -1,5 +1,7 @@
 ﻿using DatabaseLibrary.Entities.ComponentCalculationProperties;
 using DatabaseLibrary.Entities.EmployeeMuchToMany;
+using static DatabaseLibrary.Entities.ProcurementProperties.Procurement;
+using System.Collections.ObjectModel;
 
 namespace DatabaseLibrary.Queries;
 
@@ -445,6 +447,48 @@ public static class GET
             catch { }
 
             return procurement;
+        }
+        public static List<Procurement> PopulateComponentStates(List<Procurement> procurements)
+        {
+            using ParsethingContext db = new();
+            try
+            {
+                var procurementIds = procurements.Select(p => p.Id).ToList();
+                var componentCalculations = db.ComponentCalculations
+                    .Where(cc => procurementIds.Contains(cc.ProcurementId))
+                    .Include(cc => cc.ComponentState)
+                    .ToList();
+
+                var groupedComponentCalculations = componentCalculations
+                    .GroupBy(cc => cc.ProcurementId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                foreach (var procurement in procurements)
+                {
+                    if (groupedComponentCalculations.ContainsKey(procurement.Id))
+                    {
+                        var calculations = groupedComponentCalculations[procurement.Id];
+                        procurement.ComponentStates = new ObservableCollection<ComponentStateCount>(
+                            calculations
+                                .Where(cc => cc.ComponentState != null) // Добавляем проверку на null
+                                .GroupBy(cc => cc.ComponentState?.Kind) // Используем безопасную навигацию для ComponentState
+                                .Select(group => new ComponentStateCount
+                                {
+                                    State = group.Key ?? "Unknown", // Используем значение по умолчанию, если group.Key равен null
+                                    Count = group.Count()
+                                })
+                        );
+                    }
+                    else
+                    {
+                        // Если компоненты отсутствуют, устанавливаем пустую коллекцию
+                        procurement.ComponentStates = new ObservableCollection<ComponentStateCount>();
+                    }
+                }
+            }
+            catch { }
+
+            return procurements;
         }
         public static List<ComponentHeaderType>? ComponentHeaderTypes() // Получить список заголовков расчета и закупки
         {

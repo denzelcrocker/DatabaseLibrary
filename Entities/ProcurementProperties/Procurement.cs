@@ -1,5 +1,7 @@
 ﻿using Azure;
 using DatabaseLibrary.Queries;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DatabaseLibrary.Entities.ProcurementProperties;
 
@@ -101,6 +103,9 @@ public partial class Procurement
 
 
     public virtual ICollection<ComponentCalculation> ComponentCalculations { get; } = new List<ComponentCalculation>();
+    [NotMapped]
+    public ObservableCollection<ComponentStateCount> ComponentStates { get; set; } = new ObservableCollection<ComponentStateCount>();
+
 
     public virtual CommisioningWork? CommissioningWorks { get; set; }
     public virtual ExecutionState? ExecutionState { get; set; }
@@ -153,4 +158,10 @@ public partial class Procurement
     {
         return $"\"RequestUri\" = {RequestUri}, \"Number\" = '{Number}', \"LawId\" = {LawId}, \"Object\" = '{Object}', \"InitialPrice\" = {InitialPrice}, \"OrganizationId\" = {OrganizationId}, \"MethodId\" = {(MethodId != null ? $"{MethodId}" : "null")}, \"PlatformId\" = {(PlatformId != null ? $"{PlatformId}" : "null")}, \"Location\" = {(Location != null ? $"'{Location}'" : "null")}, \"PostingDate\" = {(PostingDate != null ? $"'{PostingDate}'" : "null")}, \"StartDate\" = {(StartDate != null ? $"'{StartDate}'" : "null")}, \"Deadline\" = {(Deadline != null ? $"'{Deadline}'" : "null")}, \"TimeZoneId\" = {(TimeZoneId != null ? $"{TimeZoneId}" : "null")}, \"Securing\" = {(Securing != null ? $"'{Securing}'" : "null")}, \"Enforcement\" = {(Enforcement != null ? $"'{Enforcement}'" : "null")}, \"Warranty\" = {(Warranty != null ? $"'{Warranty}'" : "null")}, \"RegionId\" = {(RegionId != null ? $"{RegionId}" : "null")}";
     }
+    
+}
+public class ComponentStateCount
+{
+    public string? State { get; set; }
+    public int Count { get; set; }
 }
