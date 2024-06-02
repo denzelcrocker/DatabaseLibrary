@@ -61,7 +61,7 @@ namespace DatabaseLibrary.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Password=PassSolution;Persist Security Info=True;User ID=ParsethingSolution;Initial Catalog=Parsething;Data Source=192.168.1.128, 1433;Trust Server Certificate=True.
+        ///   Ищет локализованную строку, похожую на Password=PassSolution;Persist Security Info=True;User ID=ParsethingSolution;Initial Catalog=Parsething;Data Source=192.168.0.121, 1433;Trust Server Certificate=True.
         /// </summary>
         internal static string ConnectionString {
             get {

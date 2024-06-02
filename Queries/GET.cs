@@ -590,6 +590,64 @@ public static class GET
 
             return componentCalculations;
         }
+        public static List<ComponentCalculation> ComponentCalculationsBy(List<int?> procurementIds, List<string> componentStatuses) // Получить список комплектующих по списку Id и статусов товара
+        {
+            {
+                using ParsethingContext db = new();
+                List<ComponentCalculation> componentCalculations = null;
+
+                try
+                {
+                    componentCalculations = db.ComponentCalculations
+                        .Include(cc => cc.ComponentState)
+                        .Include(cc => cc.ComponentHeaderType)
+                        .Include(cc => cc.Procurement)
+                        .Include(cc => cc.Procurement.Law)
+                        .Include(cc => cc.Procurement.ProcurementState)
+                        .Include(cc => cc.Procurement.Region)
+                        .Include(cc => cc.Procurement.Method)
+                        .Include(cc => cc.Procurement.Platform)
+                        .Include(cc => cc.Procurement.TimeZone)
+                        .Include(cc => cc.Procurement.Organization)
+                        .Include(cc => cc.Manufacturer)
+                        .Include(cc => cc.ComponentType)
+                        .Include(cc => cc.Seller)
+                        .Where(cc => procurementIds.Contains(cc.ProcurementId) && componentStatuses.Contains(cc.ComponentState.Kind))
+                        .ToList();
+                }
+                catch { }
+
+                return componentCalculations;
+            }
+        }
+        public static List<ComponentCalculation>? ComponentCalculationsBy(int procurementId, List<string> componentStatuses) // Получить список комплектующих по конкретному тендеру и определенным статусам
+        {
+            using ParsethingContext db = new();
+            List<ComponentCalculation> componentCalculations = null;
+
+            try
+            {
+                componentCalculations = db.ComponentCalculations
+                    .Include(cc => cc.ComponentState)
+                    .Include(cc => cc.ComponentHeaderType)
+                    .Include(cc => cc.Procurement)
+                    .Include(cc => cc.Procurement.Law)
+                    .Include(cc => cc.Procurement.ProcurementState)
+                    .Include(cc => cc.Procurement.Region)
+                    .Include(cc => cc.Procurement.Method)
+                    .Include(cc => cc.Procurement.Platform)
+                    .Include(cc => cc.Procurement.TimeZone)
+                    .Include(cc => cc.Procurement.Organization)
+                    .Include(cc => cc.Manufacturer)
+                    .Include(cc => cc.ComponentType)
+                    .Include(cc => cc.Seller)
+                    .Where(cc => cc.ProcurementId == procurementId)
+                    .ToList();
+            }
+            catch { }
+
+            return componentCalculations;
+        }
 
         public static List<SupplyMonitoringList> GetSupplyMonitoringLists(List<Procurement> procurements, List<string> componentStatuses)
         {
