@@ -2119,6 +2119,21 @@ public static class GET
 
     public struct Aggregate
     {
+        public static int ComponentClculationCountBy(int id) // Получить количество позиций по id тендера
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                count = db.ComponentCalculations
+                    .Where(cc => cc.ProcurementId == id && cc.IsHeader == false && cc.IsAdded == false)
+                    .Count();
+            }
+            catch { }
+
+            return count;
+        }
         public static int ProcurementsCountBy(string kind, KindOf kindOf) // Получить количество тендеров по:
         {
             using ParsethingContext db = new();
