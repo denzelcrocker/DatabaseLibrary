@@ -1188,6 +1188,7 @@ public static class GET
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.Procurements
+                .Include(p => p.Law)
                 .Include(p => p.Method)
                 .Include(p => p.ProcurementState)
                 .Where(p => p.Method != null)
@@ -1233,6 +1234,7 @@ public static class GET
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
+                .Include(pe => pe.Procurement.Law)
                 .Include(pe => pe.Employee)
                 .Include(pe => pe.Procurement.Method)
                 .Include(pe => pe.Procurement)
@@ -1253,6 +1255,7 @@ public static class GET
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
+                .Include(pe => pe.Procurement.Law)
                 .Include(pe => pe.Employee)
                 .Include(pe => pe.Procurement.ProcurementState)
                 .Include(pe => pe.Employee.Position)
@@ -1276,6 +1279,7 @@ public static class GET
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
+                .Include(pe => pe.Procurement.Law)
                 .Include(pe => pe.Employee)
                 .Include(pe => pe.Procurement.ProcurementState)
                 .Include(pe => pe.Employee.Position)
