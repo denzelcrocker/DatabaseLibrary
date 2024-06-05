@@ -537,22 +537,32 @@ public static class GET
 
             try
             {
+                var procurementIds = db.ProcurementsEmployees
+            .Where(pe => pe.EmployeeId == employeeId)
+            .Select(pe => pe.ProcurementId)
+            .ToList();
+
                 componentCalculations = db.ComponentCalculations
                     .Include(cc => cc.ComponentState)
                     .Include(cc => cc.ComponentHeaderType)
                     .Include(cc => cc.Procurement)
-                    .Include(cc => cc.Procurement.Law)
-                    .Include(cc => cc.Procurement.ProcurementState)
-                    .Include(cc => cc.Procurement.Region)
-                    .Include(cc => cc.Procurement.Method)
-                    .Include(cc => cc.Procurement.Platform)
-                    .Include(cc => cc.Procurement.TimeZone)
-                    .Include(cc => cc.Procurement.Organization)
+                        .ThenInclude(p => p.Law)
+                    .Include(cc => cc.Procurement)
+                        .ThenInclude(p => p.ProcurementState)
+                    .Include(cc => cc.Procurement)
+                        .ThenInclude(p => p.Region)
+                    .Include(cc => cc.Procurement)
+                        .ThenInclude(p => p.Method)
+                    .Include(cc => cc.Procurement)
+                        .ThenInclude(p => p.Platform)
+                    .Include(cc => cc.Procurement)
+                        .ThenInclude(p => p.TimeZone)
+                    .Include(cc => cc.Procurement)
+                        .ThenInclude(p => p.Organization)
                     .Include(cc => cc.Manufacturer)
                     .Include(cc => cc.ComponentType)
                     .Include(cc => cc.Seller)
-                    .Where(cc => cc.Procurement.EmployeeId == employeeId)
-                    .Where(cc => cc.ComponentState.Kind == kind)
+                    .Where(cc => cc.ComponentState.Kind == kind && procurementIds.Contains(cc.ProcurementId))
                     .ToList();
             }
             catch { }
@@ -941,6 +951,8 @@ public static class GET
                     .Where(p => p.ProcurementState.Kind == "Принят")
                     .Where(p => p.MaxDueDate < DateTime.Now)
                     .Where(p => p.RealDueDate == null)
+                    .Where(p => p.Amount < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+
                     .ToList();
                 }
                 else // В срок
@@ -957,6 +969,7 @@ public static class GET
                     .Where(p => p.ProcurementState.Kind == "Принят")
                     .Where(p => p.MaxDueDate > DateTime.Now)
                     .Where(p => p.RealDueDate == null)
+                    .Where(p => p.Amount < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
                     .ToList();
                 }
             }
@@ -983,6 +996,7 @@ public static class GET
                 .Where(p => p.ProcurementState.Kind == "Принят")
                 .Where(p => p.RealDueDate == null)
                 .Where(p => p.MaxDueDate != null)
+            .Where(p => p.Amount < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
                 .ToList();
             }
             catch { }
@@ -1400,7 +1414,23 @@ public static class GET
 
             return procurements;
         }
-        //
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesByProcurement(int procurementId) // Получть список тендеров и сотрудников по id тендера
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurements = null;
+
+            try
+            {
+                procurements = db.ProcurementsEmployees
+                    .Include(pe => pe.Employee)
+                    .Where(pe => pe.Procurement.Id == procurementId)
+                    .ToList();
+            }
+            catch { }
+
+            return procurements;
+        }
+
         public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string kind, KindOf kindOf, int employeeId) // Получить список тендеров и закупок по:
         {
             using ParsethingContext db = new();
@@ -1674,6 +1704,7 @@ public static class GET
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate < DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
+                        .Where(pe => pe.Procurement.Amount < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                         .ToList();
                 }
                 else // Просроченные
@@ -1693,6 +1724,7 @@ public static class GET
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate > DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
+                        .Where(pe => pe.Procurement.Amount < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                         .ToList();
                 }
             }
@@ -1722,6 +1754,7 @@ public static class GET
                     .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                     .Where(pe => pe.Procurement.RealDueDate == null)
                     .Where(pe => pe.Procurement.MaxDueDate != null)
+                    .Where(pe => pe.Procurement.Amount < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                     .ToList();
             }
             catch { }
@@ -2191,6 +2224,7 @@ public static class GET
                     .Where(p => p.ProcurementState.Kind == "Принят")
                     .Where(p => p.MaxDueDate < DateTime.Now)
                     .Where(p => p.RealDueDate == null)
+                    .Where(p => p.Amount < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
                     .Count();
                 }
                 else // Непросроченных по дате оплаты
@@ -2200,6 +2234,7 @@ public static class GET
                     .Where(p => p.ProcurementState.Kind == "Принят")
                     .Where(p => p.MaxDueDate > DateTime.Now)
                     .Where(p => p.RealDueDate == null)
+                    .Where(p => p.Amount < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
                     .Count();
                 }
             }
@@ -2608,6 +2643,7 @@ public static class GET
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate < DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
+                        .Where(pe => pe.Procurement.Amount < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                         .Count();
                 }
                 else // Непросроченных неоплаченных
@@ -2642,6 +2678,7 @@ public static class GET
                     .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                     .Where(pe => pe.Procurement.RealDueDate == null)
                     .Where(pe => pe.Procurement.MaxDueDate != null)
+                    .Where(pe => pe.Procurement.Amount < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                     .Count();
             }
             catch { }
