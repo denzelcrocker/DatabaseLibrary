@@ -1125,7 +1125,7 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(string searchIds, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName, string searchOrganizationName)
+        public static List<Procurement>? ProcurementsBy(string searchIds, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName, string searchOrganizationName, int pageSize, int currentPage)
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -1181,7 +1181,7 @@ public static class GET
                 procurementQuery = procurementQuery.Where(p => query.Contains(p.Id));
             }
 
-            // Запросы Include и ToList остаются без изменений
+            // Запросы Include остаются без изменений
             procurementQuery = procurementQuery
                 .Include(p => p.ProcurementState)
                 .Include(p => p.Law)
@@ -1192,11 +1192,15 @@ public static class GET
                 .Include(p => p.ShipmentPlan)
                 .Include(p => p.Organization);
 
-            // Получаем список тендеров
-            procurements = procurementQuery.ToList();
+            // Применяем пагинацию
+            procurements = procurementQuery
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
             return procurements;
         }
+
 
         public static List<ProcurementsEmployeesGrouping>? ProcurementsGroupByMethod() // Получить список отправленных тендеров групированных по методам проведения
         {
