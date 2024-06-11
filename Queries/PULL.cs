@@ -309,6 +309,7 @@ public static class PULL
             def.MinimalPrice = procurement.MinimalPrice;
             def.ContractAmount = procurement.ContractAmount;
             def.ReserveContractAmount = procurement.ReserveContractAmount;
+            def.IsUnitPrice = procurement.IsUnitPrice;
             def.ProtocolDate = procurement.ProtocolDate;
             def.HeadOfAcceptance = procurement.HeadOfAcceptance;
             def.ShipmentPlanId = procurement.ShipmentPlanId;
@@ -351,6 +352,7 @@ public static class PULL
             def.ProcurementUserId = procurement.ProcurementUserId;
             def.PurchaseUserId = procurement.PurchaseUserId;
             def.CalculatingUserId = procurement.CalculatingUserId;
+            def.ParentProcurementId = procurement.ParentProcurementId;
 
             _ = db.SaveChanges();
         }

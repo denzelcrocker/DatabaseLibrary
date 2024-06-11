@@ -2,6 +2,7 @@
 using DatabaseLibrary.Queries;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing.Printing;
 
 namespace DatabaseLibrary.Entities.ProcurementProperties;
 
@@ -58,6 +59,7 @@ public partial class Procurement
     public decimal? MinimalPrice { get; set; }
     public decimal? ContractAmount { get; set; }
     public decimal? ReserveContractAmount { get; set; }
+    public bool? IsUnitPrice { get; set; }
     public DateTime? ProtocolDate { get; set; }
     public string? HeadOfAcceptance { get; set; }
     public int? ShipmentPlanId { get; set; }
@@ -99,6 +101,8 @@ public partial class Procurement
     public int? ProcurementUserId { get; set; }
     public int? PurchaseUserId { get; set; }
     public int? CalculatingUserId { get; set; }
+    public int? ParentProcurementId { get; set; }
+
 
 
 
