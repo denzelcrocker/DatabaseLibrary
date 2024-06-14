@@ -2783,6 +2783,19 @@ public static class GET
 
         }
 
+        public static int NumberOfApplication(int procurementId) // получить номер создаваемой заявки при ее создании
+        {
+            using ParsethingContext db = new();
+            int number = 0;
+
+            try
+            {
+                number = db.Procurements.Count(p => p.ParentProcurementId == procurementId);
+            }
+            catch { }
+
+            return number + 1;
+        }
     }
 
     public class SupplyMonitoringList // Класс для формирования результатов запросов на получение списка сгруппированных комплектующих
