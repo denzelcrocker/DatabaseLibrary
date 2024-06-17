@@ -2155,7 +2155,28 @@ public static class GET
 
             return winningTendersByMonth;
         }
+        public static List<Procurement>? ApplicationsBy(int procurementId)
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
 
+            try
+            { 
+                procurements = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include(p => p.Method)
+                    .Include(p => p.Platform)
+                    .Include(p => p.Organization)
+                    .Include(p => p.TimeZone)
+                    .Include(p => p.Region)
+                    .Include(p => p.ShipmentPlan)
+                    .Where(p => p.ParentProcurementId == procurementId)
+                    .ToList();
+            }
+            catch { }
+            return procurements;
+        }
     }
 
     public struct Aggregate
@@ -2827,14 +2848,15 @@ public static class GET
         StartDate, // Дата начала подачи заявок
         Deadline, // Дата окончания подачи заявок
         ResultDate, // Дата подведения итогов
-        CorrectionDate,
+        CorrectionDate, // Дата исправления недостатков
         Judgement, // Суд
         FAS, // ФАС
         ContractConclusion, // Дата подписания контракта
         ExecutionState, // Статус обеспечения исполнения заявки
         WarrantyState, // Статус обеспечения гарантии заявки
         Calculating, // Виза расчетчиков
-        Purchase // Виза закупки
+        Purchase, // Виза закупки
+        IsUnitPrice // Цена за единицу товара
     }
     
 }
