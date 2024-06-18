@@ -2155,7 +2155,7 @@ public static class GET
 
             return winningTendersByMonth;
         }
-        public static List<Procurement>? ApplicationsBy(int procurementId)
+        public static List<Procurement>? ApplicationsBy(int? procurementId)
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -2816,6 +2816,19 @@ public static class GET
             catch { }
 
             return number + 1;
+        }
+        public static int CountOfApplications(int procurementId) // получить количество заявок по id тендера
+        {
+            using ParsethingContext db = new();
+            int number = 0;
+
+            try
+            {
+                number = db.Procurements.Count(p => p.ParentProcurementId == procurementId);
+            }
+            catch { }
+
+            return number;
         }
     }
 

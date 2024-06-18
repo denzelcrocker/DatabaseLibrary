@@ -306,6 +306,7 @@ public static class PULL
             def.LegalEntityId = procurement.LegalEntityId;
             def.Applications = procurement.Applications;
             def.ApplicationAmount = procurement.ApplicationAmount;
+            def.ApplicationNumber = procurement.ApplicationNumber;
             def.Bet = procurement.Bet;
             def.MinimalPrice = procurement.MinimalPrice;
             def.ContractAmount = procurement.ContractAmount;

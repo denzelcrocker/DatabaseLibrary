@@ -56,6 +56,7 @@ public partial class Procurement
     public int? LegalEntityId { get; set; }
     public bool? Applications { get; set; }
     public decimal? ApplicationAmount { get; set; }
+    public int? ApplicationNumber { get; set; }
     public decimal? Bet { get; set; }
     public decimal? MinimalPrice { get; set; }
     public decimal? ContractAmount { get; set; }
