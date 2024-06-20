@@ -25,7 +25,11 @@
     <Using Include="DatabaseLibrary.Entities.Actions" />
     <Using Include="DatabaseLibrary.Entities.ComponentCalculationProperties" />
     <Using Include="DatabaseLibrary.Entities.DocumentMuchToMany" />
+    <Using Include="DatabaseLibrary.Entities.DocumentMuchToMany.Document">
+      <Alias>Document</Alias>
+    </Using>
     <Using Include="DatabaseLibrary.Entities.EmployeeMuchToMany" />
+    <Using Include="DatabaseLibrary.Entities.LogisticProperties" />
     <Using Include="DatabaseLibrary.Entities.NoRelationship" />
     <Using Include="DatabaseLibrary.Entities.PreferenceMuchToMany" />
     <Using Include="DatabaseLibrary.Entities.ProcurementProperties" />

@@ -1,7 +1,4 @@
-﻿using System.Reflection.Metadata;
-using Document = DatabaseLibrary.Entities.DocumentMuchToMany.Document;
-
-namespace DatabaseLibrary;
+﻿namespace DatabaseLibrary;
 
 public partial class ParsethingContext : DbContext
 {
@@ -63,7 +60,7 @@ public partial class ParsethingContext : DbContext
             _ = entity.HasKey(e => e.Id).HasName("PK_ConmmisioningWorks");
         });
 
-        modelBuilder.Entity<Procurement>().ToTable(tb => tb.HasTrigger("OnProcurementAfterInsert"));
+        _ = modelBuilder.Entity<Procurement>().ToTable(tb => tb.HasTrigger("OnProcurementAfterInsert"));
 
         //_ = modelBuilder.Entity<Component>(entity =>
         //{
@@ -253,7 +250,7 @@ public partial class ParsethingContext : DbContext
 
 
         });
-        modelBuilder.Entity<ComponentStateCount>().HasNoKey();
+        _ = modelBuilder.Entity<ComponentStateCount>().HasNoKey();
 
         _ = modelBuilder.Entity<ProcurementState>(entity =>
         {
@@ -330,6 +327,16 @@ public partial class ParsethingContext : DbContext
         _ = modelBuilder.Entity<WarrantyState>(entity =>
         {
             _ = entity.HasKey(e => e.Id).HasName("PK_StatusesForWarranty");
+        });
+
+        _ = modelBuilder.Entity<Logistic>(entity =>
+        {
+            _ = entity.HasKey(e => e.Id).HasName("PK__Logistic__3214EC07697D47C3");
+
+            _ = entity.Property(e => e.AdditionalWorkTime).HasColumnType("decimal(5, 1)");
+            _ = entity.Property(e => e.AmountPc).HasColumnName("AmountPC");
+            _ = entity.Property(e => e.ComputerAssemblyTime).HasColumnType("decimal(5, 1)");
+            _ = entity.Property(e => e.MonitorAssemblyTime).HasColumnType("decimal(5, 1)");
         });
 
         OnModelCreatingPartial(modelBuilder);
