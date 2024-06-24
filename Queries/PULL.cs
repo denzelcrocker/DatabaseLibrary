@@ -274,6 +274,7 @@ public static class PULL
                 .Where(p => p.Id == procurement.Id)
                 .First();
 
+            def.ResultDate = procurement.ResultDate;
             def.Securing = procurement.Securing;
             def.Enforcement = procurement.Enforcement;
             def.Warranty = procurement.Warranty;
