@@ -155,7 +155,6 @@ public partial class ParsethingContext : DbContext
             _ = entity.Property(e => e.ActDate).HasColumnType("datetime");
             _ = entity.Property(e => e.ActualDeliveryDate).HasColumnType("datetime");
             _ = entity.Property(e => e.Amount).HasColumnType("decimal(19, 2)");
-            _ = entity.Property(e => e.ApplicationAmount).HasColumnType("decimal(19, 2)");
             _ = entity.Property(e => e.Bet).HasColumnType("decimal(19, 2)");
             _ = entity.Property(e => e.ClosingDate).HasColumnType("datetime");
             _ = entity.Property(e => e.ConclusionDate).HasColumnType("datetime");

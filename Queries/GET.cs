@@ -953,7 +953,7 @@ public static class GET
                     .Where(p => p.ProcurementState.Kind == "Принят")
                     .Where(p => p.MaxDueDate < DateTime.Now)
                     .Where(p => p.RealDueDate == null)
-                    .Where(p => p.Amount < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+                    .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
 
                     .ToList();
                 }
@@ -971,7 +971,7 @@ public static class GET
                     .Where(p => p.ProcurementState.Kind == "Принят")
                     .Where(p => p.MaxDueDate > DateTime.Now)
                     .Where(p => p.RealDueDate == null)
-                    .Where(p => p.Amount < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+                    .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
                     .ToList();
                 }
             }
@@ -998,7 +998,7 @@ public static class GET
                 .Where(p => p.ProcurementState.Kind == "Принят")
                 .Where(p => p.RealDueDate == null)
                 .Where(p => p.MaxDueDate != null)
-                .Where(p => p.Amount < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+                .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
                 .ToList();
             }
             catch { }
@@ -1275,7 +1275,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition, string premierProcurementState, string secondProcurementState, string thirdProcurementState) // Получить список сотруников и тендеров, которые у них в работе (по трем должностям и трем статусам) 
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition,string premierProcurementState, string secondProcurementState, string thirdProcurementState, string fourthProcurementState)
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
@@ -1285,15 +1285,21 @@ public static class GET
                 .Include(pe => pe.Employee.Position)
                 .Include(pe => pe.Procurement.Method)
                 .Include(pe => pe.Procurement)
-                .Where(pe => pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition)
-                .Where(pe => pe.Procurement.ProcurementState.Kind == premierProcurementState || pe.Procurement.ProcurementState.Kind == secondProcurementState || pe.Procurement.ProcurementState.Kind == thirdProcurementState)
+                .Where(pe => pe.Employee.Position.Kind == premierPosition ||
+                             pe.Employee.Position.Kind == secondPosition ||
+                             pe.Employee.Position.Kind == thirdPosition)
+                .Where(pe => pe.Procurement.ProcurementState.Kind == premierProcurementState ||
+                             pe.Procurement.ProcurementState.Kind == secondProcurementState ||
+                             pe.Procurement.ProcurementState.Kind == thirdProcurementState ||
+                             pe.Procurement.ProcurementState.Kind == fourthProcurementState)
                 .Where(pe => pe.Procurement.Applications != true)
+                .Where(pe => !(pe.Procurement.ProcurementState.Kind == "Принят" && pe.Procurement.RealDueDate != null))
                 .GroupBy(pe => pe.Employee.FullName)
                 .Select(g => new ProcurementsEmployeesGrouping
                 {
                     Id = g.Key,
                     CountOfProcurements = g.Count(),
-                    Procurements = g.Select(pe => pe.Procurement).ToList() // Добавлено
+                    Procurements = g.Select(pe => pe.Procurement).ToList()
                 })
                 .ToList();
 
@@ -1771,7 +1777,7 @@ public static class GET
                     .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                     .Where(pe => pe.Procurement.RealDueDate == null)
                     .Where(pe => pe.Procurement.MaxDueDate != null)
-                    .Where(pe => pe.Procurement.Amount < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
+                    .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                     .ToList();
             }
             catch { }
@@ -2264,22 +2270,22 @@ public static class GET
                 if (isOverdue) // Просроченных по дате оплаты
                 {
                     count = db.Procurements
-                    .Include(p => p.ProcurementState)
-                    .Where(p => p.ProcurementState.Kind == "Принят")
-                    .Where(p => p.MaxDueDate < DateTime.Now)
-                    .Where(p => p.RealDueDate == null)
-                    .Where(p => p.Amount < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
-                    .Count();
+                        .Include(p => p.ProcurementState)
+                        .Where(p => p.ProcurementState.Kind == "Принят")
+                        .Where(p => p.MaxDueDate < DateTime.Now)
+                        .Where(p => p.RealDueDate == null)
+                        .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+                        .Count();
                 }
                 else // Непросроченных по дате оплаты
                 {
                     count = db.Procurements
-                    .Include(p => p.ProcurementState)
-                    .Where(p => p.ProcurementState.Kind == "Принят")
-                    .Where(p => p.MaxDueDate > DateTime.Now)
-                    .Where(p => p.RealDueDate == null)
-                    .Where(p => p.Amount < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
-                    .Count();
+                        .Include(p => p.ProcurementState)
+                        .Where(p => p.ProcurementState.Kind == "Принят")
+                        .Where(p => p.MaxDueDate > DateTime.Now)
+                        .Where(p => p.RealDueDate == null)
+                        .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+                        .Count();
                 }
             }
             catch { }
@@ -2693,7 +2699,7 @@ public static class GET
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate < DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
-                        .Where(pe => pe.Procurement.Amount < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
+                        .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                         .Count();
                 }
                 else // Непросроченных неоплаченных
@@ -2706,6 +2712,7 @@ public static class GET
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate > DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
+                        .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                         .Count();
                 }
             }
