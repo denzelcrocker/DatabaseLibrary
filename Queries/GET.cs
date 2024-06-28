@@ -1236,8 +1236,8 @@ public static class GET
                 .Include(c => c.Employee)
                 .Where(pe => pe.EntryId == procurementId)
                 .Where(c => c.EntityType == "Procurement")
+                .OrderByDescending(c => c.Date)
                 .ToList();
-
             return comments;
         }
 
