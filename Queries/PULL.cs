@@ -126,6 +126,7 @@ public static class PULL
                 .Where(e => e.Id == componentCalculation.Id)
                 .First();
 
+            def.IndexOfComponent = componentCalculation.IndexOfComponent;
             def.PartNumber = componentCalculation.PartNumber;
             def.HeaderTypeId = componentCalculation.HeaderTypeId;
             def.ComponentName = componentCalculation.ComponentName;
@@ -274,11 +275,13 @@ public static class PULL
                 .Where(p => p.Id == procurement.Id)
                 .First();
 
+            def.Deadline = procurement.Deadline;
             def.ResultDate = procurement.ResultDate;
             def.Securing = procurement.Securing;
             def.Enforcement = procurement.Enforcement;
             def.Warranty = procurement.Warranty;
             def.RegionId = procurement.RegionId;
+            def.Distance = procurement.Distance;
             def.OrganizationContractName = procurement.OrganizationContractName;
             def.OrganizationContractPostalAddress = procurement.OrganizationContractPostalAddress;
             def.ContactPerson = procurement.ContactPerson;

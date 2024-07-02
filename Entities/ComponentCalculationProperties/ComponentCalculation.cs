@@ -1,10 +1,13 @@
-﻿namespace DatabaseLibrary.Entities.ComponentCalculationProperties;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DatabaseLibrary.Entities.ComponentCalculationProperties;
 
 public partial class ComponentCalculation
 {
     public int Id { get; set; }
     public int ProcurementId { get; set; }
     public string? PartNumber { get; set; }
+    public int ? IndexOfComponent { get; set; }
     public int? HeaderTypeId { get; set; }
     public string? ComponentName { get; set; }
     public string? ComponentNamePurchase { get; set; }

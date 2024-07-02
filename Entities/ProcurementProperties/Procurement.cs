@@ -27,6 +27,7 @@ public partial class Procurement
     public string? Enforcement { get; set; }
     public string? Warranty { get; set; }
     public int? RegionId { get; set; }
+    public int? Distance { get; set; }
     public string? OrganizationContractName { get; set; }
     public string? OrganizationContractPostalAddress { get; set; }
     public string? ContactPerson { get; set; }
