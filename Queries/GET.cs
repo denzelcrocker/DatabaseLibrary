@@ -1131,7 +1131,7 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(string searchIds, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName, string searchOrganizationName, int pageSize, int currentPage)
+        public static List<Procurement>? ProcurementsBy(string searchIds, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName, string searchOrganizationName, int pageSize, int currentPage, string sortBy, bool ascending)
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -1197,6 +1197,19 @@ public static class GET
                 .Include(p => p.Region)
                 .Include(p => p.ShipmentPlan)
                 .Include(p => p.Organization);
+
+            // Логика сортировки
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                if (ascending)
+                {
+                    procurementQuery = procurementQuery.OrderBy(p => EF.Property<object>(p, sortBy));
+                }
+                else
+                {
+                    procurementQuery = procurementQuery.OrderByDescending(p => EF.Property<object>(p, sortBy));
+                }
+            }
 
             // Применяем пагинацию
             procurements = procurementQuery
