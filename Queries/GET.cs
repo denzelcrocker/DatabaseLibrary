@@ -1131,30 +1131,28 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(string searchIds, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName, string searchOrganizationName, int pageSize, int currentPage, string sortBy, bool ascending)
+        public static List<Procurement>? ProcurementsBy(string searchIds, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName, string searchOrganizationName, string searchLegalEntity, string dateType, string searchStartDate, string searchEndDate, int pageSize, int currentPage, string sortBy, bool ascending)
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
 
             var procurementQuery = db.Procurements.AsQueryable();
 
-            // Обрабатываем поле searchIds, чтобы избежать ошибок при вводе букв
             var ids = searchIds.Split(',')
                                .Select(id => int.TryParse(id.Trim(), out int intId) ? intId : (int?)null)
                                .Where(id => id.HasValue)
                                .Select(id => id.Value)
                                .ToList();
 
-            // Если нет выбранных идентификаторов тендеров, сотрудника и остальные поля также пусты, возвращаем пустой список тендеров
             if (ids.Count == 0 && string.IsNullOrEmpty(searchEmployeeName)
                 && string.IsNullOrEmpty(searchNumber) && string.IsNullOrEmpty(searchLaw)
                 && string.IsNullOrEmpty(searchProcurementState) && string.IsNullOrEmpty(searchInn)
-                && string.IsNullOrEmpty(searchOrganizationName))
+                && string.IsNullOrEmpty(searchOrganizationName) && string.IsNullOrEmpty(searchLegalEntity)
+                && string.IsNullOrEmpty(dateType))
             {
                 return new List<Procurement>();
             }
 
-            // Фильтруем тендеры по выбранным параметрам
             if (ids.Count > 0)
             {
                 procurementQuery = procurementQuery.Where(p => ids.Contains(p.Id));
@@ -1171,7 +1169,6 @@ public static class GET
             if (!string.IsNullOrEmpty(searchOrganizationName))
                 procurementQuery = procurementQuery.Where(p => p.Organization.Name.Contains(searchOrganizationName));
 
-            // Если выбран сотрудник, проверяем есть ли у него связанные тендеры
             if (!string.IsNullOrEmpty(searchEmployeeName))
             {
                 var query = db.ProcurementsEmployees
@@ -1186,9 +1183,50 @@ public static class GET
 
                 procurementQuery = procurementQuery.Where(p => query.Contains(p.Id));
             }
+            if (!string.IsNullOrEmpty(searchLegalEntity))
+                procurementQuery = procurementQuery.Where(p => p.LegalEntity.Name.Contains(searchLegalEntity));
 
-            // Запросы Include остаются без изменений
-            procurementQuery = procurementQuery
+            if (!string.IsNullOrEmpty(dateType))
+            {
+                DateTime? startDate = null;
+                DateTime? endDate = null;
+
+                if (!string.IsNullOrEmpty(searchStartDate) && DateTime.TryParse(searchStartDate, out DateTime parsedStartDate))
+                {
+                    startDate = parsedStartDate;
+                }
+
+                if (!string.IsNullOrEmpty(searchEndDate) && DateTime.TryParse(searchEndDate, out DateTime parsedEndDate))
+                {
+                    endDate = parsedEndDate;
+                }
+
+                if (startDate.HasValue && endDate.HasValue)
+                {
+                    switch (dateType)
+                    {
+                        case "StartDate":
+                            procurementQuery = procurementQuery.Where(p => p.StartDate >= startDate && p.StartDate <= endDate);
+                            break;
+                        case "Deadline":
+                            procurementQuery = procurementQuery.Where(p => p.Deadline >= startDate && p.Deadline <= endDate);
+                            break;
+                        case "ResultDate":
+                            procurementQuery = procurementQuery.Where(p => p.ResultDate >= startDate && p.ResultDate <= endDate);
+                            break;
+                        case "SigningDeadline":
+                            procurementQuery = procurementQuery.Where(p => p.SigningDeadline >= startDate && p.SigningDeadline <= endDate);
+                            break;
+                        case "ActualDeliveryDate":
+                            procurementQuery = procurementQuery.Where(p => p.ActualDeliveryDate >= startDate && p.ActualDeliveryDate <= endDate);
+                            break;
+                        case "MaxAcceptanceDate":
+                            procurementQuery = procurementQuery.Where(p => p.MaxAcceptanceDate >= startDate && p.MaxAcceptanceDate <= endDate);
+                            break;
+                    }
+                }
+            }
+                procurementQuery = procurementQuery
                 .Include(p => p.ProcurementState)
                 .Include(p => p.Law)
                 .Include(p => p.Method)
@@ -1198,7 +1236,6 @@ public static class GET
                 .Include(p => p.ShipmentPlan)
                 .Include(p => p.Organization);
 
-            // Логика сортировки
             if (!string.IsNullOrEmpty(sortBy))
             {
                 if (ascending)
@@ -1211,7 +1248,6 @@ public static class GET
                 }
             }
 
-            // Применяем пагинацию
             procurements = procurementQuery
                 .Skip((currentPage - 1) * pageSize)
                 .Take(pageSize)
@@ -2852,7 +2888,20 @@ public static class GET
             return count;
 
         }
+        public static int CountNewStatusByProcurementId(int procurementId)
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+            try
+            {
+                count = db.Histories
+                            .Where(h => h.EntryId == procurementId && h.EntityType == "Procurement" && h.Text == "Новый")
+                            .Count();
+            }
+            catch { }
 
+            return count;
+        }
         public static int NumberOfApplication(int procurementId) // получить номер создаваемой заявки при ее создании
         {
             using ParsethingContext db = new();
@@ -2879,6 +2928,7 @@ public static class GET
 
             return number;
         }
+
     }
 
     public class SupplyMonitoringList // Класс для формирования результатов запросов на получение списка сгруппированных комплектующих
