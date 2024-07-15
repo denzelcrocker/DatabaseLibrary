@@ -1,6 +1,7 @@
 ﻿using Azure;
 using DatabaseLibrary.Queries;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Drawing.Printing;
 
@@ -37,8 +38,6 @@ public partial class Procurement
     public string? DeliveryDeadline { get; set; }
     public string? AcceptanceDeadline { get; set; }
     public string? ContractDeadline { get; set; }
-    public bool? Indefinitely { get; set; }
-    public string? AnotherDeadline { get; set; }
     public string? DeadlineAndOrder { get; set; }
     public int? RepresentativeTypeId { get; set; }
     public int? CommissioningWorksId { get; set; }
@@ -104,8 +103,7 @@ public partial class Procurement
     public int? PurchaseUserId { get; set; }
     public int? CalculatingUserId { get; set; }
     public int? ParentProcurementId { get; set; }
-
-
+    public RejectionReason? RejectionReason { get; set; }
 
 
     public virtual ICollection<ComponentCalculation> ComponentCalculations { get; } = new List<ComponentCalculation>();
@@ -170,4 +168,16 @@ public class ComponentStateCount
 {
     public string? State { get; set; }
     public int Count { get; set; }
+}
+
+public enum RejectionReason
+{
+    [Description("Расчет")]
+    Calculation,
+
+    [Description("Подача")]
+    Submission,
+
+    [Description("Реестр")]
+    Registry
 }

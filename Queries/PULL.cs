@@ -291,8 +291,6 @@ public static class PULL
             def.DeliveryDeadline = procurement.DeliveryDeadline;
             def.AcceptanceDeadline = procurement.AcceptanceDeadline;
             def.ContractDeadline = procurement.ContractDeadline;
-            def.Indefinitely = procurement.Indefinitely;
-            def.AnotherDeadline = procurement.AnotherDeadline;
             def.DeadlineAndOrder = procurement.DeadlineAndOrder;
             def.RepresentativeTypeId = procurement.RepresentativeTypeId;
             def.CommissioningWorksId = procurement.CommissioningWorksId;
@@ -358,6 +356,7 @@ public static class PULL
             def.PurchaseUserId = procurement.PurchaseUserId;
             def.CalculatingUserId = procurement.CalculatingUserId;
             def.ParentProcurementId = procurement.ParentProcurementId;
+            def.RejectionReason = procurement.RejectionReason;
 
             _ = db.SaveChanges();
         }
