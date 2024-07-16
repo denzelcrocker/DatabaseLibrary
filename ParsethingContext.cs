@@ -17,11 +17,13 @@ public partial class ParsethingContext : DbContext
     public virtual DbSet<Law> Laws { get; set; } = null!;
     public virtual DbSet<LegalEntity> LegalEntities { get; set; } = null!;
     public virtual DbSet<Manufacturer> Manufacturers { get; set; } = null!;
+    public virtual DbSet<ManufacturerCountry> ManufacturerCountries { get; set; } = null!;
     public virtual DbSet<Method> Methods { get; set; } = null!;
     public virtual DbSet<Minopttorg> Minopttorgs { get; set; } = null!;
     public virtual DbSet<Organization> Organizations { get; set; } = null!;
     public virtual DbSet<Platform> Platforms { get; set; } = null!;
     public virtual DbSet<Position> Positions { get; set; } = null!;
+    public virtual DbSet<PredefinedComponent> PredefinedComponents { get; set; } = null!;
     public virtual DbSet<Preference> Preferences { get; set; } = null!;
     public virtual DbSet<Procurement> Procurements { get; set; } = null!;
     public virtual DbSet<ProcurementState> ProcurementStates { get; set; } = null!;
@@ -62,19 +64,6 @@ public partial class ParsethingContext : DbContext
 
         _ = modelBuilder.Entity<Procurement>().ToTable(tb => tb.HasTrigger("OnProcurementAfterInsert"));
 
-        //_ = modelBuilder.Entity<Component>(entity =>
-        //{
-        //    _ = entity.HasOne(d => d.ComponentType).WithMany(p => p.Components)
-        //        .HasForeignKey(d => d.ComponentTypeId)
-        //        .OnDelete(DeleteBehavior.ClientSetNull)
-        //        .HasConstraintName("FK_Components_ComponentTypes");
-
-        //    _ = entity.HasOne(d => d.Manufacturer).WithMany(p => p.Components)
-        //        .HasForeignKey(d => d.ManufacturerId)
-        //        .OnDelete(DeleteBehavior.ClientSetNull)
-        //        .HasConstraintName("FK_Components_Manufacturers");
-        //});
-
         _ = modelBuilder.Entity<ComponentCalculation>(entity =>
         {
             _ = entity.HasKey(e => e.Id).HasName("PK_CalculationAndPurchasingList");
@@ -111,10 +100,37 @@ public partial class ParsethingContext : DbContext
                 .HasConstraintName("FK_ComponentCalculations_ComponentHeaderTypes");
         });
 
+        _ = modelBuilder.Entity<PredefinedComponent>(entity =>
+        {
+            _ = entity.HasKey(e => e.Id).HasName("PK_PredefinedComponents");
+
+            _ = entity.HasOne(d => d.Manufacturer).WithMany(p => p.PredefinedComponent)
+                .HasForeignKey(d => d.ManufacturerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PredefinedComponents_Manufacturers");
+
+            _ = entity.HasOne(d => d.ComponentType).WithMany(p => p.PredefinedComponent)
+                .HasForeignKey(d => d.ComponentTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PredefinedComponents_ComponentTypes");
+
+            _ = entity.Property(e => e.Price).HasColumnType("decimal(19, 2)");
+
+        });
         _ = modelBuilder.Entity<ComponentState>(entity =>
         {
             _ = entity.HasKey(e => e.Id).HasName("PK_StatusesOfProduct");
         });
+
+        _ = modelBuilder.Entity<ComponentType>(entity =>
+        {
+            _ = entity.HasMany(ct => ct.PredefinedComponent).WithOne(pc => pc.ComponentType)
+                .HasForeignKey(pc => pc.ComponentTypeId);
+
+            _ = entity.HasMany(ct => ct.ComponentCalculations).WithOne(cc => cc.ComponentType)
+                .HasForeignKey(cc => cc.ComponentTypeId);
+        });
+
         _ = modelBuilder.Entity<ComponentHeaderType>(entity =>
         {
             _ = entity.HasKey(e => e.Id).HasName("PK_ComponentHeaderTypes");
@@ -144,7 +160,16 @@ public partial class ParsethingContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Histories_Employees");
         });
-
+        _ = modelBuilder.Entity<Manufacturer>(entity =>
+        {
+            _ = entity.HasOne(d => d.ManufacturerCountry).WithMany(p => p.Manufacturers)
+                .HasForeignKey(d => d.ManufacturerCountryId)
+                .HasConstraintName("FK_Manufacturers_ManufacturerCountries");
+        });
+        _ = modelBuilder.Entity<ManufacturerCountry>(entity =>
+        {
+            _ = entity.HasKey(e => e.Id).HasName("PK_ManufacturerCountry");
+        });
         _ = modelBuilder.Entity<Minopttorg>(entity =>
         {
             _ = entity.HasKey(e => e.Id).HasName("PK_Minopttorg");

@@ -218,7 +218,12 @@ public static class GET
             using ParsethingContext db = new();
             List<ComponentType>? componentTypes = null;
 
-            try { componentTypes = db.ComponentTypes.ToList(); }
+            try 
+            {
+                componentTypes = db.ComponentTypes
+                    .Include(ct => ct.PredefinedComponent)
+                    .ToList();
+            }
             catch { }
 
             return componentTypes;
@@ -304,10 +309,25 @@ public static class GET
             using ParsethingContext db = new();
             List<Manufacturer>? manufacturers = null;
 
-            try { manufacturers = db.Manufacturers.ToList(); }
+            try 
+            {
+                manufacturers = db.Manufacturers
+                    .Include(m => m.ManufacturerCountry)
+                    .ToList();
+            }
             catch { }
 
             return manufacturers;
+        }
+        public static List<ManufacturerCountry>? ManufacturerCountries() // Получить список стран-производителей
+        {
+            using ParsethingContext db = new();
+            List<ManufacturerCountry>? manufacturerCountries = null;
+
+            try { manufacturerCountries = db.ManufacturerCountries.ToList(); }
+            catch { }
+
+            return manufacturerCountries;
         }
 
         public static List<Minopttorg>? Minopttorgs() // Получить список Миноптторг
@@ -331,7 +351,20 @@ public static class GET
 
             return positions;
         }
+        public static List<PredefinedComponent>? PredefinedComponents() // Получить список заготовленных позиций
+        {
+            using ParsethingContext db = new();
+            List<PredefinedComponent>? predefinedComponents = null;
 
+            try 
+            {
+                predefinedComponents = db.PredefinedComponents
+                    .ToList(); 
+            }
+            catch { }
+
+            return predefinedComponents;
+        }
         public static List<Preference>? Preferences() // Получить список префренций
         {
             using ParsethingContext db = new();
@@ -520,6 +553,7 @@ public static class GET
                     .Include(cc => cc.Procurement.Organization)
                     .Include(cc => cc.Procurement.ShipmentPlan)
                     .Include(cc => cc.Manufacturer)
+                    .Include(cc => cc.Manufacturer.ManufacturerCountry)
                     .Include(cc => cc.ComponentType)
                     .Include(cc => cc.Seller)
                     .Where(cc => cc.ComponentState.Kind == kind)
@@ -560,6 +594,7 @@ public static class GET
                     .Include(cc => cc.Procurement)
                         .ThenInclude(p => p.Organization)
                     .Include(cc => cc.Manufacturer)
+                        .ThenInclude(m => m.ManufacturerCountry)
                     .Include(cc => cc.ComponentType)
                     .Include(cc => cc.Seller)
                     .Where(cc => cc.ComponentState.Kind == kind && procurementIds.Contains(cc.ProcurementId))
@@ -591,6 +626,7 @@ public static class GET
                     .Include(cc => cc.Procurement.TimeZone)
                     .Include(cc => cc.Procurement.Organization)
                     .Include(cc => cc.Manufacturer)
+                        .ThenInclude(m => m.ManufacturerCountry)
                     .Include(cc => cc.ComponentType)
                     .Include(cc => cc.Seller)
                     .Where(cc => cc.ProcurementId == procurementId)
@@ -620,6 +656,7 @@ public static class GET
                         .Include(cc => cc.Procurement.TimeZone)
                         .Include(cc => cc.Procurement.Organization)
                         .Include(cc => cc.Manufacturer)
+                            .ThenInclude(m => m.ManufacturerCountry)
                         .Include(cc => cc.ComponentType)
                         .Include(cc => cc.Seller)
                         .Where(cc => procurementIds.Contains(cc.ProcurementId) && componentStatuses.Contains(cc.ComponentState.Kind))
@@ -649,6 +686,7 @@ public static class GET
                     .Include(cc => cc.Procurement.TimeZone)
                     .Include(cc => cc.Procurement.Organization)
                     .Include(cc => cc.Manufacturer)
+                        .ThenInclude(m => m.ManufacturerCountry)
                     .Include(cc => cc.ComponentType)
                     .Include(cc => cc.Seller)
                     .Where(cc => cc.ProcurementId == procurementId)

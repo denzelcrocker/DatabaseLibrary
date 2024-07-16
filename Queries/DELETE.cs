@@ -134,7 +134,19 @@ public static class DELETE
 
         return isSaved;
     }
+    public static bool ManufacturerCountry(ManufacturerCountry manufacturerCountry)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+        try
+        {
+            _ = db.ManufacturerCountries.Remove(manufacturerCountry);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
 
+        return isSaved;
+    }
     public static bool Minopttorg(Minopttorg minopttorg)
     {
         using ParsethingContext db = new();
@@ -163,7 +175,20 @@ public static class DELETE
 
         return isSaved;
     }
+    public static bool PredefinedComponent(PredefinedComponent predefinedComponent)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
 
+        try
+        {
+            _ = db.PredefinedComponents.Remove(predefinedComponent);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
     public static bool Preference(Preference preference)
     {
         using ParsethingContext db = new();

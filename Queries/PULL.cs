@@ -199,7 +199,26 @@ public static class PULL
 
         return isSaved;
     }
+    public static bool ManufacturerCountry(ManufacturerCountry manufacturerCountry)
+    {
+        using ParsethingContext db = new();
+        ManufacturerCountry? def = null;
+        bool isSaved = true;
 
+        try
+        {
+            def = db.ManufacturerCountries
+                .Where(m => m.Id == manufacturerCountry.Id)
+                .First();
+
+            def.Name = manufacturerCountry.Name;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
     public static bool Minopttorg(Minopttorg minopttorg)
     {
         using ParsethingContext db = new();
@@ -241,7 +260,29 @@ public static class PULL
 
         return isSaved;
     }
+    public static bool PredefinedComponent(PredefinedComponent predefinedComponent)
+    {
+        using ParsethingContext db = new();
+        PredefinedComponent? def = null;
+        bool isSaved = true;
 
+        try
+        {
+            def = db.PredefinedComponents
+                .Where(p => p.Id == predefinedComponent.Id)
+                .First();
+
+            def.ComponentName = predefinedComponent.ComponentName;
+            def.ManufacturerId = predefinedComponent.ManufacturerId;
+            def.ComponentTypeId = predefinedComponent.ComponentTypeId;
+            def.Price = predefinedComponent.Price;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
     public static bool Preference(Preference preference)
     {
         using ParsethingContext db = new();

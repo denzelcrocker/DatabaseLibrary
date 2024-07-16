@@ -150,7 +150,19 @@ public static class PUT
 
         return isSaved;
     }
+    public static bool ManufacturerCountry(ManufacturerCountry manufacturerCountry)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+        try
+        {
+            _ = db.ManufacturerCountries.Add(manufacturerCountry);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
 
+        return isSaved;
+    }
     public static bool Method(Method method)
     {
         using ParsethingContext db = new();
@@ -223,7 +235,20 @@ public static class PUT
 
         return isSaved;
     }
+    public static bool PredefinedComponent(PredefinedComponent predefinedComponent)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
 
+        try
+        {
+            _ = db.PredefinedComponents.Add(predefinedComponent);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
     public static bool Preference(Preference preference)
     {
         using ParsethingContext db = new();
