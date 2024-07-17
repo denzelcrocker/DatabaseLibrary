@@ -4,7 +4,7 @@ public partial class Manufacturer
 {
     public int Id { get; set; }
     public string ManufacturerName { get; set; } = null!;
-    public string FullManufacturerName { get; set; } 
+    public string FullManufacturerName { get; set; } = null!;
     public int ManufacturerCountryId { get; set; }
 
     public virtual ManufacturerCountry ManufacturerCountry { get; set; } = null!;

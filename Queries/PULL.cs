@@ -188,10 +188,12 @@ public static class PULL
         try
         {
             def = db.Manufacturers
-                .Where(m => m.Id == manufacturer.Id)
+                .Where(m => m.ManufacturerName == manufacturer.ManufacturerName)
                 .First();
 
             def.ManufacturerName = manufacturer.ManufacturerName;
+            def.FullManufacturerName = manufacturer.FullManufacturerName;
+            def.ManufacturerCountryId = manufacturer.ManufacturerCountryId;
 
             _ = db.SaveChanges();
         }

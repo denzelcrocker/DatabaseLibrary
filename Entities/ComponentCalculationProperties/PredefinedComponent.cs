@@ -8,7 +8,7 @@ namespace DatabaseLibrary.Entities.ComponentCalculationProperties;
 public partial class PredefinedComponent
 {
     public int Id { get; set; }
-    public string ComponentName { get; set; }
+    public string? ComponentName { get; set; }
     public int ManufacturerId { get; set; }
     public int ComponentTypeId { get; set; }
     public decimal Price { get; set; }

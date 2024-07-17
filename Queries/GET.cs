@@ -42,7 +42,21 @@ public static class GET
 
             return law;
         }
+        public static Manufacturer? Manufacturer(int id) // Получить производителя
+        {
+            using ParsethingContext db = new();
+            Manufacturer? manufacturer = null;
+            try
+            {
+                manufacturer = db.Manufacturers
+                    .Where(m => m.Id == id)
+                    .Include(m => m.ManufacturerCountry)
+                    .First();
+            }
+            catch { }
 
+            return manufacturer;
+        }
         public static Method? Method(string text) // Получить метод
         {
             using ParsethingContext db = new();
