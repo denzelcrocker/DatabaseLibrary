@@ -539,6 +539,10 @@ public static class PULL
 
         try
         {
+            def = db.Procurements
+                .Where (p => p.Number == procurement.Number)
+                .First();
+
             def.LawId = procurement.LawId;
             def.Object = procurement.Object;
             def.InitialPrice = Convert.ToDecimal(DbValueConverter.ToNullableString(Convert.ToString(procurement.InitialPrice)));
