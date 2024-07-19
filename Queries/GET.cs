@@ -9,6 +9,21 @@ public static class GET
 {
     public struct Entry
     {
+        public static City? City(string name) // Получить закон
+        {
+            using ParsethingContext db = new();
+            City? city = null;
+
+            try
+            {
+                city = db.Cities
+                    .Where(l => l.Name == name)
+                    .First();
+            }
+            catch { }
+
+            return city;
+        }
         public static Employee? Employee(string userName, string password) // Авторизация
         {
             using ParsethingContext db = new();
@@ -145,9 +160,14 @@ public static class GET
             try
             {
                 procurement = db.Procurements
-                    .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
-                    .Include (p => p.ShipmentPlan)
+                    .Include(p => p.Method)
+                    .Include(p => p.Platform)
+                    .Include(p => p.TimeZone)
+                    .Include(p => p.Region)
+                    .Include(p => p.ShipmentPlan)
+                    .Include(p => p.Organization)
+                    .Include(p => p.ProcurementState)
                     .Where(p => p.Id == id)
                     .First();
             }
@@ -242,7 +262,20 @@ public static class GET
 
             return componentTypes;
         }
+        public static List<City>? Cities() // Получить города
+        {
+            using ParsethingContext db = new();
+            List<City>? cities = null;
 
+            try
+            {
+                cities = db.Cities
+                    .ToList();
+            }
+            catch { }
+
+            return cities;
+        }
         public static List<Document>? Documents() // Получить документы к тендерам
         {
             using ParsethingContext db = new();
@@ -488,6 +521,7 @@ public static class GET
                             .Include(p => p.Region)
                             .Include(p => p.ShipmentPlan)
                             .Include(p => p.Organization)
+                            .Include(p => p.City)
                     .Where(p => p.Id == id)
                     .First();
             }
@@ -561,6 +595,7 @@ public static class GET
                     .Include(cc => cc.Procurement.Law)
                     .Include(cc => cc.Procurement.ProcurementState)
                     .Include(cc => cc.Procurement.Region)
+                    .Include(cc => cc.Procurement.City)
                     .Include(cc => cc.Procurement.Method)
                     .Include(cc => cc.Procurement.Platform)
                     .Include(cc => cc.Procurement.TimeZone)
@@ -599,6 +634,8 @@ public static class GET
                         .ThenInclude(p => p.ProcurementState)
                     .Include(cc => cc.Procurement)
                         .ThenInclude(p => p.Region)
+                        .Include(cc => cc.Procurement)
+                        .ThenInclude(p => p.City)
                     .Include(cc => cc.Procurement)
                         .ThenInclude(p => p.Method)
                     .Include(cc => cc.Procurement)
@@ -635,6 +672,7 @@ public static class GET
                     .Include(cc => cc.Procurement.Law)
                     .Include(cc => cc.Procurement.ProcurementState)
                     .Include(cc => cc.Procurement.Region)
+                    .Include(cc => cc.Procurement.City)
                     .Include(cc => cc.Procurement.Method)
                     .Include(cc => cc.Procurement.Platform)
                     .Include(cc => cc.Procurement.TimeZone)
@@ -665,6 +703,7 @@ public static class GET
                         .Include(cc => cc.Procurement.Law)
                         .Include(cc => cc.Procurement.ProcurementState)
                         .Include(cc => cc.Procurement.Region)
+                        .Include(cc => cc.Procurement.City)
                         .Include(cc => cc.Procurement.Method)
                         .Include(cc => cc.Procurement.Platform)
                         .Include(cc => cc.Procurement.TimeZone)
@@ -695,6 +734,7 @@ public static class GET
                     .Include(cc => cc.Procurement.Law)
                     .Include(cc => cc.Procurement.ProcurementState)
                     .Include(cc => cc.Procurement.Region)
+                    .Include(cc => cc.Procurement.City)
                     .Include(cc => cc.Procurement.Method)
                     .Include(cc => cc.Procurement.Platform)
                     .Include(cc => cc.Procurement.TimeZone)
@@ -785,6 +825,7 @@ public static class GET
                             .Include(p => p.Platform)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Include(p => p.Organization)
                             .Where(p => p.ProcurementState != null && p.ProcurementState.Kind == kind)
@@ -799,6 +840,7 @@ public static class GET
                             .Include(p => p.Platform)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.Organization)
                             .Include(p => p.ProcurementState)
                             .Where(p => p.ShipmentPlan != null && p.ShipmentPlan.Kind == kind)
@@ -815,6 +857,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Applications == true)
                             .ToList();
@@ -828,6 +871,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.CorrectionDate != null && p.ProcurementState.Kind == kind)
                             .ToList();
@@ -859,6 +903,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ProcurementState.Kind == procurementStateKind)
                             .Where(p => p.Deadline < DateTime.Now)
@@ -874,6 +919,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ProcurementState.Kind == procurementStateKind)
                             .Where(p => p.Deadline > DateTime.Now)
@@ -891,6 +937,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ProcurementState.Kind == procurementStateKind)
                             .Where(p => p.StartDate < DateTime.Now)
@@ -906,6 +953,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ProcurementState.Kind == procurementStateKind)
                             .Where(p => p.StartDate > DateTime.Now)
@@ -923,6 +971,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ProcurementState.Kind == procurementStateKind)
                             .Where(p => p.ResultDate < DateTime.Now)
@@ -938,6 +987,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ProcurementState.Kind == procurementStateKind)
                             .Where(p => p.ResultDate > DateTime.Now)
@@ -955,6 +1005,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
                             .Where(p => p.ConclusionDate != null)
@@ -970,6 +1021,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
                             .Where(p => p.ConclusionDate == null)
@@ -1001,6 +1053,7 @@ public static class GET
                     .Include(p => p.Organization)
                     .Include(p => p.TimeZone)
                     .Include(p => p.Region)
+                    .Include(p => p.City)
                     .Include(p => p.ShipmentPlan)
                     .Where(p => p.ProcurementState.Kind == "Принят")
                     .Where(p => p.MaxDueDate < DateTime.Now)
@@ -1019,6 +1072,7 @@ public static class GET
                     .Include(p => p.Organization)
                     .Include(p => p.TimeZone)
                     .Include(p => p.Region)
+                    .Include(p => p.City)
                     .Include(p => p.ShipmentPlan)
                     .Where(p => p.ProcurementState.Kind == "Принят")
                     .Where(p => p.MaxDueDate > DateTime.Now)
@@ -1046,6 +1100,7 @@ public static class GET
                 .Include(p => p.Organization)
                 .Include(p => p.TimeZone)
                 .Include(p => p.Region)
+                .Include(p => p.City)
                 .Include(p => p.ShipmentPlan)
                 .Where(p => p.ProcurementState.Kind == "Принят")
                 .Where(p => p.RealDueDate == null)
@@ -1076,6 +1131,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Judgment == true)
                             .ToList();
@@ -1089,6 +1145,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Fas == true)
                             .ToList();
@@ -1119,6 +1176,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Calculating == true)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
@@ -1135,6 +1193,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Calculating == false || p.Calculating == null)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
@@ -1153,6 +1212,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Purchase == true && p.Calculating == true)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
@@ -1169,6 +1229,7 @@ public static class GET
                             .Include(p => p.Organization)
                             .Include(p => p.TimeZone)
                             .Include(p => p.Region)
+                            .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Purchase == false || p.Purchase == null && p.Calculating == true)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
@@ -1275,6 +1336,7 @@ public static class GET
                 .Include(p => p.Platform)
                 .Include(p => p.TimeZone)
                 .Include(p => p.Region)
+                .Include(p => p.City)
                 .Include(p => p.ShipmentPlan)
                 .Include(p => p.Organization);
 
@@ -1352,6 +1414,7 @@ public static class GET
                 .Include(pe => pe.Procurement.Law)
                 .Include(pe => pe.Employee)
                 .Include(pe => pe.Procurement.Method)
+                .Include(pe => pe.Procurement.Region)
                 .Include(pe => pe.Procurement)
                 .Where(pe => pe.EmployeeId == employeeId)
                 .GroupBy(pe => pe.Employee.FullName)
@@ -1375,6 +1438,7 @@ public static class GET
                 .Include(pe => pe.Procurement.ProcurementState)
                 .Include(pe => pe.Employee.Position)
                 .Include(pe => pe.Procurement.Method)
+                .Include(pe => pe.Procurement.Region)
                 .Include(pe => pe.Procurement)
                 .Where(pe => pe.Employee.Position.Kind == premierPosition ||
                              pe.Employee.Position.Kind == secondPosition ||
@@ -1406,6 +1470,7 @@ public static class GET
                 .Include(pe => pe.Procurement.ProcurementState)
                 .Include(pe => pe.Employee.Position)
                 .Include(pe => pe.Procurement.Method)
+                .Include(pe => pe.Procurement.Region)
                 .Include(pe => pe.Procurement)
                 .Where(pe => pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition)
                 .GroupBy(pe => pe.Employee.FullName)
@@ -1471,6 +1536,7 @@ public static class GET
                     .Include(pe => pe.Procurement.Platform)
                     .Include(pe => pe.Procurement.TimeZone)
                     .Include(pe => pe.Procurement.Region)
+                    .Include(pe => pe.Procurement.City)
                     .Include(pe => pe.Procurement.Organization)
                     .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == procurementStateKind)
                     .Where(pe => pe.Procurement.Applications != true)
@@ -1514,6 +1580,7 @@ public static class GET
                     .Include(pe => pe.Procurement.Platform)
                     .Include(pe => pe.Procurement.TimeZone)
                     .Include(pe => pe.Procurement.Region)
+                    .Include(pe => pe.Procurement.City)
                     .Include(pe => pe.Procurement.Organization)
                     .Where(pe => pe.Procurement.ProcurementState != null)
                     .Where(pe => pe.Employee.Id == employeeId)
@@ -1559,6 +1626,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Include(pe => pe.Procurement.Organization)
                             .Where(pe => pe.Employee.Id == employeeId)
@@ -1576,6 +1644,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.ProcurementState)
                             .Where(pe => pe.Employee.Id == employeeId)
@@ -1595,6 +1664,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Applications == true)
@@ -1612,6 +1682,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Include(pe => pe.Procurement.ExecutionState)
                             .Where(pe => pe.Employee.Id == employeeId)
@@ -1630,6 +1701,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Include(pe => pe.Procurement.WarrantyState)
                             .Where(pe => pe.Employee.Id == employeeId)
@@ -1648,6 +1720,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Include(pe => pe.Procurement.WarrantyState)
                             .Where(pe => pe.Employee.Id == employeeId)
@@ -1684,6 +1757,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Organization)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
                                 .Where(pe => pe.Employee.Id == employeeId)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
@@ -1702,6 +1776,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Organization)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
                                 .Where(pe => pe.Employee.Id == employeeId)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
@@ -1722,6 +1797,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Organization)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
                                 .Where(pe => pe.Employee.Id == employeeId)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
@@ -1740,6 +1816,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Organization)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
                                 .Where(pe => pe.Employee.Id == employeeId)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
@@ -1760,6 +1837,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Organization)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
                                 .Where(pe => pe.Employee.Id == employeeId)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
@@ -1779,6 +1857,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Organization)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
                                 .Where(pe => pe.Employee.Id == employeeId)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
@@ -1813,6 +1892,7 @@ public static class GET
                         .Include(pe => pe.Procurement.Organization)
                         .Include(pe => pe.Procurement.TimeZone)
                         .Include(pe => pe.Procurement.Region)
+                        .Include(pe => pe.Procurement.City)
                         .Include(pe => pe.Procurement.ShipmentPlan)
                         .Where(pe => pe.Employee.Id == employeeId)
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
@@ -1833,6 +1913,7 @@ public static class GET
                         .Include(pe => pe.Procurement.Organization)
                         .Include(pe => pe.Procurement.TimeZone)
                         .Include(pe => pe.Procurement.Region)
+                        .Include(pe => pe.Procurement.City)
                         .Include(pe => pe.Procurement.ShipmentPlan)
                         .Where(pe => pe.Employee.Id == employeeId)
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
@@ -1863,6 +1944,7 @@ public static class GET
                     .Include(pe => pe.Procurement.Organization)
                     .Include(pe => pe.Procurement.TimeZone)
                     .Include(pe => pe.Procurement.Region)
+                    .Include(pe => pe.Procurement.City)
                     .Include(pe => pe.Procurement.ShipmentPlan)
                     .Where(pe => pe.Employee.Id == employeeId)
                     .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
@@ -1896,6 +1978,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Judgment == true)
@@ -1912,6 +1995,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Fas == true)
@@ -1945,6 +2029,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Calculating == true)
@@ -1964,6 +2049,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Calculating == false || pe.Procurement.Calculating == null)
@@ -1985,6 +2071,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Purchase == true && pe.Procurement.Calculating == true)
@@ -2004,6 +2091,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Purchase == false || pe.Procurement.Purchase == null && pe.Procurement.Calculating == true)
@@ -2284,6 +2372,7 @@ public static class GET
                     .Include(p => p.Organization)
                     .Include(p => p.TimeZone)
                     .Include(p => p.Region)
+                    .Include(p => p.City)
                     .Include(p => p.ShipmentPlan)
                     .Where(p => p.ParentProcurementId == procurementId)
                     .ToList();

@@ -4,7 +4,20 @@ namespace DatabaseLibrary.Queries;
 
 public static class DELETE
 {
+    public static bool City(City city)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
 
+        try
+        {
+            _ = db.Cities.Remove(city);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
     public static bool ComponentState(ComponentState componentState)
     {
         using ParsethingContext db = new();

@@ -28,6 +28,7 @@ public partial class Procurement
     public string? Enforcement { get; set; }
     public string? Warranty { get; set; }
     public int? RegionId { get; set; }
+    public int? CityId { get; set; }
     public int? Distance { get; set; }
     public string? OrganizationContractName { get; set; }
     public string? OrganizationContractPostalAddress { get; set; }
@@ -112,6 +113,7 @@ public partial class Procurement
 
 
     public virtual CommisioningWork? CommissioningWorks { get; set; }
+    public virtual City? City { get; set; }
     public virtual ExecutionState? ExecutionState { get; set; }
     public virtual Law? Law { get; set; }
     public virtual LegalEntity? LegalEntity { get; set; }

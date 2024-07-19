@@ -4,6 +4,7 @@ public partial class ParsethingContext : DbContext
 {
     public ParsethingContext() { }
 
+    public virtual DbSet<City> Cities { get; set; } = null!;
     public virtual DbSet<Comment> Comments { get; set; } = null!;
     public virtual DbSet<CommisioningWork> CommisioningWorks { get; set; } = null!;
     public virtual DbSet<ComponentCalculation> ComponentCalculations { get; set; } = null!;
@@ -47,6 +48,11 @@ public partial class ParsethingContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        _ = modelBuilder.Entity<City>(entity =>
+        {
+            _ = entity.HasKey(e => e.Id).HasName("PK_Cities");
+        });
         _ = modelBuilder.Entity<Comment>(entity =>
         {
             _ = entity.Property(e => e.Date).HasColumnType("datetime");
@@ -209,6 +215,10 @@ public partial class ParsethingContext : DbContext
             _ = entity.Property(e => e.CalculatingAmount).HasColumnType("decimal(19, 2)");
             _ = entity.Property(e => e.PurchaseAmount).HasColumnType("decimal(19, 2)");
 
+
+            _ = entity.HasOne(d => d.City).WithMany(p => p.Procurements)
+                .HasForeignKey(d => d.CityId)
+                .HasConstraintName("FK_Procurements_Cities");
 
             _ = entity.HasOne(d => d.CommissioningWorks).WithMany(p => p.Procurements)
                 .HasForeignKey(d => d.CommissioningWorksId)
