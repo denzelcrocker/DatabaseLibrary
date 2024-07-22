@@ -1,185 +1,744 @@
-﻿using Azure;
-using DatabaseLibrary.Queries;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Drawing.Printing;
+using System.Runtime.CompilerServices;
 
-namespace DatabaseLibrary.Entities.ProcurementProperties;
-
-public partial class Procurement
+namespace DatabaseLibrary.Entities.ProcurementProperties
 {
-    public int Id { get; set; }
-    public string RequestUri { get; set; } = null!;
-    public string Number { get; set; } = null!;
-    public int LawId { get; set; }
-    public string Object { get; set; } = null!;
-    public decimal InitialPrice { get; set; }
-    public int OrganizationId { get; set; }
-    public int? MethodId { get; set; }
-    public int? PlatformId { get; set; }
-    public string? Location { get; set; }
-    public DateTime? PostingDate { get; set; }
-    public DateTime? StartDate { get; set; }
-    public DateTime? Deadline { get; set; }
-    public DateTime? ResultDate { get; set; }
-    public int? TimeZoneId { get; set; }
-    public string? Securing { get; set; }
-    public string? Enforcement { get; set; }
-    public string? Warranty { get; set; }
-    public int? RegionId { get; set; }
-    public int? CityId { get; set; }
-    public int? Distance { get; set; }
-    public string? OrganizationContractName { get; set; }
-    public string? OrganizationContractPostalAddress { get; set; }
-    public string? ContactPerson { get; set; }
-    public string? ContactPhone { get; set; }
-    public string? DeliveryDetails { get; set; }
-    public string? DeadlineAndType { get; set; }
-    public string? DeliveryDeadline { get; set; }
-    public string? AcceptanceDeadline { get; set; }
-    public string? ContractDeadline { get; set; }
-    public string? DeadlineAndOrder { get; set; }
-    public int? RepresentativeTypeId { get; set; }
-    public int? CommissioningWorksId { get; set; }
-    public int? PlaceCount { get; set; }
-    public string? FinesAndPennies { get; set; }
-    public string? PenniesPerDay { get; set; }
-    public string? TerminationConditions { get; set; }
-    public string? EliminationDeadline { get; set; }
-    public string? GuaranteePeriod { get; set; }
-    public string? Inn { get; set; }
-    public string? ContractNumber { get; set; }
-    public string? OrganizationEmail { get; set; }
-    public int? EmployeeId { get; set; }
-    public bool? AssemblyNeed { get; set; }
-    public int? MinopttorgId { get; set; }
-    public int? LegalEntityId { get; set; }
-    public bool? Applications { get; set; }
-    public int? ApplicationNumber { get; set; }
-    public decimal? Bet { get; set; }
-    public decimal? MinimalPrice { get; set; }
-    public decimal? ContractAmount { get; set; }
-    public decimal? ReserveContractAmount { get; set; }
-    public bool? IsUnitPrice { get; set; }
-    public DateTime? ProtocolDate { get; set; }
-    public string? HeadOfAcceptance { get; set; }
-    public int? ShipmentPlanId { get; set; }
-    public bool? WaitingList { get; set; }
-    public bool? Calculating { get; set; }
-    public bool? Purchase { get; set; }
-    public int? ExecutionStateId { get; set; }
-    public decimal? ExecutionPrice { get; set; }
-    public DateTime? ExecutionDate { get; set; }
-    public int? WarrantyStateId { get; set; }
-    public decimal? WarrantyPrice { get; set; }
-    public DateTime? WarrantyDate { get; set; }
-    public DateTime? SigningDeadline { get; set; }
-    public DateTime? SigningDate { get; set; }
-    public DateTime? ConclusionDate { get; set; }
-    public DateTime? ActualDeliveryDate { get; set; }
-    public DateTime? DepartureDate { get; set; }
-    public DateTime? DeliveryDate { get; set; }
-    public DateTime? MaxAcceptanceDate { get; set; }
-    public DateTime? CorrectionDate { get; set; }
-    public DateTime? ActDate { get; set; }
-    public DateTime? MaxDueDate { get; set; }
-    public DateTime? ClosingDate { get; set; }
-    public DateTime? RealDueDate { get; set; }
-    public decimal? Amount { get; set; }
-    public int? SignedOriginalId { get; set; }
-    public bool? Judgment { get; set; }
-    public bool? Fas { get; set; }
-    public int? ProcurementStateId { get; set; }
-    public decimal? CalculatingAmount { get; set; }
-    public decimal? PurchaseAmount { get; set; }
-    public string? PassportOfMonitor { get; set; }
-    public string? PassportOfPC { get; set; }
-    public string? PassportOfMonoblock { get; set; }
-    public string? PassportOfNotebook { get; set; }
-    public bool? IsProcurementBlocked { get; set; }
-    public bool? IsPurchaseBlocked { get; set; }
-    public bool? IsCalculationBlocked { get; set; }
-    public int? ProcurementUserId { get; set; }
-    public int? PurchaseUserId { get; set; }
-    public int? CalculatingUserId { get; set; }
-    public int? ParentProcurementId { get; set; }
-    public RejectionReason? RejectionReason { get; set; }
-
-
-    public virtual ICollection<ComponentCalculation> ComponentCalculations { get; } = new List<ComponentCalculation>();
-    [NotMapped]
-    public ObservableCollection<ComponentStateCount> ComponentStates { get; set; } = new ObservableCollection<ComponentStateCount>();
-
-
-    public virtual CommisioningWork? CommissioningWorks { get; set; }
-    public virtual City? City { get; set; }
-    public virtual ExecutionState? ExecutionState { get; set; }
-    public virtual Law? Law { get; set; }
-    public virtual LegalEntity? LegalEntity { get; set; }
-    public virtual Method? Method { get; set; }
-    public virtual Minopttorg? Minopttorg { get; set; }
-    public virtual Organization? Organization { get; set; }
-    public virtual Platform? Platform { get; set; }
-    public virtual ProcurementState? ProcurementState { get; set; }
-    public virtual Region? Region { get; set; }
-    public virtual RepresentativeType? RepresentativeType { get; set; }
-    public virtual ShipmentPlan? ShipmentPlan { get; set; }
-    public virtual SignedOriginal? SignedOriginal { get; set; }
-    public virtual TimeZone? TimeZone { get; set; }
-    public virtual WarrantyState? WarrantyState { get; set; }
-
-    //public void SetNotNullableForeignKeys()
-    //{
-    //    if (Law != null)
-    //        LawId = GET.LawId(Law);
-    //    Law = null;
-
-    //    if (Organization != null)
-    //        OrganizationId = GET.OrganizationId(Organization);
-    //    Organization = null;
-    //}
-
-    //public void SetNullableForeignKeys()
-    //{
-    //    if (Method != null)
-    //        MethodId = GET.MethodId(Method);
-    //    Method = null;
-
-    //    if (Platform != null)
-    //        PlatformId = GET.PlatformId(Platform);
-    //    Platform = null;
-
-    //    if (TimeZone != null)
-    //        TimeZoneId = GET.TimeZoneId(TimeZone);
-    //    TimeZone = null;
-    //}
-
-    public string ToInsert()
+    public partial class Procurement : INotifyPropertyChanged
     {
-        return $"{RequestUri}, '{Number}', {LawId}, '{Object}', {InitialPrice}, {OrganizationId}, {(MethodId != null ? $"{MethodId}" : "null")}, {(PlatformId != null ? $"{PlatformId}" : "null")}, {(Location != null ? $"'{Location}'" : "null")}, {(PostingDate != null ? $"'{PostingDate}'" : "null")}, {(StartDate != null ? $"'{StartDate}'" : "null")}, {(Deadline != null ? $"'{Deadline}'" : "null")}, {(TimeZoneId != null ? $"{TimeZoneId}" : "null")}, {(Securing != null ? $"'{Securing}'" : "null")}, {(Enforcement != null ? $"'{Enforcement}'" : "null")}, {(Warranty != null ? $"'{Warranty}'" : "null")}, {(RegionId != null ? $"{RegionId}" : "null")}";
+        private int _id;
+        private string _requestUri = null!;
+        private string _number = null!;
+        private int _lawId;
+        private string _object = null!;
+        private decimal _initialPrice;
+        private int _organizationId;
+        private int? _methodId;
+        private int? _platformId;
+        private string? _location;
+        private DateTime? _postingDate;
+        private DateTime? _startDate;
+        private DateTime? _deadline;
+        private DateTime? _resultDate;
+        private int? _timeZoneId;
+        private string? _securing;
+        private string? _enforcement;
+        private string? _warranty;
+        private int? _regionId;
+        private int? _cityId;
+        private int? _distance;
+        private string? _organizationContractName;
+        private string? _organizationContractPostalAddress;
+        private string? _contactPerson;
+        private string? _contactPhone;
+        private string? _deliveryDetails;
+        private string? _deadlineAndType;
+        private string? _deliveryDeadline;
+        private string? _acceptanceDeadline;
+        private string? _contractDeadline;
+        private string? _deadlineAndOrder;
+        private int? _representativeTypeId;
+        private int? _commissioningWorksId;
+        private int? _placeCount;
+        private string? _finesAndPennies;
+        private string? _penniesPerDay;
+        private string? _terminationConditions;
+        private string? _eliminationDeadline;
+        private string? _guaranteePeriod;
+        private string? _inn;
+        private string? _contractNumber;
+        private string? _organizationEmail;
+        private int? _employeeId;
+        private bool? _assemblyNeed;
+        private int? _minopttorgId;
+        private int? _legalEntityId;
+        private bool? _applications;
+        private int? _applicationNumber;
+        private decimal? _bet;
+        private decimal? _minimalPrice;
+        private decimal? _contractAmount;
+        private decimal? _reserveContractAmount;
+        private bool? _isUnitPrice;
+        private DateTime? _protocolDate;
+        private string? _headOfAcceptance;
+        private int? _shipmentPlanId;
+        private bool? _waitingList;
+        private bool? _calculating;
+        private bool? _purchase;
+        private int? _executionStateId;
+        private decimal? _executionPrice;
+        private DateTime? _executionDate;
+        private int? _warrantyStateId;
+        private decimal? _warrantyPrice;
+        private DateTime? _warrantyDate;
+        private DateTime? _signingDeadline;
+        private DateTime? _signingDate;
+        private DateTime? _conclusionDate;
+        private DateTime? _actualDeliveryDate;
+        private DateTime? _departureDate;
+        private DateTime? _deliveryDate;
+        private DateTime? _maxAcceptanceDate;
+        private DateTime? _correctionDate;
+        private DateTime? _actDate;
+        private DateTime? _maxDueDate;
+        private DateTime? _closingDate;
+        private DateTime? _realDueDate;
+        private decimal? _amount;
+        private int? _signedOriginalId;
+        private bool? _judgment;
+        private bool? _fas;
+        private int? _procurementStateId;
+        private decimal? _calculatingAmount;
+        private decimal? _purchaseAmount;
+        private string? _passportOfMonitor;
+        private string? _passportOfPC;
+        private string? _passportOfMonoblock;
+        private string? _passportOfNotebook;
+        private bool? _isProcurementBlocked;
+        private bool? _isPurchaseBlocked;
+        private bool? _isCalculationBlocked;
+        private int? _procurementUserId;
+        private int? _purchaseUserId;
+        private int? _calculatingUserId;
+        private int? _parentProcurementId;
+        private RejectionReason? _rejectionReason;
+
+        private ICollection<ComponentCalculation> _componentCalculations = new List<ComponentCalculation>();
+        private ObservableCollection<ComponentStateCount> _componentStates = new ObservableCollection<ComponentStateCount>();
+        private CommisioningWork? _commissioningWorks;
+        private ExecutionState? _executionState;
+        private City? _city;
+        private Law? _law;
+        private LegalEntity? _legalEntity;
+        private Method? _method;
+        private Minopttorg? _minopttorg;
+        private Organization? _organization;
+        private Platform? _platform;
+        private ProcurementState? _procurementState;
+        private Region? _region;
+        private RepresentativeType? _representativeType;
+        private ShipmentPlan? _shipmentPlan;
+        private SignedOriginal? _signedOriginal;
+        private TimeZone? _timeZone;
+        private WarrantyState? _warrantyState;
+
+        public int Id
+        {
+            get => _id;
+            set { _id = value; OnPropertyChanged(); }
+        }
+        public string RequestUri
+        {
+            get => _requestUri;
+            set { _requestUri = value; OnPropertyChanged(); }
+        }
+        public string Number
+        {
+            get => _number;
+            set { _number = value; OnPropertyChanged(); }
+        }
+        public int LawId
+        {
+            get => _lawId;
+            set { _lawId = value; OnPropertyChanged(); }
+        }
+        public string Object
+        {
+            get => _object;
+            set { _object = value; OnPropertyChanged(); }
+        }
+        public decimal InitialPrice
+        {
+            get => _initialPrice;
+            set { _initialPrice = value; OnPropertyChanged(); }
+        }
+        public int OrganizationId
+        {
+            get => _organizationId;
+            set { _organizationId = value; OnPropertyChanged(); }
+        }
+        public int? MethodId
+        {
+            get => _methodId;
+            set { _methodId = value; OnPropertyChanged(); }
+        }
+        public int? PlatformId
+        {
+            get => _platformId;
+            set { _platformId = value; OnPropertyChanged(); }
+        }
+        public string? Location
+        {
+            get => _location;
+            set { _location = value; OnPropertyChanged(); }
+        }
+        public DateTime? PostingDate
+        {
+            get => _postingDate;
+            set { _postingDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? StartDate
+        {
+            get => _startDate;
+            set { _startDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? Deadline
+        {
+            get => _deadline;
+            set { _deadline = value; OnPropertyChanged(); }
+        }
+        public DateTime? ResultDate
+        {
+            get => _resultDate;
+            set { _resultDate = value; OnPropertyChanged(); }
+        }
+        public int? TimeZoneId
+        {
+            get => _timeZoneId;
+            set { _timeZoneId = value; OnPropertyChanged(); }
+        }
+        public string? Securing
+        {
+            get => _securing;
+            set { _securing = value; OnPropertyChanged(); }
+        }
+        public string? Enforcement
+        {
+            get => _enforcement;
+            set { _enforcement = value; OnPropertyChanged(); }
+        }
+        public string? Warranty
+        {
+            get => _warranty;
+            set { _warranty = value; OnPropertyChanged(); }
+        }
+        public int? RegionId
+        {
+            get => _regionId;
+            set { _regionId = value; OnPropertyChanged(); }
+        }
+        public int? CityId
+        {
+            get => _cityId;
+            set { _cityId = value; OnPropertyChanged(); }
+        }
+        public int? Distance
+        {
+            get => _distance;
+            set { _distance = value; OnPropertyChanged(); }
+        }
+        public string? OrganizationContractName
+        {
+            get => _organizationContractName;
+            set { _organizationContractName = value; OnPropertyChanged(); }
+        }
+        public string? OrganizationContractPostalAddress
+        {
+            get => _organizationContractPostalAddress;
+            set { _organizationContractPostalAddress = value; OnPropertyChanged(); }
+        }
+        public string? ContactPerson
+        {
+            get => _contactPerson;
+            set { _contactPerson = value; OnPropertyChanged(); }
+        }
+        public string? ContactPhone
+        {
+            get => _contactPhone;
+            set { _contactPhone = value; OnPropertyChanged(); }
+        }
+        public string? DeliveryDetails
+        {
+            get => _deliveryDetails;
+            set { _deliveryDetails = value; OnPropertyChanged(); }
+        }
+        public string? DeadlineAndType
+        {
+            get => _deadlineAndType;
+            set { _deadlineAndType = value; OnPropertyChanged(); }
+        }
+        public string? DeliveryDeadline
+        {
+            get => _deliveryDeadline;
+            set { _deliveryDeadline = value; OnPropertyChanged(); }
+        }
+        public string? AcceptanceDeadline
+        {
+            get => _acceptanceDeadline;
+            set { _acceptanceDeadline = value; OnPropertyChanged(); }
+        }
+        public string? ContractDeadline
+        {
+            get => _contractDeadline;
+            set { _contractDeadline = value; OnPropertyChanged(); }
+        }
+        public string? DeadlineAndOrder
+        {
+            get => _deadlineAndOrder;
+            set { _deadlineAndOrder = value; OnPropertyChanged(); }
+        }
+        public int? RepresentativeTypeId
+        {
+            get => _representativeTypeId;
+            set { _representativeTypeId = value; OnPropertyChanged(); }
+        }
+        public int? CommissioningWorksId
+        {
+            get => _commissioningWorksId;
+            set { _commissioningWorksId = value; OnPropertyChanged(); }
+        }
+        public int? PlaceCount
+        {
+            get => _placeCount;
+            set { _placeCount = value; OnPropertyChanged(); }
+        }
+        public string? FinesAndPennies
+        {
+            get => _finesAndPennies;
+            set { _finesAndPennies = value; OnPropertyChanged(); }
+        }
+        public string? PenniesPerDay
+        {
+            get => _penniesPerDay;
+            set { _penniesPerDay = value; OnPropertyChanged(); }
+        }
+        public string? TerminationConditions
+        {
+            get => _terminationConditions;
+            set { _terminationConditions = value; OnPropertyChanged(); }
+        }
+        public string? EliminationDeadline
+        {
+            get => _eliminationDeadline;
+            set { _eliminationDeadline = value; OnPropertyChanged(); }
+        }
+        public string? GuaranteePeriod
+        {
+            get => _guaranteePeriod;
+            set { _guaranteePeriod = value; OnPropertyChanged(); }
+        }
+        public string? Inn
+        {
+            get => _inn;
+            set { _inn = value; OnPropertyChanged(); }
+        }
+        public string? ContractNumber
+        {
+            get => _contractNumber;
+            set { _contractNumber = value; OnPropertyChanged(); }
+        }
+        public string? OrganizationEmail
+        {
+            get => _organizationEmail;
+            set { _organizationEmail = value; OnPropertyChanged(); }
+        }
+        public int? EmployeeId
+        {
+            get => _employeeId;
+            set { _employeeId = value; OnPropertyChanged(); }
+        }
+        public bool? AssemblyNeed
+        {
+            get => _assemblyNeed;
+            set { _assemblyNeed = value; OnPropertyChanged(); }
+        }
+        public int? MinopttorgId
+        {
+            get => _minopttorgId;
+            set { _minopttorgId = value; OnPropertyChanged(); }
+        }
+        public int? LegalEntityId
+        {
+            get => _legalEntityId;
+            set { _legalEntityId = value; OnPropertyChanged(); }
+        }
+        public bool? Applications
+        {
+            get => _applications;
+            set { _applications = value; OnPropertyChanged(); }
+        }
+        public int? ApplicationNumber
+        {
+            get => _applicationNumber;
+            set { _applicationNumber = value; OnPropertyChanged(); }
+        }
+        public decimal? Bet
+        {
+            get => _bet;
+            set { _bet = value; OnPropertyChanged(); }
+        }
+        public decimal? MinimalPrice
+        {
+            get => _minimalPrice;
+            set { _minimalPrice = value; OnPropertyChanged(); }
+        }
+        public decimal? ContractAmount
+        {
+            get => _contractAmount;
+            set { _contractAmount = value; OnPropertyChanged(); }
+        }
+        public decimal? ReserveContractAmount
+        {
+            get => _reserveContractAmount;
+            set { _reserveContractAmount = value; OnPropertyChanged(); }
+        }
+        public bool? IsUnitPrice
+        {
+            get => _isUnitPrice;
+            set { _isUnitPrice = value; OnPropertyChanged(); }
+        }
+        public DateTime? ProtocolDate
+        {
+            get => _protocolDate;
+            set { _protocolDate = value; OnPropertyChanged(); }
+        }
+        public string? HeadOfAcceptance
+        {
+            get => _headOfAcceptance;
+            set { _headOfAcceptance = value; OnPropertyChanged(); }
+        }
+        public int? ShipmentPlanId
+        {
+            get => _shipmentPlanId;
+            set { _shipmentPlanId = value; OnPropertyChanged(); }
+        }
+        public bool? WaitingList
+        {
+            get => _waitingList;
+            set { _waitingList = value; OnPropertyChanged(); }
+        }
+        public bool? Calculating
+        {
+            get => _calculating;
+            set { _calculating = value; OnPropertyChanged(); }
+        }
+        public bool? Purchase
+        {
+            get => _purchase;
+            set { _purchase = value; OnPropertyChanged(); }
+        }
+        public int? ExecutionStateId
+        {
+            get => _executionStateId;
+            set { _executionStateId = value; OnPropertyChanged(); }
+        }
+        public decimal? ExecutionPrice
+        {
+            get => _executionPrice;
+            set { _executionPrice = value; OnPropertyChanged(); }
+        }
+        public DateTime? ExecutionDate
+        {
+            get => _executionDate;
+            set { _executionDate = value; OnPropertyChanged(); }
+        }
+        public int? WarrantyStateId
+        {
+            get => _warrantyStateId;
+            set { _warrantyStateId = value; OnPropertyChanged(); }
+        }
+        public decimal? WarrantyPrice
+        {
+            get => _warrantyPrice;
+            set { _warrantyPrice = value; OnPropertyChanged(); }
+        }
+        public DateTime? WarrantyDate
+        {
+            get => _warrantyDate;
+            set { _warrantyDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? SigningDeadline
+        {
+            get => _signingDeadline;
+            set { _signingDeadline = value; OnPropertyChanged(); }
+        }
+        public DateTime? SigningDate
+        {
+            get => _signingDate;
+            set { _signingDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? ConclusionDate
+        {
+            get => _conclusionDate;
+            set { _conclusionDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? ActualDeliveryDate
+        {
+            get => _actualDeliveryDate;
+            set { _actualDeliveryDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? DepartureDate
+        {
+            get => _departureDate;
+            set { _departureDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? DeliveryDate
+        {
+            get => _deliveryDate;
+            set { _deliveryDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? MaxAcceptanceDate
+        {
+            get => _maxAcceptanceDate;
+            set { _maxAcceptanceDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? CorrectionDate
+        {
+            get => _correctionDate;
+            set { _correctionDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? ActDate
+        {
+            get => _actDate;
+            set { _actDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? MaxDueDate
+        {
+            get => _maxDueDate;
+            set { _maxDueDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? ClosingDate
+        {
+            get => _closingDate;
+            set { _closingDate = value; OnPropertyChanged(); }
+        }
+        public DateTime? RealDueDate
+        {
+            get => _realDueDate;
+            set { _realDueDate = value; OnPropertyChanged(); }
+        }
+        public decimal? Amount
+        {
+            get => _amount;
+            set { _amount = value; OnPropertyChanged(); }
+        }
+        public int? SignedOriginalId
+        {
+            get => _signedOriginalId;
+            set { _signedOriginalId = value; OnPropertyChanged(); }
+        }
+        public bool? Judgment
+        {
+            get => _judgment;
+            set { _judgment = value; OnPropertyChanged(); }
+        }
+        public bool? Fas
+        {
+            get => _fas;
+            set { _fas = value; OnPropertyChanged(); }
+        }
+        public int? ProcurementStateId
+        {
+            get => _procurementStateId;
+            set { _procurementStateId = value; OnPropertyChanged(); }
+        }
+        public decimal? CalculatingAmount
+        {
+            get => _calculatingAmount;
+            set { _calculatingAmount = value; OnPropertyChanged(); }
+        }
+        public decimal? PurchaseAmount
+        {
+            get => _purchaseAmount;
+            set { _purchaseAmount = value; OnPropertyChanged(); }
+        }
+        public string? PassportOfMonitor
+        {
+            get => _passportOfMonitor;
+            set { _passportOfMonitor = value; OnPropertyChanged(); }
+        }
+        public string? PassportOfPC
+        {
+            get => _passportOfPC;
+            set { _passportOfPC = value; OnPropertyChanged(); }
+        }
+        public string? PassportOfMonoblock
+        {
+            get => _passportOfMonoblock;
+            set
+            {
+                _passportOfMonoblock = value; OnPropertyChanged();
+            }
+        }
+        public string? PassportOfNotebook
+        {
+            get => _passportOfNotebook;
+            set { _passportOfNotebook = value; OnPropertyChanged(); }
+        }
+        public bool? IsProcurementBlocked
+        {
+            get => _isProcurementBlocked;
+            set { _isProcurementBlocked = value; OnPropertyChanged(); }
+        }
+        public bool? IsPurchaseBlocked
+        {
+            get => _isPurchaseBlocked;
+            set { _isPurchaseBlocked = value; OnPropertyChanged(); }
+        }
+        public bool? IsCalculationBlocked
+        {
+            get => _isCalculationBlocked;
+            set { _isCalculationBlocked = value; OnPropertyChanged(); }
+        }
+        public int? ProcurementUserId
+        {
+            get => _procurementUserId;
+            set { _procurementUserId = value; OnPropertyChanged(); }
+        }
+        public int? PurchaseUserId
+        {
+            get => _purchaseUserId;
+            set { _purchaseUserId = value; OnPropertyChanged(); }
+        }
+        public int? CalculatingUserId
+        {
+            get => _calculatingUserId;
+            set { _calculatingUserId = value; OnPropertyChanged(); }
+        }
+        public int? ParentProcurementId
+        {
+            get => _parentProcurementId;
+            set { _parentProcurementId = value; OnPropertyChanged(); }
+        }
+        public RejectionReason? RejectionReason
+        {
+            get => _rejectionReason;
+            set { _rejectionReason = value; OnPropertyChanged(); }
+        }
+
+        public virtual ICollection<ComponentCalculation> ComponentCalculations
+        {
+            get => _componentCalculations;
+            set { _componentCalculations = value; OnPropertyChanged(); }
+        }
+
+        [NotMapped]
+        public ObservableCollection<ComponentStateCount> ComponentStates
+        {
+            get => _componentStates;
+            set { _componentStates = value; OnPropertyChanged(); }
+        }
+
+        public virtual CommisioningWork? CommissioningWorks
+        {
+            get => _commissioningWorks;
+            set { _commissioningWorks = value; OnPropertyChanged(); }
+        }
+        public virtual City? City
+        {
+            get => _city;
+            set { _city = value; OnPropertyChanged(); }
+        }
+        public virtual ExecutionState? ExecutionState
+        {
+            get => _executionState;
+            set { _executionState = value; OnPropertyChanged(); }
+        }
+        public virtual Law? Law
+        {
+            get => _law;
+            set { _law = value; OnPropertyChanged(); }
+        }
+        public virtual LegalEntity? LegalEntity
+        {
+            get => _legalEntity;
+            set { _legalEntity = value; OnPropertyChanged(); }
+        }
+        public virtual Method? Method
+        {
+            get => _method;
+            set { _method = value; OnPropertyChanged(); }
+        }
+        public virtual Minopttorg? Minopttorg
+        {
+            get => _minopttorg;
+            set { _minopttorg = value; OnPropertyChanged(); }
+        }
+        public virtual Organization? Organization
+        {
+            get => _organization;
+            set { _organization = value; OnPropertyChanged(); }
+        }
+        public virtual Platform? Platform
+        {
+            get => _platform;
+            set { _platform = value; OnPropertyChanged(); }
+        }
+        public virtual ProcurementState? ProcurementState
+        {
+            get => _procurementState;
+            set { _procurementState = value; OnPropertyChanged(); }
+        }
+        public virtual Region? Region
+        {
+            get => _region;
+            set { _region = value; OnPropertyChanged(); }
+        }
+        public virtual RepresentativeType? RepresentativeType
+        {
+            get => _representativeType;
+            set { _representativeType = value; OnPropertyChanged(); }
+        }
+        public virtual ShipmentPlan? ShipmentPlan
+        {
+            get => _shipmentPlan;
+            set { _shipmentPlan = value; OnPropertyChanged(); }
+        }
+        public virtual SignedOriginal? SignedOriginal
+        {
+            get => _signedOriginal;
+            set { _signedOriginal = value; OnPropertyChanged(); }
+        }
+        public virtual TimeZone? TimeZone
+        {
+            get => _timeZone;
+            set { _timeZone = value; OnPropertyChanged(); }
+        }
+        public virtual WarrantyState? WarrantyState
+        {
+            get => _warrantyState;
+            set { _warrantyState = value; OnPropertyChanged(); }
+        }
+
+
+        // Event handler for property changes
+
+        // Event handler for property changes
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        public string ToInsert()
+        {
+            return $"{RequestUri}, '{Number}', {LawId}, '{Object}', {InitialPrice}, {OrganizationId}, {(MethodId != null ? $"{MethodId}" : "null")}, {(PlatformId != null ? $"{PlatformId}" : "null")}, {(Location != null ? $"'{Location}'" : "null")}, {(PostingDate != null ? $"'{PostingDate}'" : "null")}, {(StartDate != null ? $"'{StartDate}'" : "null")}, {(Deadline != null ? $"'{Deadline}'" : "null")}, {(TimeZoneId != null ? $"{TimeZoneId}" : "null")}, {(Securing != null ? $"'{Securing}'" : "null")}, {(Enforcement != null ? $"'{Enforcement}'" : "null")}, {(Warranty != null ? $"'{Warranty}'" : "null")}, {(RegionId != null ? $"{RegionId}" : "null")}";
+        }
+
+        public string ToUpdate()
+        {
+            return $"\"RequestUri\" = {RequestUri}, \"Number\" = '{Number}', \"LawId\" = {LawId}, \"Object\" = '{Object}', \"InitialPrice\" = {InitialPrice}, \"OrganizationId\" = {OrganizationId}, \"MethodId\" = {(MethodId != null ? $"{MethodId}" : "null")}, \"PlatformId\" = {(PlatformId != null ? $"{PlatformId}" : "null")}, \"Location\" = {(Location != null ? $"'{Location}'" : "null")}, \"PostingDate\" = {(PostingDate != null ? $"'{PostingDate}'" : "null")}, \"StartDate\" = {(StartDate != null ? $"'{StartDate}'" : "null")}, \"Deadline\" = {(Deadline != null ? $"'{Deadline}'" : "null")}, \"TimeZoneId\" = {(TimeZoneId != null ? $"{TimeZoneId}" : "null")}, \"Securing\" = {(Securing != null ? $"'{Securing}'" : "null")}, \"Enforcement\" = {(Enforcement != null ? $"'{Enforcement}'" : "null")}, \"Warranty\" = {(Warranty != null ? $"'{Warranty}'" : "null")}, \"RegionId\" = {(RegionId != null ? $"{RegionId}" : "null")}";
+        }
+
+    }
+    public class ComponentStateCount
+    {
+        public string? State { get; set; }
+        public int Count { get; set; }
     }
 
-    public string ToUpdate()
+    public enum RejectionReason
     {
-        return $"\"RequestUri\" = {RequestUri}, \"Number\" = '{Number}', \"LawId\" = {LawId}, \"Object\" = '{Object}', \"InitialPrice\" = {InitialPrice}, \"OrganizationId\" = {OrganizationId}, \"MethodId\" = {(MethodId != null ? $"{MethodId}" : "null")}, \"PlatformId\" = {(PlatformId != null ? $"{PlatformId}" : "null")}, \"Location\" = {(Location != null ? $"'{Location}'" : "null")}, \"PostingDate\" = {(PostingDate != null ? $"'{PostingDate}'" : "null")}, \"StartDate\" = {(StartDate != null ? $"'{StartDate}'" : "null")}, \"Deadline\" = {(Deadline != null ? $"'{Deadline}'" : "null")}, \"TimeZoneId\" = {(TimeZoneId != null ? $"{TimeZoneId}" : "null")}, \"Securing\" = {(Securing != null ? $"'{Securing}'" : "null")}, \"Enforcement\" = {(Enforcement != null ? $"'{Enforcement}'" : "null")}, \"Warranty\" = {(Warranty != null ? $"'{Warranty}'" : "null")}, \"RegionId\" = {(RegionId != null ? $"{RegionId}" : "null")}";
+        [Description("Расчет")]
+        Calculation,
+
+        [Description("Подача")]
+        Submission,
+
+        [Description("Реестр")]
+        Registry
     }
-    
-}
-public class ComponentStateCount
-{
-    public string? State { get; set; }
-    public int Count { get; set; }
-}
-
-public enum RejectionReason
-{
-    [Description("Расчет")]
-    Calculation,
-
-    [Description("Подача")]
-    Submission,
-
-    [Description("Реестр")]
-    Registry
 }
