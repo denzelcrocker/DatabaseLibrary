@@ -723,6 +723,23 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
             return $"\"RequestUri\" = {RequestUri}, \"Number\" = '{Number}', \"LawId\" = {LawId}, \"Object\" = '{Object}', \"InitialPrice\" = {InitialPrice}, \"OrganizationId\" = {OrganizationId}, \"MethodId\" = {(MethodId != null ? $"{MethodId}" : "null")}, \"PlatformId\" = {(PlatformId != null ? $"{PlatformId}" : "null")}, \"Location\" = {(Location != null ? $"'{Location}'" : "null")}, \"PostingDate\" = {(PostingDate != null ? $"'{PostingDate}'" : "null")}, \"StartDate\" = {(StartDate != null ? $"'{StartDate}'" : "null")}, \"Deadline\" = {(Deadline != null ? $"'{Deadline}'" : "null")}, \"TimeZoneId\" = {(TimeZoneId != null ? $"{TimeZoneId}" : "null")}, \"Securing\" = {(Securing != null ? $"'{Securing}'" : "null")}, \"Enforcement\" = {(Enforcement != null ? $"'{Enforcement}'" : "null")}, \"Warranty\" = {(Warranty != null ? $"'{Warranty}'" : "null")}, \"RegionId\" = {(RegionId != null ? $"{RegionId}" : "null")}";
         }
 
+        public decimal GetFinalAmount()
+        {
+            if (ReserveContractAmount.HasValue && ReserveContractAmount.Value != 0)
+            {
+                return ReserveContractAmount.Value;
+            }
+            else if (ContractAmount.HasValue && ContractAmount.Value != 0)
+            {
+                return ContractAmount.Value;
+            }
+            else
+            {
+                return InitialPrice;
+            }
+        }
+
+
     }
     public class ComponentStateCount
     {

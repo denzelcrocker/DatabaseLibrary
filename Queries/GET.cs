@@ -3081,6 +3081,12 @@ public static class GET
         public int CountOfProcurements { get; set; }
         public List<Procurement> Procurements { get; set; }
 
+        public decimal TotalAmpunt => Procurements?.Sum(p =>
+        p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ?
+        p.ReserveContractAmount.Value :
+        (p.ContractAmount != null && p.ContractAmount != 0 ?
+        p.ContractAmount.Value :
+        p.InitialPrice)) ?? 0m;
     }
 
     public enum KindOf // Перечисление для типизации запросов
