@@ -190,6 +190,7 @@ public partial class ParsethingContext : DbContext
             _ = entity.Property(e => e.ClosingDate).HasColumnType("datetime");
             _ = entity.Property(e => e.ConclusionDate).HasColumnType("datetime");
             _ = entity.Property(e => e.ContractAmount).HasColumnType("decimal(19, 2)");
+            _ = entity.Property(e => e.CompetitorSum).HasColumnType("decimal(19, 2)");
             _ = entity.Property(e => e.CorrectionDate).HasColumnType("datetime");
             _ = entity.Property(e => e.Deadline).HasColumnType("datetime");
             _ = entity.Property(e => e.ResultDate).HasColumnType("datetime");
@@ -214,7 +215,9 @@ public partial class ParsethingContext : DbContext
             _ = entity.Property(e => e.StartDate).HasColumnType("datetime");
             _ = entity.Property(e => e.CalculatingAmount).HasColumnType("decimal(19, 2)");
             _ = entity.Property(e => e.PurchaseAmount).HasColumnType("decimal(19, 2)");
-
+            _ = entity.Property(e => e.PassportOfAw).HasColumnName("PassportOfAW");
+            _ = entity.Property(e => e.PassportOfPc).HasColumnName("PassportOfPC");
+            _ = entity.Property(e => e.PassportOfUps).HasColumnName("PassportOfUPS");
 
             _ = entity.HasOne(d => d.City).WithMany(p => p.Procurements)
                 .HasForeignKey(d => d.CityId)

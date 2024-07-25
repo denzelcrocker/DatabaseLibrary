@@ -349,6 +349,8 @@ public static class PULL
             def.OrganizationContractPostalAddress = procurement.OrganizationContractPostalAddress;
             def.ContactPerson = procurement.ContactPerson;
             def.ContactPhone = procurement.ContactPhone;
+            def.OrganizationEmail = procurement.OrganizationEmail;
+            def.HeadOfAcceptance = procurement.HeadOfAcceptance;
             def.DeliveryDetails = procurement.DeliveryDetails;
             def.DeadlineAndType = procurement.DeadlineAndType;
             def.DeliveryDeadline = procurement.DeliveryDeadline;
@@ -365,7 +367,6 @@ public static class PULL
             def.GuaranteePeriod = procurement.GuaranteePeriod;
             def.Inn = procurement.Inn;
             def.ContractNumber = procurement.ContractNumber;
-            def.OrganizationEmail = procurement.OrganizationEmail;
             def.AssemblyNeed = procurement.AssemblyNeed;
             def.MinopttorgId = procurement.MinopttorgId;
             def.LegalEntityId = procurement.LegalEntityId;
@@ -377,7 +378,8 @@ public static class PULL
             def.ReserveContractAmount = procurement.ReserveContractAmount;
             def.IsUnitPrice = procurement.IsUnitPrice;
             def.ProtocolDate = procurement.ProtocolDate;
-            def.HeadOfAcceptance = procurement.HeadOfAcceptance;
+            def.RejectionReason = procurement.RejectionReason;
+            def.CompetitorSum = procurement.CompetitorSum;
             def.ShipmentPlanId = procurement.ShipmentPlanId;
             def.WaitingList = procurement.WaitingList;
             def.Calculating = procurement.Calculating;
@@ -409,9 +411,11 @@ public static class PULL
             def.CalculatingAmount = procurement.CalculatingAmount;
             def.PurchaseAmount = procurement.PurchaseAmount;
             def.PassportOfMonitor = procurement.PassportOfMonitor;
-            def.PassportOfPC = procurement.PassportOfPC;
+            def.PassportOfPc = procurement.PassportOfPc;
             def.PassportOfMonoblock = procurement.PassportOfMonoblock;
             def.PassportOfNotebook = procurement.PassportOfNotebook;
+            def.PassportOfAw = procurement.PassportOfAw;
+            def.PassportOfUps = procurement.PassportOfUps;
             def.IsProcurementBlocked = procurement.IsProcurementBlocked;
             def.IsPurchaseBlocked = procurement.IsPurchaseBlocked;
             def.IsCalculationBlocked = procurement.IsCalculationBlocked;
@@ -419,7 +423,6 @@ public static class PULL
             def.PurchaseUserId = procurement.PurchaseUserId;
             def.CalculatingUserId = procurement.CalculatingUserId;
             def.ParentProcurementId = procurement.ParentProcurementId;
-            def.RejectionReason = procurement.RejectionReason;
 
             _ = db.SaveChanges();
         }

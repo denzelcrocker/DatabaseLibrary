@@ -34,6 +34,8 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         private string? _organizationContractPostalAddress;
         private string? _contactPerson;
         private string? _contactPhone;
+        private string? _organizationEmail;
+        private string? _headOfAcceptance;
         private string? _deliveryDetails;
         private string? _deadlineAndType;
         private string? _deliveryDeadline;
@@ -50,7 +52,6 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         private string? _guaranteePeriod;
         private string? _inn;
         private string? _contractNumber;
-        private string? _organizationEmail;
         private int? _employeeId;
         private bool? _assemblyNeed;
         private int? _minopttorgId;
@@ -63,7 +64,8 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         private decimal? _reserveContractAmount;
         private bool? _isUnitPrice;
         private DateTime? _protocolDate;
-        private string? _headOfAcceptance;
+        private RejectionReason? _rejectionReason;
+        private decimal? _competitorSum;
         private int? _shipmentPlanId;
         private bool? _waitingList;
         private bool? _calculating;
@@ -94,9 +96,11 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         private decimal? _calculatingAmount;
         private decimal? _purchaseAmount;
         private string? _passportOfMonitor;
-        private string? _passportOfPC;
+        private string? _passportOfPc;
         private string? _passportOfMonoblock;
         private string? _passportOfNotebook;
+        private string? _passportOfAw;
+        private string? _passportOfUps;
         private bool? _isProcurementBlocked;
         private bool? _isPurchaseBlocked;
         private bool? _isCalculationBlocked;
@@ -104,7 +108,6 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         private int? _purchaseUserId;
         private int? _calculatingUserId;
         private int? _parentProcurementId;
-        private RejectionReason? _rejectionReason;
 
         private ICollection<ComponentCalculation> _componentCalculations = new List<ComponentCalculation>();
         private ObservableCollection<ComponentStateCount> _componentStates = new ObservableCollection<ComponentStateCount>();
@@ -250,6 +253,16 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
             get => _contactPhone;
             set { _contactPhone = value; OnPropertyChanged(); }
         }
+        public string? OrganizationEmail
+        {
+            get => _organizationEmail;
+            set { _organizationEmail = value; OnPropertyChanged(); }
+        }
+        public string? HeadOfAcceptance
+        {
+            get => _headOfAcceptance;
+            set { _headOfAcceptance = value; OnPropertyChanged(); }
+        }
         public string? DeliveryDetails
         {
             get => _deliveryDetails;
@@ -330,11 +343,6 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
             get => _contractNumber;
             set { _contractNumber = value; OnPropertyChanged(); }
         }
-        public string? OrganizationEmail
-        {
-            get => _organizationEmail;
-            set { _organizationEmail = value; OnPropertyChanged(); }
-        }
         public int? EmployeeId
         {
             get => _employeeId;
@@ -395,10 +403,15 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
             get => _protocolDate;
             set { _protocolDate = value; OnPropertyChanged(); }
         }
-        public string? HeadOfAcceptance
+        public RejectionReason? RejectionReason
         {
-            get => _headOfAcceptance;
-            set { _headOfAcceptance = value; OnPropertyChanged(); }
+            get => _rejectionReason;
+            set { _rejectionReason = value; OnPropertyChanged(); }
+        }
+        public decimal? CompetitorSum
+        {
+            get => _competitorSum;
+            set { _competitorSum = value; OnPropertyChanged(); }
         }
         public int? ShipmentPlanId
         {
@@ -550,10 +563,10 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
             get => _passportOfMonitor;
             set { _passportOfMonitor = value; OnPropertyChanged(); }
         }
-        public string? PassportOfPC
+        public string? PassportOfPc
         {
-            get => _passportOfPC;
-            set { _passportOfPC = value; OnPropertyChanged(); }
+            get => _passportOfPc;
+            set { _passportOfPc = value; OnPropertyChanged(); }
         }
         public string? PassportOfMonoblock
         {
@@ -567,6 +580,16 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         {
             get => _passportOfNotebook;
             set { _passportOfNotebook = value; OnPropertyChanged(); }
+        }
+        public string? PassportOfAw
+        {
+            get => _passportOfAw;
+            set { _passportOfAw = value; OnPropertyChanged(); }
+        }
+        public string? PassportOfUps
+        {
+            get => _passportOfUps;
+            set { _passportOfUps = value; OnPropertyChanged(); }
         }
         public bool? IsProcurementBlocked
         {
@@ -602,11 +625,6 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         {
             get => _parentProcurementId;
             set { _parentProcurementId = value; OnPropertyChanged(); }
-        }
-        public RejectionReason? RejectionReason
-        {
-            get => _rejectionReason;
-            set { _rejectionReason = value; OnPropertyChanged(); }
         }
 
         public virtual ICollection<ComponentCalculation> ComponentCalculations
