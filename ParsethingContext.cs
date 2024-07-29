@@ -69,6 +69,8 @@ public partial class ParsethingContext : DbContext
         });
 
         _ = modelBuilder.Entity<Procurement>().ToTable(tb => tb.HasTrigger("OnProcurementAfterInsert"));
+        _ = modelBuilder.Entity<Procurement>().ToTable(tb => tb.HasTrigger("trg_UpdateFieldOnProcurementStateId"));
+
 
         _ = modelBuilder.Entity<ComponentCalculation>(entity =>
         {

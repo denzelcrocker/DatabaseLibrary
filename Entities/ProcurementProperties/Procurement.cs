@@ -10,6 +10,7 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
     public partial class Procurement : INotifyPropertyChanged
     {
         private int _id;
+        private int? _displayId;
         private string _requestUri = null!;
         private string _number = null!;
         private int _lawId;
@@ -132,6 +133,11 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         {
             get => _id;
             set { _id = value; OnPropertyChanged(); }
+        }
+        public int? DisplayId
+        {
+            get => _displayId;
+            set { _displayId = value; OnPropertyChanged(); }
         }
         public string RequestUri
         {

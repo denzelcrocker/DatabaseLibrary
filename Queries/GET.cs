@@ -1265,7 +1265,11 @@ public static class GET
                 return new List<Procurement>();
 
             if (ids.Count > 0)
-                procurementQuery = procurementQuery.Where(p => ids.Contains(p.Id));
+            {
+                var nullableIds = ids.Select(id => (int?)id).ToList();
+
+                procurementQuery = procurementQuery.Where(p => p.DisplayId.HasValue && nullableIds.Contains(p.DisplayId));
+            }
 
             if (!string.IsNullOrEmpty(searchNumber))
                 procurementQuery = procurementQuery.Where(p => p.Number == searchNumber);
@@ -3059,7 +3063,36 @@ public static class GET
 
             return number;
         }
+        public static int? MaxDisplayId() // получить максимальный DisplayId
+        {
+            using ParsethingContext db = new();
+            int? number = 0;
 
+            try
+            {
+                number = db.Procurements
+                    .Max(p => (int?)p.DisplayId);
+            }
+            catch { }
+
+            return number;
+        }
+        public static int? DisplayId(int? procurementId) // получить DisplayId по ProcurementId
+        {
+            using ParsethingContext db = new();
+            int? number = 0;
+
+            try
+            {
+                number = db.Procurements
+                    .Where(p => p.Id == procurementId)
+                    .Select(p => p.DisplayId)
+                    .FirstOrDefault();
+            }
+            catch { }
+
+            return number;
+        }
     }
 
     public class SupplyMonitoringList // Класс для формирования результатов запросов на получение списка сгруппированных комплектующих
