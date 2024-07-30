@@ -882,7 +882,102 @@ public static class GET
 
             return procurements;
         }
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string procurementState, DateTime startDate, int employeeId) // Получить тендеры по статусу у конкретного сотрудника по дате
+        {
+            using ParsethingContext db = new();
+            List<ProcurementsEmployee>? procurementsEmployees = null;
 
+            try
+            {
+                List<int> validProcurementIds;
+
+                if (procurementState == "Выигран 1ч")
+                {
+                    var excludedStatuses = new List<string> { "Проигран", "Отклонен", "Отмена" };
+
+                    validProcurementIds = db.Histories
+                        .Where(h => h.Text == procurementState && h.Date >= startDate)
+                        .GroupBy(h => h.EntryId)
+                        .Where(g => !g.Any(h => excludedStatuses.Contains(h.Text)))
+                        .Select(g => g.Key)
+                        .Distinct()
+                        .ToList();
+                }
+                else
+                {
+                    validProcurementIds = db.Histories
+                        .Where(h => h.Text == procurementState && h.Date >= startDate)
+                        .Select(h => h.EntryId)
+                        .Distinct()
+                        .ToList();
+                }
+
+                procurementsEmployees = db.ProcurementsEmployees
+                    .Include(pe => pe.Procurement.Law)
+                    .Include(pe => pe.Employee)
+                    .Include(pe => pe.Procurement.ProcurementState)
+                    .Include(pe => pe.Employee.Position)
+                    .Include(pe => pe.Procurement.Method)
+                    .Include(pe => pe.Procurement.Region)
+                    .Include(pe => pe.Procurement)
+                    .Where(pe => validProcurementIds.Contains(pe.ProcurementId) && pe.EmployeeId == employeeId)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+
+            return procurementsEmployees;
+        }
+
+        public static List<Procurement>? ProcurementsBy(string procurementState, DateTime startDate) // Получить тендеры по статусу и дате
+        {
+            using ParsethingContext db = new();
+            List<Procurement>? procurements = null;
+
+            try
+            {
+                List<int> validProcurementIds;
+
+                if (procurementState == "Выигран 1ч")
+                {
+                    var excludedStatuses = new List<string> { "Проигран", "Отклонен", "Отмена" };
+
+                    validProcurementIds = db.Histories
+                        .Where(h => h.Text == procurementState && h.Date >= startDate)
+                        .GroupBy(h => h.EntryId)
+                        .Where(g => !g.Any(h => excludedStatuses.Contains(h.Text)))
+                        .Select(g => g.Key)
+                        .Distinct()
+                        .ToList();
+                }
+                else
+                {
+                    validProcurementIds = db.Histories
+                        .Where(h => h.Text == procurementState && h.Date >= startDate)
+                        .Select(h => h.EntryId)
+                        .Distinct()
+                        .ToList();
+                }
+
+                procurements = db.Procurements
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include(p => p.Method)
+                    .Include(p => p.Platform)
+                    .Include(p => p.Organization)
+                    .Include(p => p.TimeZone)
+                    .Include(p => p.Region)
+                    .Include(p => p.City)
+                    .Include(p => p.ShipmentPlan)
+                    .Where(p => validProcurementIds.Contains(p.Id))
+                    .ToList();
+            }
+            catch { }
+
+            return procurements;
+        }
         public static List<Procurement>? ProcurementsBy(string procurementStateKind, bool isOverdue, KindOf kindOf) // Получить список тендеров:
         {
             using ParsethingContext db = new();
@@ -2289,22 +2384,30 @@ public static class GET
             return tagExceptions;
         }
 
-        public static List<Tuple<int,int,int>>? HistoryGroupByWins() // Получить выигранные тендеры по месяцам
+        public static List<Tuple<int, int, int>>? HistoryGroupByWins() // Получить выигранные тендеры по месяцам
         {
             using ParsethingContext db = new();
             List<History>? histories = null;
+            histories = db.Histories.ToList();
 
-            try { histories = db.Histories.ToList(); }
-            catch { }
+            var excludedStatuses = new List<string> { "Проигран", "Отклонен", "Отбой", "Отмена" };
 
-            var uniqueWiningTenders = histories
+            var validWinningTenders = histories
                 .Where(h => h.Text == "Выигран 1ч")
-                .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month, tender.Id })
+                .GroupBy(h => h.EntryId)
+                .Where(group =>
+                {
+                    var statuses = group.ToList();
+                    var lastWinIndex = statuses.FindLastIndex(h => h.Text == "Выигран 1ч");
+                    if (lastWinIndex == -1) return false; // Не найден статус "Выигран 1ч"
+
+                    return statuses.Skip(lastWinIndex + 1).All(h => !excludedStatuses.Contains(h.Text));
+                })
                 .Select(group => group.First())
                 .DistinctBy(h => h.EntryId)
                 .ToList();
 
-            var winningTendersByMonth = uniqueWiningTenders
+            var winningTendersByMonth = validWinningTenders
                 .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
                 .Select(group => Tuple.Create(group.Key.Year, group.Key.Month, group.Count()))
                 .OrderBy(entry => entry.Item1)
@@ -2438,6 +2541,80 @@ public static class GET
                             .Where(p => p.ProcurementState.Kind == kind)
                             .Count();
                         break;
+                }
+            }
+            catch { }
+
+            return count;
+        }
+        public static int ProcurementsCountBy(string procurementState, DateTime startDate, int employeeId) // Получить количество тендеров по статусу и конкретному сотруднику по дате
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                List<int> validProcurementIds;
+
+                if (procurementState == "Выигран 1ч")
+                {
+                    var excludedStatuses = new List<string> { "Проигран", "Отклонен", "Отмена" };
+
+                    validProcurementIds = db.Histories
+                        .Where(h => h.Text == procurementState && h.Date >= startDate)
+                        .GroupBy(h => h.EntryId)
+                        .Where(g => !g.Any(h => excludedStatuses.Contains(h.Text)))
+                        .Select(g => g.Key)
+                        .Distinct()
+                        .ToList();
+                }
+                else
+                {
+                    validProcurementIds = db.Histories
+                        .Where(h => h.Text == procurementState && h.Date >= startDate)
+                        .Select(h => h.EntryId)
+                        .Distinct()
+                        .ToList();
+                }
+
+                count = db.ProcurementsEmployees
+                    .Count(pe => validProcurementIds.Contains(pe.ProcurementId) && pe.EmployeeId == employeeId);
+            }
+            catch  { }
+
+            return count;
+        }
+
+        public static int ProcurementsCountBy(string procurementState, DateTime startDate) // Получить количество тендеров по статусу и дате
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                if (procurementState == "Выигран 1ч")
+                {
+                    var excludedStatuses = new List<string> { "Проигран", "Отклонен", "Отмена" };
+
+                    var validProcurementIds = db.Histories
+                        .Where(h => h.Text == procurementState && h.Date >= startDate)
+                        .GroupBy(h => h.EntryId)
+                        .Where(g => !g.Any(h => excludedStatuses.Contains(h.Text)))
+                        .Select(g => g.Key)
+                        .Distinct()
+                        .ToList();
+
+                    count = db.Procurements
+                        .Where(p => validProcurementIds.Contains(p.Id))
+                        .Count();
+                }
+                else
+                {
+                    count = db.Histories
+                        .Where(h => h.Text == procurementState && h.Date >= startDate)
+                        .Select(h => h.EntryId)
+                        .Distinct()
+                        .Count();
                 }
             }
             catch { }
