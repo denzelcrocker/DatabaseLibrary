@@ -1339,7 +1339,7 @@ public static class GET
             return procurements;
         }
 
-        public static List<Procurement>? ProcurementsBy(string searchIds, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName, string searchOrganizationName, string searchLegalEntity, string dateType, string searchStartDate, string searchEndDate, int pageSize, int currentPage, string sortBy, bool ascending)
+        public static List<Procurement>? ProcurementsBy(string searchIds, string searchNumber, string searchLaw, string searchProcurementState, string searchInn, string searchEmployeeName, string searchOrganizationName, string searchLegalEntity, string dateType, string searchStartDate, string searchEndDate, string sortBy, bool ascending)
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -1452,8 +1452,6 @@ public static class GET
             }
 
             procurements = procurementQuery
-                .Skip((currentPage - 1) * pageSize)
-                .Take(pageSize)
                 .ToList();
 
             return procurements;
