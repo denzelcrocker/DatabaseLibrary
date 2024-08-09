@@ -422,6 +422,7 @@ public static class PUT
         try
         {
             var procurementToAssign = db.Procurements
+                .OrderBy(p => p.Deadline)
                 .Include(p => p.ProcurementState)
                 .Include(p => p.Law)
                 .FirstOrDefault(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id));

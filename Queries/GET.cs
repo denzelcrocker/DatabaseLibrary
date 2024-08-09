@@ -1275,7 +1275,6 @@ public static class GET
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Calculating == true)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(p => p.Applications != true)
                             .ToList();
                         }
                         else
@@ -1292,7 +1291,6 @@ public static class GET
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Calculating == false || p.Calculating == null)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(p => p.Applications != true)
                             .ToList();
                         }
                         break;
@@ -1311,7 +1309,6 @@ public static class GET
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Purchase == true && p.Calculating == true)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(p => p.Applications != true)
                             .ToList();
                         }
                         else
@@ -1328,7 +1325,6 @@ public static class GET
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.Purchase == false || p.Purchase == null && p.Calculating == true)
                             .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(p => p.Applications != true)
                             .ToList();
                         }
                         break;
@@ -2131,7 +2127,6 @@ public static class GET
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Calculating == true)
                             .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(p => p.Procurement.Applications != true)
                             .ToList();
                         }
                         else
@@ -2151,7 +2146,6 @@ public static class GET
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Calculating == false || pe.Procurement.Calculating == null)
                             .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(p => p.Procurement.Applications != true)
                             .ToList();
                         }
                         break;
@@ -2173,7 +2167,6 @@ public static class GET
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Purchase == true && pe.Procurement.Calculating == true)
                             .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(p => p.Procurement.Applications != true)
                             .ToList();
                         }
                         else
@@ -2193,7 +2186,6 @@ public static class GET
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Purchase == false || pe.Procurement.Purchase == null && pe.Procurement.Calculating == true)
                             .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(p => p.Procurement.Applications != true)
                             .ToList();
                         }
                         break;
@@ -2723,7 +2715,6 @@ public static class GET
                             count = db.Procurements
                               .Where(p => p.Calculating == true)
                               .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
-                              .Where(p => p.Applications != true)
                               .Count();
                         }
                         else
@@ -2731,7 +2722,6 @@ public static class GET
                             count = db.Procurements
                               .Where(p => p.Calculating == false || p.Calculating == null)
                               .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
-                              .Where(p => p.Applications != true)
                               .Count();
                         }
                         break;
@@ -2741,7 +2731,6 @@ public static class GET
                             count = db.Procurements
                               .Where(p => p.Purchase == true && p.Calculating == true)
                               .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
-                              .Where(p => p.Applications != true)
                               .Count();
                         }
                         else
@@ -2749,7 +2738,6 @@ public static class GET
                             count = db.Procurements
                               .Where(p => p.Purchase == false || p.Purchase == null && p.Calculating == true)
                               .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч")
-                              .Where(p => p.Applications != true)
                               .Count();
                         }
                         break;
@@ -3152,7 +3140,6 @@ public static class GET
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Calculating == true)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(pe => pe.Procurement.Applications != true)
                             .Count();
                         }
                         else // Нет
@@ -3163,7 +3150,6 @@ public static class GET
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Calculating == false || pe.Procurement.Calculating == null)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(pe => pe.Procurement.Applications != true)
                             .Count();
                         }
                         break;
@@ -3176,7 +3162,6 @@ public static class GET
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Purchase == true && pe.Procurement.Calculating == true)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(pe => pe.Procurement.Applications != true)
                             .Count();
                         }
                         else // Нет
@@ -3187,7 +3172,6 @@ public static class GET
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.Purchase == false || pe.Procurement.Purchase == null && pe.Procurement.Calculating == true)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
-                            .Where(pe => pe.Procurement.Applications != true)
                             .Count();
                         }
                         break;
@@ -3212,7 +3196,7 @@ public static class GET
 
             return count;
         }
-        public static int NumberOfApplication(int procurementId) // получить номер создаваемой заявки при ее создании
+        public static int NumberOfApplication(int? procurementId) // получить номер создаваемой заявки при ее создании
         {
             using ParsethingContext db = new();
             int number = 0;
