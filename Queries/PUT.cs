@@ -428,6 +428,7 @@ public static class PUT
                 .FirstOrDefault(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id));
 
             if (procurementToAssign != null)
+            if (procurementToAssign != null)
             {
                 ProcurementsEmployee procurementEmployee = new ProcurementsEmployee
                 {
