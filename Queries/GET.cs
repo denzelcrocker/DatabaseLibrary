@@ -316,6 +316,7 @@ public static class GET
                 employees = db.Employees
                     .Include(e => e.Position)
                     .Where(e => e.Position.Kind == premierPosition || e.Position.Kind == secondPosition || e.Position.Kind == thirdPosition)
+                    .Where(e => e.IsAvailable == true)
                     .ToList();
             }
             catch { }
@@ -537,6 +538,7 @@ public static class GET
                 var procurementIds = procurements.Select(p => p.Id).ToList();
                 var componentCalculations = db.ComponentCalculations
                     .Where(cc => procurementIds.Contains(cc.ProcurementId))
+                    .Where(cc => cc.IsDeleted == false)
                     .Include(cc => cc.ComponentState)
                     .ToList();
 
@@ -758,38 +760,42 @@ public static class GET
                 var tenderIds = procurements.Select(p => p.Id).ToList();
 
                 var query = from cc in dbContext.ComponentCalculations
-                            join s in dbContext.Sellers on cc.SellerIdPurchase equals s.Id
-                            join m in dbContext.Manufacturers on cc.ManufacturerIdPurchase equals m.Id
+                            join s in dbContext.Sellers on cc.SellerIdPurchase equals s.Id into sellers
+                            from s in sellers.DefaultIfEmpty()
+                            join m in dbContext.Manufacturers on cc.ManufacturerIdPurchase equals m.Id into manufacturers
+                            from m in manufacturers.DefaultIfEmpty()
                             join cs in dbContext.ComponentStates on cc.ComponentStateId equals cs.Id
+                            join p in dbContext.Procurements on cc.ProcurementId equals p.Id
                             where tenderIds.Contains(cc.ProcurementId) &&
-                                  (componentStatuses == null || componentStatuses.Contains(cs.Kind))
+                                  (componentStatuses == null || componentStatuses.Contains(cs.Kind)) &&
+                                  (cc.IsDeleted == false || cc.IsDeleted == null)
                             select new
                             {
                                 cc,
                                 s,
                                 m,
-                                cs
+                                cs,
+                                p
                             };
 
-                var supplyMonitoringLists = new List<SupplyMonitoringList>();
-
-                foreach (var item in query)
-                {
-                    var supplyMonitoring = new SupplyMonitoringList
+                var supplyMonitoringLists = query
+                    .ToList()
+                    .Select(item => new SupplyMonitoringList
                     {
-                        SupplierName = item.s.Name,
-                        ManufacturerName = item.m.ManufacturerName,
+                        SupplierName = item.s?.Name ?? "Без поставщика", 
+                        ManufacturerName = item.m?.ManufacturerName ?? "Без производителя", 
                         ComponentName = item.cc.ComponentNamePurchase,
                         ComponentStatus = item.cs.Kind,
                         AveragePrice = item.cc.PricePurchase,
                         TotalCount = item.cc.CountPurchase,
-                        SellerName = item.s.Name,
+                        SellerName = item.s?.Name ?? "Не указан",
                         TenderNumber = item.cc.ProcurementId,
+                        DisplayId = item.p.DisplayId,
                         TotalAmount = item.cc.PricePurchase * item.cc.CountPurchase
-                    };
-
-                    supplyMonitoringLists.Add(supplyMonitoring);
-                }
+                    })
+                    .OrderBy(s => s.SupplierName == "Без поставщика" ? "" : s.SupplierName) 
+                    .ThenBy(s => s.SupplierName) 
+                    .ToList();
 
                 return supplyMonitoringLists;
             }
@@ -2262,17 +2268,17 @@ public static class GET
                         break;
                     case "Руководитель отдела расчетов":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой" || ps.Kind == "Неразобранный")
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой" || ps.Kind == "Неразобранный" || ps.Kind == "Проверка")
                             .ToList();
                         break;
                     case "Заместитель руководителя отдела расчетов":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой" || ps.Kind == "Неразобранный")
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой" || ps.Kind == "Неразобранный" || ps.Kind == "Проверка")
                             .ToList();
                         break;
                     case "Специалист отдела расчетов":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформлен")
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформлен" || ps.Kind == "Проверка")
                             .ToList();
                         break;
                     case "Руководитель тендерного отдела":
@@ -2312,7 +2318,7 @@ public static class GET
                         break;
                     case "Руководитель отдела производства":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Выигран 2ч")
+                            .Where(ps => ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка")
                             .ToList();
                         break;
                     case "Заместитель руководителя отдела производства":
@@ -3299,6 +3305,7 @@ public static class GET
         public int? TotalCount { get; set; }
         public string? SellerName { get; set; }
         public int? TenderNumber { get; set; }
+        public int? DisplayId { get; set; }
         public decimal? TotalAmount { get; set; }
     }
 
