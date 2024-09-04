@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.Design;
 using System.Runtime.CompilerServices;
 
 namespace DatabaseLibrary.Entities.ProcurementProperties
@@ -757,12 +758,8 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
             {
                 return ContractAmount.Value;
             }
-            else
-            {
-                return InitialPrice;
-            }
+            else { return 0; }
         }
-
 
     }
     public class ComponentStateCount

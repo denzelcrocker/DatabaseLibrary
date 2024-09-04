@@ -327,14 +327,23 @@ public static class GET
         public static List<LegalEntity>? LegalEntities() // Получить список юридических лиц
         {
             using ParsethingContext db = new();
-            List<LegalEntity>? LegalEntitys = null;
+            List<LegalEntity>? legalEntities = null;
 
-            try { LegalEntitys = db.LegalEntities.ToList(); }
+            try { legalEntities = db.LegalEntities.ToList(); }
             catch { }
 
-            return LegalEntitys;
+            return legalEntities;
         }
+        public static List<TimeZone>? TimeZones() // Получить список часовых поясов
+        {
+            using ParsethingContext db = new();
+            List<TimeZone>? timeZones = null;
 
+            try { timeZones = db.TimeZones.ToList(); }
+            catch { }
+
+            return timeZones;
+        }
         public static List<History>? HistoriesBy(int procurementId) // Получить историю изменений статусов тендеров
         {
             using ParsethingContext db = new();
@@ -1345,7 +1354,8 @@ public static class GET
     string searchIds, string searchNumber, string searchLaw, string searchProcurementState,
     string searchInn, string searchEmployeeName, string searchOrganizationName,
     string searchLegalEntity, string dateType, string searchStartDate,
-    string searchEndDate, string sortBy, bool ascending)
+    string searchEndDate, string sortBy, bool ascending,
+    string searchComponentCalculation, string searchShipmentPlan)
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -1362,7 +1372,8 @@ public static class GET
                 && string.IsNullOrEmpty(searchNumber) && string.IsNullOrEmpty(searchLaw)
                 && string.IsNullOrEmpty(searchProcurementState) && string.IsNullOrEmpty(searchInn)
                 && string.IsNullOrEmpty(searchOrganizationName) && string.IsNullOrEmpty(searchLegalEntity)
-                && string.IsNullOrEmpty(dateType))
+                && string.IsNullOrEmpty(dateType) && string.IsNullOrEmpty(searchComponentCalculation)
+                && string.IsNullOrEmpty(searchShipmentPlan))
                 return new List<Procurement>();
 
             if (ids.Count > 0)
@@ -1442,10 +1453,26 @@ public static class GET
                                 procurementQuery = procurementQuery.Where(p => procurementIds.Contains(p.Id));
                             }
                             break;
+                        case "PayDate":
+                            procurementQuery = procurementQuery.Where(p => p.RealDueDate != null && p.ProcurementState.Kind == "Принят");
+                            break;
                     }
                 }
             }
+            if (!string.IsNullOrEmpty(searchShipmentPlan))
+                procurementQuery = procurementQuery.Where(p => p.ShipmentPlan.Kind == searchShipmentPlan);
+            if (!string.IsNullOrEmpty(searchComponentCalculation))
+            {
+                var query = db.ComponentCalculations
+                              .Where(cc => cc.ComponentName.ToLower().Contains(searchComponentCalculation.ToLower()) || cc.ComponentNamePurchase.ToLower().Contains(searchComponentCalculation.ToLower()))
+                              .Select(cc => cc.ProcurementId)
+                              .ToList();
 
+                if (query.Count == 0)
+                    return new List<Procurement>();
+
+                procurementQuery = procurementQuery.Where(p => query.Contains(p.Id));
+            }
             procurementQuery = procurementQuery
                 .Include(p => p.ProcurementState)
                 .Include(p => p.Law)
