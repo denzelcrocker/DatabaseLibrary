@@ -11,6 +11,7 @@ public partial class ParsethingContext : DbContext
     public virtual DbSet<ComponentHeaderType> ComponentHeaderTypes { get; set; } = null!;
     public virtual DbSet<ComponentState> ComponentStates { get; set; } = null!;
     public virtual DbSet<ComponentType> ComponentTypes { get; set; } = null!;
+    public virtual DbSet<DeletedProcurement> DeletedProcurements { get; set; } = null!;
     public virtual DbSet<Document> Documents { get; set; } = null!;
     public virtual DbSet<Employee> Employees { get; set; } = null!;
     public virtual DbSet<ExecutionState> ExecutionStates { get; set; } = null!;
@@ -70,6 +71,9 @@ public partial class ParsethingContext : DbContext
 
         _ = modelBuilder.Entity<Procurement>().ToTable(tb => tb.HasTrigger("OnProcurementAfterInsert"));
         _ = modelBuilder.Entity<Procurement>().ToTable(tb => tb.HasTrigger("trg_UpdateFieldOnProcurementStateId"));
+        _ = modelBuilder.Entity<Procurement>().ToTable(tb => tb.HasTrigger("trg_AfterDeleteProcurement"));
+        _ = modelBuilder.Entity<DeletedProcurement>().ToTable(tb => tb.HasTrigger("trg_CleanUpDeletedProcurements"));
+
 
 
         _ = modelBuilder.Entity<ComponentCalculation>(entity =>
@@ -107,7 +111,12 @@ public partial class ParsethingContext : DbContext
                 .HasForeignKey(d => d.HeaderTypeId)
                 .HasConstraintName("FK_ComponentCalculations_ComponentHeaderTypes");
         });
+        _ = modelBuilder.Entity<DeletedProcurement>(entity =>
+        {
+            _ = entity.HasKey(e => e.Id).HasName("PK_DeletedProcurement");
 
+            _ = entity.Property(e => e.DeleteDate).HasColumnType("datetime");
+        });
         _ = modelBuilder.Entity<PredefinedComponent>(entity =>
         {
             _ = entity.HasKey(e => e.Id).HasName("PK_PredefinedComponents");

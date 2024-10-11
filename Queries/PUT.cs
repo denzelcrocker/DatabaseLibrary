@@ -338,7 +338,6 @@ public static class PUT
 
         return isSaved;
     }
-
     public static bool ProcurementSource(Procurement procurement)
     {
         using ParsethingContext db = new();
@@ -348,7 +347,7 @@ public static class PUT
         try
         {
             def = db.Procurements
-                .Where(p => p.Number == procurement.Number)
+                .Where(p => p.InitialPrice == procurement.InitialPrice && p.Object == procurement.Object)
                 .First();
         }
         catch { }
@@ -357,10 +356,32 @@ public static class PUT
         {
             if (def == null)
             {
-                procurement.ProcurementStateId = 20;
-
-                _ = db.Procurements.Add(procurement);
-                _ = db.SaveChanges();
+                DeletedProcurement? deletedProcurement = GET.Entry.DeletedProcurement(procurement.Number);
+                if (deletedProcurement == null)
+                {
+                    procurement.ProcurementStateId = 20;
+                    if (procurement.TimeZoneId == null)
+                    {
+                        TimeZone? timeZone = GET.Entry.TimeZone("см. zakupki.gov.ru");
+                        if (timeZone != null)
+                        {
+                            procurement.TimeZoneId = timeZone.Id;
+                        }
+                        else
+                        {
+                            _ = PUT.TimeZone(new()
+                            {
+                                Offset = "см. zakupki.gov.ru"
+                            });
+                            timeZone = GET.Entry.TimeZone("см. zakupki.gov.ru");
+                            procurement.TimeZoneId = timeZone != null ? timeZone.Id : 0;
+                        }
+                    }
+                    _ = db.Procurements.Add(procurement);
+                    _ = db.SaveChanges();
+                }
+                else
+                    return isSaved = false;
             }
             else if (!PULL.ProcurementSource(procurement, def))
                 throw new Exception();
@@ -369,7 +390,6 @@ public static class PUT
 
         return isSaved;
     }
-
 
 
     public static bool ProcurementsEmployeesBy(ProcurementsEmployee procurementsEmployee, string premierPosition, string secondPosition, string thirdPosition)
@@ -422,23 +442,32 @@ public static class PUT
         try
         {
             var procurementToAssign = db.Procurements
-                .OrderBy(p => p.Deadline)
                 .Include(p => p.ProcurementState)
-                .Include(p => p.Law)
-                .FirstOrDefault(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id));
+                    .Include(p => p.Law)
+                    .Where(p => p.ProcurementState.Kind == "Новый"
+                                && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id))
+                    .OrderBy(p => p.Deadline)
+                    .ThenBy(p => p.Law.Number)  // Сортировка по номеру закона
+                    .ThenBy(p => p.Object.Contains("компьютер") ? 1 : 0)  // Проверка на наличие слова "компьютер"
+                    .ThenBy(p => p.Object.Contains("системный") ? 1 : 0)  // Проверка на наличие слова "системный"
+                    .ThenBy(p => p.Object.Contains("моноблок") ? 1 : 0)   // Проверка на наличие слова "моноблок"
+                    .ThenBy(p => p.Object.Contains("автоматизирован") ? 1 : 0)  // Проверка на наличие слова "автоматизирован"
+                    .ThenBy(p => p.Object.Contains("монитор") ? 1 : 0)    // Проверка на наличие слова "монитор"
+                    .ThenBy(p => p.Object.Contains("ноутбук") ? 1 : 0)    // Проверка на наличие слова "ноутбук"
+                    .FirstOrDefault();
 
             if (procurementToAssign != null)
-            if (procurementToAssign != null)
-            {
-                ProcurementsEmployee procurementEmployee = new ProcurementsEmployee
+                if (procurementToAssign != null)
                 {
-                    ProcurementId = procurementToAssign.Id,
-                    EmployeeId = employeeId
-                };
+                    ProcurementsEmployee procurementEmployee = new ProcurementsEmployee
+                    {
+                        ProcurementId = procurementToAssign.Id,
+                        EmployeeId = employeeId
+                    };
 
-                db.ProcurementsEmployees.Add(procurementEmployee);
-                db.SaveChanges();
-            }
+                    db.ProcurementsEmployees.Add(procurementEmployee);
+                    db.SaveChanges();
+                }
         }
         catch { isSaved = false; }
 

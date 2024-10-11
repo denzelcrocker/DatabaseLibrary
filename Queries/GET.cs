@@ -2,6 +2,7 @@
 using DatabaseLibrary.Entities.EmployeeMuchToMany;
 using static DatabaseLibrary.Entities.ProcurementProperties.Procurement;
 using System.Collections.ObjectModel;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DatabaseLibrary.Queries;
 
@@ -23,6 +24,21 @@ public static class GET
             catch { }
 
             return city;
+        }
+        public static DeletedProcurement? DeletedProcurement(string number) // Получить удаленную закупку по номеру
+        {
+            using ParsethingContext db = new();
+            DeletedProcurement? deletedProcurement = null;
+
+            try
+            {
+                deletedProcurement = db.DeletedProcurements
+                    .Where(dp => dp.Number == number)
+                    .First();
+            }
+            catch { }
+
+            return deletedProcurement;
         }
         public static Employee? Employee(string userName, string password) // Авторизация
         {
@@ -137,6 +153,22 @@ public static class GET
             return platform;
         }
 
+        public static Platform? Platform(string address) // Получить платформу по адресу
+        {
+            using ParsethingContext db = new();
+            Platform? platform = null;
+
+            try
+            {
+                platform = db.Platforms
+                    .Where(p => p.Address == address)
+                    .First();
+            }
+            catch { }
+
+            return platform;
+        }
+
         public static Procurement? Procurement(string number) // Получить тендер
         {
             using ParsethingContext db = new();
@@ -191,7 +223,7 @@ public static class GET
 
             return timeZone;
         }
-        public static Region? Region(string title, int distance) // Получить часовой пояс по дистанции и названию
+        public static Region? Region(string title) // Получить часовой пояс по дистанции и названию
         {
             using ParsethingContext db = new();
             Region? region = null;
@@ -199,7 +231,7 @@ public static class GET
             try
             {
                 region = db.Regions
-                    .Where(r => r.Title == title && r.Distance == distance)
+                    .Where(r => r.Title == title)
                     .First();
             }
             catch { }
@@ -252,7 +284,7 @@ public static class GET
             using ParsethingContext db = new();
             List<ComponentType>? componentTypes = null;
 
-            try 
+            try
             {
                 componentTypes = db.ComponentTypes
                     .Include(ct => ct.PredefinedComponent)
@@ -323,7 +355,20 @@ public static class GET
 
             return employees;
         }
+        public static List<History>? Histories() // Получить истории
+        {
+            using ParsethingContext db = new();
+            List<History>? histories = null;
 
+            try
+            {
+                histories = db.Histories
+                    .ToList();
+            }
+            catch { }
+
+            return histories;
+        }
         public static List<LegalEntity>? LegalEntities() // Получить список юридических лиц
         {
             using ParsethingContext db = new();
@@ -350,11 +395,11 @@ public static class GET
             List<History>? histories = null;
 
             try
-            { 
+            {
                 histories = db.Histories
                     .Include(h => h.Employee)
                     .Where(h => h.EntryId == procurementId && h.EntityType == "Procurement")
-                    .ToList(); 
+                    .ToList();
             }
             catch { }
 
@@ -366,7 +411,7 @@ public static class GET
             using ParsethingContext db = new();
             List<Manufacturer>? manufacturers = null;
 
-            try 
+            try
             {
                 manufacturers = db.Manufacturers
                     .Include(m => m.ManufacturerCountry)
@@ -413,10 +458,10 @@ public static class GET
             using ParsethingContext db = new();
             List<PredefinedComponent>? predefinedComponents = null;
 
-            try 
+            try
             {
                 predefinedComponents = db.PredefinedComponents
-                    .ToList(); 
+                    .ToList();
             }
             catch { }
 
@@ -791,8 +836,8 @@ public static class GET
                     .ToList()
                     .Select(item => new SupplyMonitoringList
                     {
-                        SupplierName = item.s?.Name ?? "Без поставщика", 
-                        ManufacturerName = item.m?.ManufacturerName ?? "Без производителя", 
+                        SupplierName = item.s?.Name ?? "Без поставщика",
+                        ManufacturerName = item.m?.ManufacturerName ?? "Без производителя",
                         ComponentName = item.cc.ComponentNamePurchase,
                         ComponentStatus = item.cs.Kind,
                         AveragePrice = item.cc.PricePurchase,
@@ -802,8 +847,8 @@ public static class GET
                         DisplayId = item.p.DisplayId,
                         TotalAmount = item.cc.PricePurchase * item.cc.CountPurchase
                     })
-                    .OrderBy(s => s.SupplierName == "Без поставщика" ? "" : s.SupplierName) 
-                    .ThenBy(s => s.SupplierName) 
+                    .OrderBy(s => s.SupplierName == "Без поставщика" ? "" : s.SupplierName)
+                    .ThenBy(s => s.SupplierName)
                     .ToList();
 
                 return supplyMonitoringLists;
@@ -940,7 +985,6 @@ public static class GET
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
             }
 
             return procurementsEmployees;
@@ -1351,7 +1395,7 @@ public static class GET
         }
 
         public static List<Procurement>? ProcurementsBy(
-    string searchIds, string searchNumber, string searchLaw, string searchProcurementState,
+    string searchIds, string searchNumber, string searchLaw, string searchProcurementState, string searchProcurementStateSecond,
     string searchInn, string searchEmployeeName, string searchOrganizationName,
     string searchLegalEntity, string dateType, string searchStartDate,
     string searchEndDate, string sortBy, bool ascending,
@@ -1452,9 +1496,15 @@ public static class GET
 
                                 procurementQuery = procurementQuery.Where(p => procurementIds.Contains(p.Id));
                             }
+
+                            // Если `searchProcurementStateSecond` не пустое, добавляем фильтрацию по ProcurementState.Kind
+                            if (!string.IsNullOrEmpty(searchProcurementStateSecond))
+                            {
+                                procurementQuery = procurementQuery.Where(p => p.ProcurementState.Kind == searchProcurementStateSecond);
+                            }
                             break;
                         case "PayDate":
-                            procurementQuery = procurementQuery.Where(p => p.RealDueDate != null && p.ProcurementState.Kind == "Принят");
+                            procurementQuery = procurementQuery.Where(p => p.RealDueDate >= startDateTime && p.RealDueDate <= endDateTime && p.ProcurementState.Kind == "Принят");
                             break;
                     }
                 }
@@ -1523,7 +1573,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<Comment>? CommentsBy (int? procurementId) // Получить комментарии по id тендера
+        public static List<Comment>? CommentsBy(int? procurementId) // Получить комментарии по id тендера
         {
             using ParsethingContext db = new();
 
@@ -1572,7 +1622,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition,string premierProcurementState, string secondProcurementState, string thirdProcurementState, string fourthProcurementState)
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition, string premierProcurementState, string secondProcurementState, string thirdProcurementState, string fourthProcurementState)
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
@@ -1655,7 +1705,7 @@ public static class GET
                 procurements = db.Procurements
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
-                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8))
+                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8))
                     .ToList();
             }
             catch { }
@@ -1830,7 +1880,7 @@ public static class GET
                             .Include(pe => pe.Procurement.ExecutionState)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
-                            .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "На согласовании заказчика" || pe.Procurement.ExecutionState.Kind == "Внесение правок" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Ожидает оплаты"|| pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)")
+                            .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "На согласовании заказчика" || pe.Procurement.ExecutionState.Kind == "Внесение правок" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Ожидает оплаты" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)")
                             .ToList();
                         break;
                     case KindOf.WarrantyState: // Статусу обеспечения гарантии, конкретным статусам тендера и id сотрудника
@@ -2286,9 +2336,9 @@ public static class GET
             using ParsethingContext db = new();
             List<ProcurementState>? procurementStates = null;
 
-            try 
-            { 
-                switch(employeePosition)
+            try
+            {
+                switch (employeePosition)
                 {
                     case "Администратор":
                         procurementStates = db.ProcurementStates.ToList();
@@ -2423,7 +2473,135 @@ public static class GET
 
             return tagExceptions;
         }
+        public static (List<Tuple<int, int, decimal, int, List<Procurement>>>?, List<Procurement>?) HistoryGroupBy(string procurementState, List<History> histories)
+        {
+            using ParsethingContext db = new();
 
+            // Статусы, для которых считается InitialPrice
+            var statusesForInitialPrice = new List<string> { "Новый", "Посчитан", "Оформлен", "Отправлен", "Отбой", "Отклонен" };
+
+            // Обработка для статуса "Выигран 2ч"
+            if (procurementState == "Выигран 2ч")
+            {
+                var excludedStatuses = new List<string> { "Проигран", "Отклонен", "Отбой", "Отмена" };
+
+                var validWinningTenders = histories
+                    .Where(h => h.Text == "Выигран 2ч")
+                    .GroupBy(h => h.EntryId)
+                    .Where(group =>
+                    {
+                        var statuses = group.ToList();
+                        var lastWinIndex = statuses.FindLastIndex(h => h.Text == "Выигран 2ч");
+                        if (lastWinIndex == -1) return false; // Не найден статус "Выигран 2ч"
+
+                        // Убедимся, что после "Выигран 2ч" нет других исключенных статусов
+                        return statuses.Skip(lastWinIndex + 1).All(h => !excludedStatuses.Contains(h.Text));
+                    })
+                    .Select(group => group.First())
+                    .DistinctBy(h => h.EntryId)
+                    .ToList();
+
+                var winningProcurementIds = validWinningTenders
+                    .Select(h => h.EntryId)
+                    .Distinct()
+                    .ToList();
+
+                var procurements = db.Procurements
+                    .Where(p => winningProcurementIds.Contains(p.Id))
+                    .Include(p => p.ProcurementState)
+                    .Include(p => p.Law)
+                    .Include(p => p.Method)
+                    .Include(p => p.Platform)
+                    .Include(p => p.TimeZone)
+                    .Include(p => p.Region)
+                    .Include(p => p.City)
+                    .Include(p => p.ShipmentPlan)
+                    .Include(p => p.Organization)
+                    .ToList();
+
+                var winningTendersByMonth = validWinningTenders
+                    .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
+                    .Select(group =>
+                    {
+                        var procurementIdsInGroup = group.Select(h => h.EntryId).Distinct().ToList();
+                        var procurementsInGroup = procurements
+                            .Where(p => procurementIdsInGroup.Contains(p.Id))
+                            .ToList();
+
+                        // Подсчитываем сумму и количество тендеров
+                        decimal totalAmount = procurementsInGroup.Sum(p =>
+                        {
+                            // Если есть резервная сумма, используем ее
+                            if (p.ReserveContractAmount.HasValue) // Проверяем, что ReserveContractAmount не null
+                                return p.ReserveContractAmount.Value; // Берем значение резервной суммы
+                            else
+                                return p.ContractAmount ?? 0; // Используем ContractAmount или 0, если он null
+                        });
+
+                        int tenderCount = procurementsInGroup.Count;
+
+                        return Tuple.Create(group.Key.Year, group.Key.Month, totalAmount, tenderCount, procurementsInGroup); // Включаем список тендеров
+                    })
+                    .OrderBy(entry => entry.Item1)
+                    .ThenBy(entry => entry.Item2)
+                    .ToList();
+
+                return (winningTendersByMonth, procurements);
+            }
+
+            // Логика для остальных состояний
+            var relevantHistories = histories
+                .Where(h => h.Text == procurementState)
+                .ToList();
+
+            var procurementIds = relevantHistories
+                .Select(h => h.EntryId)
+                .Distinct()
+                .ToList();
+
+            var procurementsForOtherStates = db.Procurements
+                .Where(p => procurementIds.Contains(p.Id))
+                .Include(p => p.ProcurementState)
+                .Include(p => p.Law)
+                .Include(p => p.Method)
+                .Include(p => p.Platform)
+                .Include(p => p.TimeZone)
+                .Include(p => p.Region)
+                .Include(p => p.City)
+                .Include(p => p.ShipmentPlan)
+                .Include(p => p.Organization)
+                .ToList();
+
+            var tendersByMonth = relevantHistories
+                .GroupBy(h => new { h.Date.Year, h.Date.Month }) // Группировка по годам и месяцам
+                .Select(group =>
+                {
+                    var procurementIdsInGroup = group.Select(h => h.EntryId).Distinct().ToList();
+                    var procurementsInGroup = procurementsForOtherStates
+                        .Where(p => procurementIdsInGroup.Contains(p.Id))
+                        .ToList();
+
+                    // Подсчитываем сумму и количество тендеров
+                    decimal totalAmount = procurementsInGroup.Sum(p =>
+                    {
+                        if (p.ReserveContractAmount != null) // Если резервная сумма не null
+                            return p.ReserveContractAmount.Value; // Возвращаем значение резервной суммы
+                        else if (statusesForInitialPrice.Contains(procurementState)) // Если статус требует InitialPrice
+                            return p.InitialPrice; // Возвращаем InitialPrice, который всегда должен иметь значение
+                        else
+                            return p.ContractAmount ?? 0; // Если ContractAmount null, возвращаем 0
+                    });
+
+                    int tenderCount = procurementsInGroup.Count;
+
+                    return Tuple.Create(group.Key.Year, group.Key.Month, totalAmount, tenderCount, procurementsInGroup); // Включаем список тендеров
+                })
+                .OrderBy(entry => entry.Item1)
+                .ThenBy(entry => entry.Item2)
+                .ToList();
+
+            return (tendersByMonth, procurementsForOtherStates);
+        }
         public static List<Tuple<int, int, int>>? HistoryGroupByWins() // Получить выигранные тендеры по месяцам
         {
             using ParsethingContext db = new();
@@ -2433,12 +2611,12 @@ public static class GET
             var excludedStatuses = new List<string> { "Проигран", "Отклонен", "Отбой", "Отмена" };
 
             var validWinningTenders = histories
-                .Where(h => h.Text == "Выигран 1ч")
+                .Where(h => h.Text == "Выигран 2ч")
                 .GroupBy(h => h.EntryId)
                 .Where(group =>
                 {
                     var statuses = group.ToList();
-                    var lastWinIndex = statuses.FindLastIndex(h => h.Text == "Выигран 1ч");
+                    var lastWinIndex = statuses.FindLastIndex(h => h.Text == "Выигран 2ч");
                     if (lastWinIndex == -1) return false; // Не найден статус "Выигран 1ч"
 
                     return statuses.Skip(lastWinIndex + 1).All(h => !excludedStatuses.Contains(h.Text));
@@ -2510,7 +2688,7 @@ public static class GET
             List<Procurement>? procurements = null;
 
             try
-            { 
+            {
                 procurements = db.Procurements
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
@@ -2542,7 +2720,7 @@ public static class GET
 
                     if (procurement != null)
                     {
-                        return procurement.Id; 
+                        return procurement.Id;
                     }
                 }
 
@@ -2638,7 +2816,7 @@ public static class GET
                 count = db.ProcurementsEmployees
                     .Count(pe => validProcurementIds.Contains(pe.ProcurementId) && pe.EmployeeId == employeeId);
             }
-            catch  { }
+            catch { }
 
             return count;
         }
@@ -2736,7 +2914,7 @@ public static class GET
                 count = db.Procurements
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
-                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8))
+                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8))
                     .Count();
             }
             catch { }
@@ -2898,7 +3076,7 @@ public static class GET
                         }
                         break;
                 }
-                
+
             }
             catch { }
 
@@ -3342,7 +3520,7 @@ public static class GET
         public int CountOfProcurements { get; set; }
         public List<Procurement> Procurements { get; set; }
 
-        public decimal TotalAmpunt => Procurements?.Sum(p =>
+        public decimal TotalAmount => Procurements?.Sum(p =>
         p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ?
         p.ReserveContractAmount.Value :
         (p.ContractAmount != null && p.ContractAmount != 0 ?
@@ -3368,5 +3546,5 @@ public static class GET
         Purchase, // Виза закупки
         IsUnitPrice // Цена за единицу товара
     }
-    
+
 }

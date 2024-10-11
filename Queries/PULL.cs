@@ -554,7 +554,6 @@ public static class PULL
 
         return isSaved;
     }
-
     public static bool ProcurementSource(Procurement procurement, Procurement def)
     {
         using ParsethingContext db = new();
@@ -563,15 +562,15 @@ public static class PULL
         try
         {
             def = db.Procurements
-                .Where (p => p.Number == procurement.Number)
+                .Where(p => p.InitialPrice == procurement.InitialPrice && p.Object == procurement.Object)
                 .First();
 
+            def.RequestUri = procurement.RequestUri;
             def.LawId = procurement.LawId;
             def.Object = procurement.Object;
             def.InitialPrice = Convert.ToDecimal(DbValueConverter.ToNullableString(Convert.ToString(procurement.InitialPrice)));
             def.OrganizationId = procurement.OrganizationId;
             def.MethodId = procurement.MethodId;
-            def.PlatformId = procurement.PlatformId;
             def.Location = procurement.Location;
             def.StartDate = procurement.StartDate;
             def.Deadline = procurement.Deadline;
@@ -580,6 +579,12 @@ public static class PULL
             def.Securing = procurement.Securing;
             def.Enforcement = procurement.Enforcement;
             def.Warranty = procurement.Warranty;
+            def.ContactPerson = procurement.ContactPerson;
+            def.ContactPhone = procurement.ContactPhone;
+            def.OrganizationEmail = procurement.OrganizationEmail;
+            def.TimeZoneId = procurement.TimeZoneId;
+            def.RegionId = procurement.RegionId;
+
 
             _ = db.SaveChanges();
         }
@@ -587,6 +592,7 @@ public static class PULL
 
         return isSaved;
     }
+
 
     public static bool Region(Region region)
     {
@@ -603,6 +609,7 @@ public static class PULL
             def.Title = region.Title;
             def.Distance = region.Distance;
             def.RegionCode = region.RegionCode;
+            def.BicoId = region.BicoId;
 
             _ = db.SaveChanges();
         }
