@@ -238,6 +238,8 @@ public static class GET
 
             return region;
         }
+        
+
     }
 
     public struct View
@@ -2485,29 +2487,16 @@ public static class GET
             {
                 var excludedStatuses = new List<string> { "Проигран", "Отклонен", "Отбой", "Отмена" };
 
-                var validWinningTenders = histories
+                // Получаем все EntryIds из истории, где присутствует статус "Выигран 2ч"
+                var winningEntryIds = histories
                     .Where(h => h.Text == "Выигран 2ч")
-                    .GroupBy(h => h.EntryId)
-                    .Where(group =>
-                    {
-                        var statuses = group.ToList();
-                        var lastWinIndex = statuses.FindLastIndex(h => h.Text == "Выигран 2ч");
-                        if (lastWinIndex == -1) return false; // Не найден статус "Выигран 2ч"
-
-                        // Убедимся, что после "Выигран 2ч" нет других исключенных статусов
-                        return statuses.Skip(lastWinIndex + 1).All(h => !excludedStatuses.Contains(h.Text));
-                    })
-                    .Select(group => group.First())
-                    .DistinctBy(h => h.EntryId)
-                    .ToList();
-
-                var winningProcurementIds = validWinningTenders
                     .Select(h => h.EntryId)
                     .Distinct()
                     .ToList();
 
+                // Извлекаем тендеры, у которых есть статус "Выигран 2ч" и ProcurementState.Kind не относится к исключенным статусам
                 var procurements = db.Procurements
-                    .Where(p => winningProcurementIds.Contains(p.Id))
+                    .Where(p => winningEntryIds.Contains(p.Id) && !excludedStatuses.Contains(p.ProcurementState.Kind))
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
                     .Include(p => p.Method)
@@ -2519,7 +2508,9 @@ public static class GET
                     .Include(p => p.Organization)
                     .ToList();
 
-                var winningTendersByMonth = validWinningTenders
+                // Группируем историю по месяцу и году, используя только записи с "Выигран 2ч"
+                var winningTendersByMonth = histories
+                    .Where(h => winningEntryIds.Contains(h.EntryId) && h.Text == "Выигран 2ч")
                     .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
                     .Select(group =>
                     {
@@ -2530,17 +2521,11 @@ public static class GET
 
                         // Подсчитываем сумму и количество тендеров
                         decimal totalAmount = procurementsInGroup.Sum(p =>
-                        {
-                            // Если есть резервная сумма, используем ее
-                            if (p.ReserveContractAmount.HasValue) // Проверяем, что ReserveContractAmount не null
-                                return p.ReserveContractAmount.Value; // Берем значение резервной суммы
-                            else
-                                return p.ContractAmount ?? 0; // Используем ContractAmount или 0, если он null
-                        });
+                            p.ReserveContractAmount ?? p.ContractAmount ?? 0);
 
                         int tenderCount = procurementsInGroup.Count;
 
-                        return Tuple.Create(group.Key.Year, group.Key.Month, totalAmount, tenderCount, procurementsInGroup); // Включаем список тендеров
+                        return Tuple.Create(group.Key.Year, group.Key.Month, totalAmount, tenderCount, procurementsInGroup);
                     })
                     .OrderBy(entry => entry.Item1)
                     .ThenBy(entry => entry.Item2)
@@ -2625,6 +2610,37 @@ public static class GET
             }
             catch { }
             return procurements;
+        }
+        public static List<Notification>? NotificationsBy(int employeeId) // Получить уведомления для конкретного пользователя
+        {
+            using ParsethingContext db = new();
+            List<Notification>? notifications = null;
+
+            try
+            {
+                notifications = db.EmployeeNotifications
+                    .Where(en => en.EmployeeId == employeeId && !en.IsRead)
+                    .OrderByDescending(en => en.Notification.DateCreated)
+                    .Select(en => en.Notification)
+                    .ToList();
+            }
+            catch { }
+
+            return notifications;
+        }
+        public static async Task<bool> HasUnreadNotifications(int employeeId)
+        {
+            using ParsethingContext db = new();
+            bool hasUnreadNotifications = false;
+
+            try
+            {
+                hasUnreadNotifications = await db.EmployeeNotifications
+                    .AnyAsync(en => en.EmployeeId == employeeId && !en.IsRead);
+            }
+            catch { }
+
+            return hasUnreadNotifications;
         }
     }
 

@@ -198,6 +198,28 @@ public static class PULL
         return isSaved;
     }
 
+    public static bool EmployeeNotificationMark(EmployeeNotification employeeNotification)
+    {
+        using ParsethingContext db = new();
+        EmployeeNotification? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.EmployeeNotifications
+                .Where(en => en.Id == employeeNotification.Id)
+                .First();
+
+            def.IsRead = true;
+            def.DateRead = DateTime.Now;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
     public static bool Manufacturer(Manufacturer manufacturer)
     {
         using ParsethingContext db = new();

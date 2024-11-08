@@ -105,7 +105,20 @@ public static class PUT
 
         return isSaved;
     }
+    public static bool EmployeeNotification(EmployeeNotification employeeNotification)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
 
+        try
+        {
+            _ = db.EmployeeNotifications.Add(employeeNotification);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
     public static bool History(History history)
     {
         using ParsethingContext db = new();
@@ -143,6 +156,20 @@ public static class PUT
         try
         {
             _ = db.LegalEntities.Add(legalEntity);
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+
+    public static bool Notification(Notification notification)
+    {
+        using ParsethingContext db = new();
+        bool isSaved = true;
+        try
+        {
+            _ = db.Notifications.Add(notification);
             _ = db.SaveChanges();
         }
         catch { isSaved = false; }
