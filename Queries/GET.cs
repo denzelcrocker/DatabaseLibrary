@@ -1536,17 +1536,7 @@ public static class GET
                 .Include(p => p.ShipmentPlan)
                 .Include(p => p.Organization);
 
-            if (!string.IsNullOrEmpty(sortBy))
-            {
-                if (ascending)
-                {
-                    procurementQuery = procurementQuery.OrderBy(p => EF.Property<object>(p, sortBy));
-                }
-                else
-                {
-                    procurementQuery = procurementQuery.OrderByDescending(p => EF.Property<object>(p, sortBy));
-                }
-            }
+            
 
             procurements = procurementQuery
                 .ToList();
@@ -2093,7 +2083,7 @@ public static class GET
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate < DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
-                        .Where(pe => pe.Procurement.Amount < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
+                        .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                         .ToList();
                 }
                 else // Просроченные
@@ -2114,7 +2104,7 @@ public static class GET
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate > DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
-                        .Where(pe => pe.Procurement.Amount < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
+                        .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                         .ToList();
                 }
             }
@@ -2377,7 +2367,7 @@ public static class GET
                         break;
                     case "Специалист по работе с электронными площадками":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
+                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Отмена" || ps.Kind == "Проигран" || ps.Kind == "Принят")
                             .ToList();
                         break;
                     case "Руководитель отдела закупки":
@@ -2611,22 +2601,22 @@ public static class GET
             catch { }
             return procurements;
         }
-        public static List<Notification>? NotificationsBy(int employeeId) // Получить уведомления для конкретного пользователя
+        public static List<EmployeeNotification>? EmployeeNotificationsBy(int employeeId) // Получить уведомления для конкретного пользователя
         {
             using ParsethingContext db = new();
-            List<Notification>? notifications = null;
+            List<EmployeeNotification>? employeeNotifications = null;
 
             try
             {
-                notifications = db.EmployeeNotifications
+                employeeNotifications = db.EmployeeNotifications
+                    .Include(en => en.Notification.Employee)
                     .Where(en => en.EmployeeId == employeeId && !en.IsRead)
-                    .OrderByDescending(en => en.Notification.DateCreated)
-                    .Select(en => en.Notification)
+                    .OrderBy(en => en.Notification.DateCreated)
                     .ToList();
             }
             catch { }
 
-            return notifications;
+            return employeeNotifications;
         }
         public static async Task<bool> HasUnreadNotifications(int employeeId)
         {
