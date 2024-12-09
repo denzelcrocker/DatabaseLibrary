@@ -820,6 +820,8 @@ public static class GET
                             from s in sellers.DefaultIfEmpty()
                             join m in dbContext.Manufacturers on cc.ManufacturerIdPurchase equals m.Id into manufacturers
                             from m in manufacturers.DefaultIfEmpty()
+                            join sp in dbContext.ShipmentPlans on cc.Procurement.ShipmentPlanId equals sp.Id into shipmentPlans
+                            from sp in shipmentPlans.DefaultIfEmpty()
                             join cs in dbContext.ComponentStates on cc.ComponentStateId equals cs.Id
                             join p in dbContext.Procurements on cc.ProcurementId equals p.Id
                             where tenderIds.Contains(cc.ProcurementId) &&
@@ -830,6 +832,7 @@ public static class GET
                                 cc,
                                 s,
                                 m,
+                                sp,
                                 cs,
                                 p
                             };
@@ -842,6 +845,7 @@ public static class GET
                         ManufacturerName = item.m?.ManufacturerName ?? "Без производителя",
                         ComponentName = item.cc.ComponentNamePurchase,
                         ComponentStatus = item.cs.Kind,
+                        ShipmentPlan = item.sp?.Kind ?? "Не проставлено",
                         AveragePrice = item.cc.PricePurchase,
                         TotalCount = item.cc.CountPurchase,
                         SellerName = item.s?.Name ?? "Не указан",
@@ -1401,7 +1405,8 @@ public static class GET
     string searchInn, string searchEmployeeName, string searchOrganizationName,
     string searchLegalEntity, string dateType, string searchStartDate,
     string searchEndDate, string sortBy, bool ascending,
-    string searchComponentCalculation, string searchShipmentPlan)
+    string searchComponentCalculation, string searchShipmentPlan, bool? searchWaitingList,
+    string searchContractNumber)
         {
             using ParsethingContext db = new();
             List<Procurement>? procurements = null;
@@ -1419,7 +1424,8 @@ public static class GET
                 && string.IsNullOrEmpty(searchProcurementState) && string.IsNullOrEmpty(searchInn)
                 && string.IsNullOrEmpty(searchOrganizationName) && string.IsNullOrEmpty(searchLegalEntity)
                 && string.IsNullOrEmpty(dateType) && string.IsNullOrEmpty(searchComponentCalculation)
-                && string.IsNullOrEmpty(searchShipmentPlan))
+                && string.IsNullOrEmpty(searchShipmentPlan) && searchWaitingList != true
+                && string.IsNullOrEmpty(searchContractNumber))
                 return new List<Procurement>();
 
             if (ids.Count > 0)
@@ -1525,6 +1531,11 @@ public static class GET
 
                 procurementQuery = procurementQuery.Where(p => query.Contains(p.Id));
             }
+            if (searchWaitingList.HasValue)
+                if (searchWaitingList.Value)
+                    procurementQuery = procurementQuery.Where(p => p.WaitingList == true);
+            if (!string.IsNullOrEmpty(searchContractNumber))
+                procurementQuery = procurementQuery.Where(p => p.ContractNumber.Contains(searchContractNumber));
             procurementQuery = procurementQuery
                 .Include(p => p.ProcurementState)
                 .Include(p => p.Law)
@@ -1535,8 +1546,6 @@ public static class GET
                 .Include(p => p.City)
                 .Include(p => p.ShipmentPlan)
                 .Include(p => p.Organization);
-
-            
 
             procurements = procurementQuery
                 .ToList();
@@ -3433,6 +3442,7 @@ public static class GET
         public string? ManufacturerName { get; set; }
         public string? ComponentName { get; set; }
         public string? ComponentStatus { get; set; }
+        public string? ShipmentPlan { get; set; }
         public decimal? AveragePrice { get; set; }
         public int? TotalCount { get; set; }
         public string? SellerName { get; set; }
