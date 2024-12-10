@@ -391,7 +391,7 @@ public static class GET
 
             return timeZones;
         }
-        public static List<History>? HistoriesBy(int procurementId) // Получить историю изменений статусов тендеров
+        public static List<History>? HistoriesBy(int id, string entityType) // Получить историю изменений статусов тендеров
         {
             using ParsethingContext db = new();
             List<History>? histories = null;
@@ -400,7 +400,7 @@ public static class GET
             {
                 histories = db.Histories
                     .Include(h => h.Employee)
-                    .Where(h => h.EntryId == procurementId && h.EntityType == "Procurement")
+                    .Where(h => h.EntryId == id && h.EntityType == entityType)
                     .ToList();
             }
             catch { }
