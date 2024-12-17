@@ -679,7 +679,7 @@ public static class GET
             try
             {
                 var procurementIds = db.ProcurementsEmployees
-            .Where(pe => pe.EmployeeId == employeeId)
+            .Where(pe => pe.EmployeeId == employeeId && pe.ActionType == "Appoint")
             .Select(pe => pe.ProcurementId)
             .ToList();
 
@@ -948,7 +948,7 @@ public static class GET
 
             return procurements;
         }
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string procurementState, DateTime startDate, int employeeId) // Получить тендеры по статусу у конкретного сотрудника по дате
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string procurementState, DateTime startDate, int employeeId, string actionType) // Получить тендеры по статусу у конкретного сотрудника по дате
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -986,7 +986,7 @@ public static class GET
                     .Include(pe => pe.Procurement.Method)
                     .Include(pe => pe.Procurement.Region)
                     .Include(pe => pe.Procurement)
-                    .Where(pe => validProcurementIds.Contains(pe.ProcurementId) && pe.EmployeeId == employeeId)
+                    .Where(pe => validProcurementIds.Contains(pe.ProcurementId) && pe.EmployeeId == employeeId && pe.ActionType == actionType)
                     .ToList();
             }
             catch (Exception ex)
@@ -1447,7 +1447,7 @@ public static class GET
             if (!string.IsNullOrEmpty(searchEmployeeName))
             {
                 var query = db.ProcurementsEmployees
-                              .Where(pe => pe.Employee.FullName == searchEmployeeName)
+                              .Where(pe => pe.Employee.FullName == searchEmployeeName && pe.ActionType == "Appoint")
                               .Select(pe => pe.ProcurementId)
                               .ToList();
 
@@ -1601,7 +1601,7 @@ public static class GET
             return comments;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(int employeeId) // Получить информацию по тому, сколько тендеров назначено на конкретного сотрудника
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(int employeeId, string actionType) // Получить информацию по тому, сколько тендеров назначено на конкретного сотрудника
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
@@ -1610,7 +1610,7 @@ public static class GET
                 .Include(pe => pe.Procurement.Method)
                 .Include(pe => pe.Procurement.Region)
                 .Include(pe => pe.Procurement)
-                .Where(pe => pe.EmployeeId == employeeId)
+                .Where(pe => pe.EmployeeId == employeeId && pe.ActionType == actionType)
                 .GroupBy(pe => pe.Employee.FullName)
                 .Select(g => new ProcurementsEmployeesGrouping
                 {
@@ -1623,7 +1623,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition, string premierProcurementState, string secondProcurementState, string thirdProcurementState, string fourthProcurementState)
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition, string premierProcurementState, string secondProcurementState, string thirdProcurementState, string fourthProcurementState, string actionType)
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
@@ -1642,7 +1642,7 @@ public static class GET
                              pe.Procurement.ProcurementState.Kind == thirdProcurementState ||
                              pe.Procurement.ProcurementState.Kind == fourthProcurementState)
                 .Where(pe => pe.Procurement.Applications != true)
-                .Where(pe => !(pe.Procurement.ProcurementState.Kind == "Принят" && pe.Procurement.RealDueDate != null))
+                .Where(pe => !(pe.Procurement.ProcurementState.Kind == "Принят" && pe.Procurement.RealDueDate != null && pe.ActionType == actionType))
                 .GroupBy(pe => pe.Employee.FullName)
                 .Select(g => new ProcurementsEmployeesGrouping
                 {
@@ -1655,7 +1655,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition) // Получить список сотруников и тендеров, которые у них в работе (по трем должностям) 
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition, string actionType) // Получить список сотруников и тендеров, которые у них в работе (по трем должностям) 
         {
             using ParsethingContext db = new();
             var procurementsEmployees = db.ProcurementsEmployees
@@ -1667,6 +1667,7 @@ public static class GET
                 .Include(pe => pe.Procurement.Region)
                 .Include(pe => pe.Procurement)
                 .Where(pe => pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition)
+                .Where(pe => pe.ActionType == actionType)
                 .GroupBy(pe => pe.Employee.FullName)
                 .Select(g => new ProcurementsEmployeesGrouping
                 {
@@ -1689,7 +1690,7 @@ public static class GET
                 procurements = db.Procurements
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
-                    .Where(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id))
+                    .Where(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.ActionType == "Appoint"))
                     .ToList();
             }
             catch { }
@@ -1706,7 +1707,7 @@ public static class GET
                 procurements = db.Procurements
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
-                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8))
+                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8 && pe.ActionType == "Appoint"))
                     .ToList();
             }
             catch { }
@@ -1714,7 +1715,7 @@ public static class GET
             return procurements;
         }
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind) // Получить список тендеров и сотудиков, по статусу и id сотрудника
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string procurementStateKind, string actionType) // Получить список тендеров и сотудиков, по статусу и id сотрудника
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurements = null;
@@ -1734,14 +1735,14 @@ public static class GET
                     .Include(pe => pe.Procurement.Organization)
                     .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == procurementStateKind)
                     .Where(pe => pe.Procurement.Applications != true)
-                    .Where(pe => pe.Employee.Id == employeeId)
+                    .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                     .ToList();
             }
             catch { }
 
             return procurements;
         }
-        public static ProcurementsEmployee? ProcurementsEmployeesBy(Procurement procurement, string premierPosition, string secondPosition, string thirdPosition) // Получить список тендеров и сотрудников, по id тендера и трем должностям
+        public static ProcurementsEmployee? ProcurementsEmployeesBy(Procurement procurement, string premierPosition, string secondPosition, string thirdPosition, string actionType) // Получить список тендеров и сотрудников, по id тендера и трем должностям
         {
             using ParsethingContext db = new();
             ProcurementsEmployee? procurementsEmployee = null;
@@ -1751,14 +1752,14 @@ public static class GET
                 procurementsEmployee = db.ProcurementsEmployees
                 .Include(pe => pe.Employee)
                 .Include(pe => pe.Employee.Position)
-                .Where(pe => pe.ProcurementId == procurement.Id && (pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition))
+                .Where(pe => pe.ProcurementId == procurement.Id && (pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition) && pe.ActionType == actionType)
                 .First();
             }
             catch { }
 
             return procurementsEmployee;
         }
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId) // Получть список тендеров и сотрудников по id сотрудника
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(int employeeId, string actionType) // Получть список тендеров и сотрудников по id сотрудника
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurements = null;
@@ -1777,14 +1778,14 @@ public static class GET
                     .Include(pe => pe.Procurement.City)
                     .Include(pe => pe.Procurement.Organization)
                     .Where(pe => pe.Procurement.ProcurementState != null)
-                    .Where(pe => pe.Employee.Id == employeeId)
+                    .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                     .ToList();
             }
             catch { }
 
             return procurements;
         }
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesByProcurement(int procurementId) // Получть список тендеров и сотрудников по id тендера
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesByProcurement(int procurementId, string actionType) // Получть список тендеров и сотрудников по id тендера
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurements = null;
@@ -1793,7 +1794,7 @@ public static class GET
             {
                 procurements = db.ProcurementsEmployees
                     .Include(pe => pe.Employee)
-                    .Where(pe => pe.Procurement.Id == procurementId)
+                    .Where(pe => pe.Procurement.Id == procurementId && pe.ActionType == actionType)
                     .ToList();
             }
             catch { }
@@ -1801,7 +1802,7 @@ public static class GET
             return procurements;
         }
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string kind, KindOf kindOf, int employeeId) // Получить список тендеров и закупок по:
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string kind, KindOf kindOf, int employeeId, string actionType) // Получить список тендеров и закупок по:
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -1824,7 +1825,7 @@ public static class GET
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Include(pe => pe.Procurement.Organization)
                             .Where(pe => pe.Employee.Id == employeeId)
-                            .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == kind)
+                            .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == kind && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Applications != true)
                             .ToList();
                         break;
@@ -1842,7 +1843,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Organization)
                             .Include(pe => pe.Procurement.ProcurementState)
                             .Where(pe => pe.Employee.Id == employeeId)
-                            .Where(pe => pe.Procurement.ShipmentPlan != null && pe.Procurement.ShipmentPlan.Kind == kind)
+                            .Where(pe => pe.Procurement.ShipmentPlan != null && pe.Procurement.ShipmentPlan.Kind == kind && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Where(pe => pe.Procurement.Applications != true)
                             .ToList();
@@ -1861,7 +1862,7 @@ public static class GET
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId)
-                            .Where(pe => pe.Procurement.Applications == true)
+                            .Where(pe => pe.Procurement.Applications == true && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
                             .ToList();
                         break;
@@ -1879,7 +1880,7 @@ public static class GET
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Include(pe => pe.Procurement.ExecutionState)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
                             .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "На согласовании заказчика" || pe.Procurement.ExecutionState.Kind == "Внесение правок" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Ожидает оплаты" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)")
                             .ToList();
@@ -1898,7 +1899,7 @@ public static class GET
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Include(pe => pe.Procurement.WarrantyState)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
                             .Where(pe => pe.Procurement.WarrantyState.Kind == "Запрошена БГ" || pe.Procurement.WarrantyState.Kind == "На согласовании заказчика" || pe.Procurement.WarrantyState.Kind == "Внесение правок" || pe.Procurement.WarrantyState.Kind == "Согласована БГ" || pe.Procurement.WarrantyState.Kind == "Ожидает оплаты" || pe.Procurement.WarrantyState.Kind == "Деньги(Возвратные)")
                             .ToList();
@@ -1917,7 +1918,7 @@ public static class GET
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Include(pe => pe.Procurement.WarrantyState)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == kind)
                             .Where(pe => pe.Procurement.CorrectionDate != null)
                             .ToList();
@@ -1929,7 +1930,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string procurementStateKind, bool isOverdue, KindOf kindOf, int employeeId) // Получить список тендеров и сотрудников по:
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(string procurementStateKind, bool isOverdue, KindOf kindOf, int employeeId, string actionType) // Получить список тендеров и сотрудников по:
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -1953,7 +1954,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.Deadline < DateTime.Now)
                                 .ToList();
@@ -1972,7 +1973,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.Deadline > DateTime.Now)
                                 .ToList();
@@ -1993,7 +1994,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.StartDate < DateTime.Now)
                                 .ToList();
@@ -2012,7 +2013,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.StartDate > DateTime.Now)
                                 .ToList();
@@ -2033,7 +2034,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                                 .Where(pe => pe.Procurement.ConclusionDate != null)
                                 .Where(pe => pe.Procurement.Applications != true)
@@ -2053,7 +2054,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
                                 .Include(pe => pe.Procurement.ShipmentPlan)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                                 .Where(pe => pe.Procurement.ConclusionDate == null)
                                 .Where(pe => pe.Procurement.Applications != true)
@@ -2067,7 +2068,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(bool isOverdue, int employeeId) // Получить тендеры, назначнные на конкретного сотрудника
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(bool isOverdue, int employeeId, string actionType) // Получить тендеры, назначнные на конкретного сотрудника
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -2088,7 +2089,7 @@ public static class GET
                         .Include(pe => pe.Procurement.Region)
                         .Include(pe => pe.Procurement.City)
                         .Include(pe => pe.Procurement.ShipmentPlan)
-                        .Where(pe => pe.Employee.Id == employeeId)
+                        .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate < DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
@@ -2109,7 +2110,7 @@ public static class GET
                         .Include(pe => pe.Procurement.Region)
                         .Include(pe => pe.Procurement.City)
                         .Include(pe => pe.Procurement.ShipmentPlan)
-                        .Where(pe => pe.Employee.Id == employeeId)
+                        .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate > DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
@@ -2121,7 +2122,7 @@ public static class GET
 
             return procurementsEmployees;
         }
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesNotPaid(int employeeId) // Получить неоплаченные тендеры по конкретному сотруднику
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesNotPaid(int employeeId, string actionType) // Получить неоплаченные тендеры по конкретному сотруднику
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -2140,7 +2141,7 @@ public static class GET
                     .Include(pe => pe.Procurement.Region)
                     .Include(pe => pe.Procurement.City)
                     .Include(pe => pe.Procurement.ShipmentPlan)
-                    .Where(pe => pe.Employee.Id == employeeId)
+                    .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                     .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                     .Where(pe => pe.Procurement.RealDueDate == null)
                     .Where(pe => pe.Procurement.MaxDueDate != null)
@@ -2152,7 +2153,7 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(KindOf kindOf, int employeeId) // Получить тендеры, назначенные на конкретного сотрудника
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(KindOf kindOf, int employeeId, string actionType) // Получить тендеры, назначенные на конкретного сотрудника
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -2174,7 +2175,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Judgment == true)
                             .ToList();
                         break;
@@ -2191,7 +2192,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Fas == true)
                             .ToList();
                         break;
@@ -2201,7 +2202,7 @@ public static class GET
 
             return procurementsEmployees;
         }
-        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(bool isTrue, KindOf kindOf, int employeeId) // Получить тендеры, назначенные на конкретного сотрудника
+        public static List<ProcurementsEmployee>? ProcurementsEmployeesBy(bool isTrue, KindOf kindOf, int employeeId, string actionType) // Получить тендеры, назначенные на конкретного сотрудника
         {
             using ParsethingContext db = new();
             List<ProcurementsEmployee>? procurementsEmployees = null;
@@ -2225,7 +2226,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Calculating == true)
                             .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
@@ -2244,7 +2245,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Calculating == false || pe.Procurement.Calculating == null)
                             .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
@@ -2265,7 +2266,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Purchase == true && pe.Procurement.Calculating == true)
                             .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
@@ -2284,7 +2285,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Purchase == false || pe.Procurement.Purchase == null && pe.Procurement.Calculating == true)
                             .Where(p => p.Procurement.ProcurementState.Kind == "Выигран 1ч" || p.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .ToList();
@@ -2719,7 +2720,7 @@ public static class GET
 
             return count;
         }
-        public static int ProcurementsCountBy(string procurementState, DateTime startDate, int employeeId) // Получить количество тендеров по статусу и конкретному сотруднику по дате
+        public static int ProcurementsCountBy(string procurementState, DateTime startDate, int employeeId, string actionType) // Получить количество тендеров по статусу и конкретному сотруднику по дате
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -2750,7 +2751,7 @@ public static class GET
                 }
 
                 count = db.ProcurementsEmployees
-                    .Count(pe => validProcurementIds.Contains(pe.ProcurementId) && pe.EmployeeId == employeeId);
+                    .Count(pe => validProcurementIds.Contains(pe.ProcurementId) && pe.EmployeeId == employeeId && pe.ActionType == actionType);
             }
             catch { }
 
@@ -2834,7 +2835,7 @@ public static class GET
                 count = db.Procurements
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
-                    .Where(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id))
+                    .Where(p => p.ProcurementState.Kind == "Новый" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.ActionType == "Appoint"))
                     .Count();
             }
             catch { }
@@ -2850,7 +2851,7 @@ public static class GET
                 count = db.Procurements
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
-                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8))
+                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8 && pe.ActionType == "Appoint"))
                     .Count();
             }
             catch { }
@@ -3019,7 +3020,7 @@ public static class GET
             return count;
         }
 
-        public static int ProcurementsEmployeesCountBy(string kind, KindOf kindOf, int employeeId) // Получить количество тендеров по:
+        public static int ProcurementsEmployeesCountBy(string kind, KindOf kindOf, int employeeId, string actionType) // Получить количество тендеров по:
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -3033,7 +3034,7 @@ public static class GET
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
                             .Include(pe => pe.Procurement.ProcurementState)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == kind)
                             .Where(pe => pe.Procurement.Applications != true)
                             .Count();
@@ -3044,7 +3045,7 @@ public static class GET
                             .Include(pe => pe.Procurement)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Include(pe => pe.Procurement.ProcurementState)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ShipmentPlan != null && pe.Procurement.ShipmentPlan.Kind == kind)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Where(pe => pe.Procurement.Applications != true)
@@ -3054,7 +3055,7 @@ public static class GET
                         count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Applications == true)
                             .Count();
                         break;
@@ -3064,7 +3065,7 @@ public static class GET
                             .Include(pe => pe.Procurement)
                             .Include(pe => pe.Procurement.ExecutionState)
                             .Include(pe => pe.Procurement.ProcurementState)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
                             .Where(pe => pe.Procurement.ExecutionState.Kind == "Запрошена БГ" || pe.Procurement.ExecutionState.Kind == "На согласовании заказчика" || pe.Procurement.ExecutionState.Kind == "Внесение правок" || pe.Procurement.ExecutionState.Kind == "Согласована БГ" || pe.Procurement.ExecutionState.Kind == "Ожидает оплаты" || pe.Procurement.ExecutionState.Kind == "Деньги(Возвратные)")
                             .Count();
@@ -3075,7 +3076,7 @@ public static class GET
                             .Include(pe => pe.Procurement)
                             .Include(pe => pe.Procurement.WarrantyState)
                             .Include(pe => pe.Procurement.ProcurementState)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч" || pe.Procurement.ProcurementState.Kind == "Приемка")
                             .Where(pe => pe.Procurement.WarrantyState.Kind == "Запрошена БГ" || pe.Procurement.WarrantyState.Kind == "На согласовании заказчика" || pe.Procurement.WarrantyState.Kind == "Внесение правок" || pe.Procurement.WarrantyState.Kind == "Согласована БГ" || pe.Procurement.WarrantyState.Kind == "Ожидает оплаты" || pe.Procurement.WarrantyState.Kind == "Деньги(Возвратные)")
                             .Count();
@@ -3086,7 +3087,7 @@ public static class GET
                             .Include(pe => pe.Procurement)
                             .Include(pe => pe.Procurement.WarrantyState)
                             .Include(pe => pe.Procurement.ProcurementState)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == kind)
                             .Where(pe => pe.Procurement.CorrectionDate != null)
                             .Count();
@@ -3098,7 +3099,7 @@ public static class GET
             return count;
         }
 
-        public static int ProcurementsEmployeesCountBy(string procurementStateKind, bool isOverdue, KindOf kindOf, int employeeId) // Получить количество тендеров по
+        public static int ProcurementsEmployeesCountBy(string procurementStateKind, bool isOverdue, KindOf kindOf, int employeeId, string actionType) // Получить количество тендеров по
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -3114,7 +3115,7 @@ public static class GET
                                 .Include(pe => pe.Employee)
                                 .Include(pe => pe.Procurement)
                                 .Include(pe => pe.Procurement.ProcurementState)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.Deadline < DateTime.Now)
                                 .Count();
@@ -3125,7 +3126,7 @@ public static class GET
                                 .Include(pe => pe.Employee)
                                 .Include(pe => pe.Procurement)
                                 .Include(pe => pe.Procurement.ProcurementState)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.Deadline > DateTime.Now)
                                 .Count();
@@ -3138,7 +3139,7 @@ public static class GET
                                 .Include(pe => pe.Employee)
                                 .Include(pe => pe.Procurement)
                                 .Include(pe => pe.Procurement.ProcurementState)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.StartDate < DateTime.Now)
                                 .Count();
@@ -3149,7 +3150,7 @@ public static class GET
                                 .Include(pe => pe.Employee)
                                 .Include(pe => pe.Procurement)
                                 .Include(pe => pe.Procurement.ProcurementState)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.StartDate > DateTime.Now)
                                 .Count();
@@ -3162,7 +3163,7 @@ public static class GET
                                 .Include(pe => pe.Employee)
                                 .Include(pe => pe.Procurement)
                                 .Include(pe => pe.Procurement.ProcurementState)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.ResultDate < DateTime.Now)
                                 .Count();
@@ -3173,7 +3174,7 @@ public static class GET
                                 .Include(pe => pe.Employee)
                                 .Include(pe => pe.Procurement)
                                 .Include(pe => pe.Procurement.ProcurementState)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.ResultDate > DateTime.Now)
                                 .Count();
@@ -3186,7 +3187,7 @@ public static class GET
                                 .Include(pe => pe.Employee)
                                 .Include(pe => pe.Procurement)
                                 .Include(pe => pe.Procurement.ProcurementState)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                                 .Where(pe => pe.Procurement.ConclusionDate != null)
                                 .Count();
@@ -3197,7 +3198,7 @@ public static class GET
                                 .Include(pe => pe.Employee)
                                 .Include(pe => pe.Procurement)
                                 .Include(pe => pe.Procurement.ProcurementState)
-                                .Where(pe => pe.Employee.Id == employeeId)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                                 .Where(pe => pe.Procurement.ConclusionDate == null)
                                 .Count();
@@ -3211,7 +3212,7 @@ public static class GET
             return count;
         }
 
-        public static int ProcurementsEmployeesCountBy(bool isOverdue, int employeeId) // Получить количество тендеров и сотрудников по сотрудникам
+        public static int ProcurementsEmployeesCountBy(bool isOverdue, int employeeId, string actionType) // Получить количество тендеров и сотрудников по сотрудникам
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -3224,7 +3225,7 @@ public static class GET
                         .Include(pe => pe.Employee)
                         .Include(pe => pe.Procurement)
                         .Include(pe => pe.Procurement.ProcurementState)
-                        .Where(pe => pe.Employee.Id == employeeId)
+                        .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate < DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
@@ -3237,7 +3238,7 @@ public static class GET
                         .Include(pe => pe.Employee)
                         .Include(pe => pe.Procurement)
                         .Include(pe => pe.Procurement.ProcurementState)
-                        .Where(pe => pe.Employee.Id == employeeId)
+                        .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                         .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                         .Where(pe => pe.Procurement.MaxDueDate > DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
@@ -3249,7 +3250,7 @@ public static class GET
 
             return count;
         }
-        public static int ProcurementsEmployeesCountNotPaid(int employeeId) // Получить количество неоплаченных принятых тендеров и сотрудников по конкретному сотруднику
+        public static int ProcurementsEmployeesCountNotPaid(int employeeId, string actionType) // Получить количество неоплаченных принятых тендеров и сотрудников по конкретному сотруднику
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -3260,7 +3261,7 @@ public static class GET
                     .Include(pe => pe.Employee)
                     .Include(pe => pe.Procurement)
                     .Include(pe => pe.Procurement.ProcurementState)
-                    .Where(pe => pe.Employee.Id == employeeId)
+                    .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                     .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                     .Where(pe => pe.Procurement.RealDueDate == null)
                     .Where(pe => pe.Procurement.MaxDueDate != null)
@@ -3272,7 +3273,7 @@ public static class GET
             return count;
         }
 
-        public static int ProcurementsEmployeesCountBy(KindOf kindOf, int employeeId) // Получить количество тендеров по конкретному сотруднику 
+        public static int ProcurementsEmployeesCountBy(KindOf kindOf, int employeeId, string actionType) // Получить количество тендеров по конкретному сотруднику 
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -3285,7 +3286,7 @@ public static class GET
                         count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Judgment == true)
                             .Count();
                         break;
@@ -3293,7 +3294,7 @@ public static class GET
                         count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Fas == true)
                             .Count();
                         break;
@@ -3304,7 +3305,7 @@ public static class GET
             return count;
 
         }
-        public static int ProcurementsEmployeesCountBy(bool isTrue, KindOf kindOf, int employeeId) // Получить количество тендеров по конкретному сотруднику 
+        public static int ProcurementsEmployeesCountBy(bool isTrue, KindOf kindOf, int employeeId, string actionType) // Получить количество тендеров по конкретному сотруднику 
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -3319,7 +3320,7 @@ public static class GET
                             count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Calculating == true)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Count();
@@ -3329,7 +3330,7 @@ public static class GET
                             count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Calculating == false || pe.Procurement.Calculating == null)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Count();
@@ -3341,7 +3342,7 @@ public static class GET
                             count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Purchase == true && pe.Procurement.Calculating == true)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Count();
@@ -3351,7 +3352,7 @@ public static class GET
                             count = db.ProcurementsEmployees
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
-                            .Where(pe => pe.Employee.Id == employeeId)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Purchase == false || pe.Procurement.Purchase == null && pe.Procurement.Calculating == true)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Выигран 1ч" || pe.Procurement.ProcurementState.Kind == "Выигран 2ч")
                             .Count();

@@ -461,7 +461,7 @@ public static class PUT
         return isSaved;
     }
 
-    public static bool ProcurementsEmployeesBy(int employeeId)
+    public static bool ProcurementsEmployeesBy(int employeeId, string actionType)
     {
         using ParsethingContext db = new();
         bool isSaved = true;
@@ -489,7 +489,8 @@ public static class PUT
                     ProcurementsEmployee procurementEmployee = new ProcurementsEmployee
                     {
                         ProcurementId = procurementToAssign.Id,
-                        EmployeeId = employeeId
+                        EmployeeId = employeeId,
+                        ActionType = actionType,
                     };
 
                     db.ProcurementsEmployees.Add(procurementEmployee);
