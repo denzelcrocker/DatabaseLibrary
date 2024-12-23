@@ -207,6 +207,24 @@ public static class GET
 
             return procurement;
         }
+        public static bool ProcurementsEmployee(int procurementId, int employeeId, string actionType) // Узнать, есть ли у сотрудника конкретный тендер в избранном
+        {
+            using ParsethingContext db = new();
+            ProcurementsEmployee? procurementsEmployee = null;
+
+            try
+            {
+                procurementsEmployee = db.ProcurementsEmployees
+                    .Where(pe => pe.ProcurementId == procurementId && pe.EmployeeId == employeeId && pe.ActionType == actionType)
+                    .First();
+            }
+            catch { }
+
+            if (procurementsEmployee == null)
+                return false;
+            else
+                return true;
+        }
 
         public static TimeZone? TimeZone(string offset) // Получить часовой пояс
         {
