@@ -102,7 +102,21 @@ public static class GET
 
             return method;
         }
+        public static Notification? Notification(string title, string text, int employeeId) // Получить закон
+        {
+            using ParsethingContext db = new();
+            Notification? notification = null;
 
+            try
+            {
+                notification = db.Notifications
+                    .Where(n => n.Title == title && n.Text == text && n.EmployeeId == employeeId)
+                    .First();
+            }
+            catch { }
+
+            return notification;
+        }
         public static Organization? Organization(string name) // Получить организацию
         {
             using ParsethingContext db = new();
@@ -943,7 +957,7 @@ public static class GET
                             .Include(p => p.Region)
                             .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
-                            .Where(p => p.Applications == true)
+                            .Where(p => p.Applications == true && p.ProcurementState.Kind != "Принят")
                             .ToList();
                         break;
                     case KindOf.CorrectionDate: // Тендерам на исправлении
@@ -1328,6 +1342,20 @@ public static class GET
                             .Where(p => p.Fas == true)
                             .ToList();
                         break;
+                    case KindOf.ClaimWorks: // Претензионные работы
+                        procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.City)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.ClaimWorks == true)
+                            .ToList();
+                        break;
                 }
             }
             catch { }
@@ -1605,6 +1633,21 @@ public static class GET
             return comments;
         }
 
+        public static List<Comment>? CommentsForLazyLoading() // Получить комментарии 
+        {
+            using ParsethingContext db = new();
+
+            var comments = db.Comments
+                .Select(c => new Comment
+                {
+                    Date = c.Date,
+                    EntryId = c.EntryId,
+                    EntityType = c.EntityType
+                })
+                .ToList();
+            return comments;
+        }
+
         public static List<Comment>? CommentsBy(int? procurementId, bool isTechical) // Получить технические комментарии по id тендера
         {
             using ParsethingContext db = new();
@@ -1659,8 +1702,8 @@ public static class GET
                              pe.Procurement.ProcurementState.Kind == secondProcurementState ||
                              pe.Procurement.ProcurementState.Kind == thirdProcurementState ||
                              pe.Procurement.ProcurementState.Kind == fourthProcurementState)
-                .Where(pe => pe.Procurement.Applications != true)
-                .Where(pe => !(pe.Procurement.ProcurementState.Kind == "Принят" && pe.Procurement.RealDueDate != null && pe.ActionType == actionType))
+                .Where(pe => pe.Procurement.Applications != true && pe.ActionType == actionType)
+                .Where(pe => !(pe.Procurement.ProcurementState.Kind == "Принят" && pe.Procurement.RealDueDate != null))
                 .GroupBy(pe => pe.Employee.FullName)
                 .Select(g => new ProcurementsEmployeesGrouping
                 {
@@ -2214,6 +2257,23 @@ public static class GET
                             .Where(pe => pe.Procurement.Fas == true)
                             .ToList();
                         break;
+                    case KindOf.ClaimWorks: // Претензионные работы
+                        procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
+                            .Where(pe => pe.Procurement.ClaimWorks == true)
+                            .ToList();
+                        break;
                 }
             }
             catch { }
@@ -2493,7 +2553,7 @@ public static class GET
 
             return tagExceptions;
         }
-        public static (List<Tuple<int, int, decimal, int, List<Procurement>>>?, List<Procurement>?) HistoryGroupBy(string procurementState, List<History> histories)
+        public static List<Tuple<int, int, decimal, int, List<Procurement>>>? HistoryGroupBy(string procurementState, List<History> histories)
         {
             using ParsethingContext db = new();
 
@@ -2549,7 +2609,7 @@ public static class GET
                     .ThenBy(entry => entry.Item2)
                     .ToList();
 
-                return (winningTendersByMonth, procurements);
+                return (winningTendersByMonth);
             }
 
             // Логика для остальных состояний
@@ -2603,7 +2663,7 @@ public static class GET
                 .ThenBy(entry => entry.Item2)
                 .ToList();
 
-            return (tendersByMonth, procurementsForOtherStates);
+            return (tendersByMonth);
         }
         
         public static List<Procurement>? ApplicationsBy(int? procurementId)
@@ -2629,7 +2689,7 @@ public static class GET
             catch { }
             return procurements;
         }
-        public static List<EmployeeNotification>? EmployeeNotificationsBy(int employeeId) // Получить уведомления для конкретного пользователя
+        public static List<EmployeeNotification>? UnreadEmployeeNotificationsBy(int employeeId) // Получить уведомления для конкретного пользователя
         {
             using ParsethingContext db = new();
             List<EmployeeNotification>? employeeNotifications = null;
@@ -2646,7 +2706,24 @@ public static class GET
 
             return employeeNotifications;
         }
-        public static async Task<bool> HasUnreadNotifications(int employeeId)
+        public static List<EmployeeNotification>? EmployeeNotificationsBy(int employeeId) // Получить уведомления для конкретного пользователя
+        {
+            using ParsethingContext db = new();
+            List<EmployeeNotification>? employeeNotifications = null;
+
+            try
+            {
+                employeeNotifications = db.EmployeeNotifications
+                    .Include(en => en.Notification.Employee)
+                    .Where(en => en.EmployeeId == employeeId && !en.IsDeleted)
+                    .OrderBy(en => en.Notification.DateCreated)
+                    .ToList();
+            }
+            catch { }
+
+            return employeeNotifications;
+        }
+        public static async Task<bool> HasUnDeletedNotifications(int employeeId)
         {
             using ParsethingContext db = new();
             bool hasUnreadNotifications = false;
@@ -2654,7 +2731,7 @@ public static class GET
             try
             {
                 hasUnreadNotifications = await db.EmployeeNotifications
-                    .AnyAsync(en => en.EmployeeId == employeeId && !en.IsRead);
+                    .AnyAsync(en => en.EmployeeId == employeeId && !en.IsDeleted);
             }
             catch { }
 
@@ -2664,6 +2741,23 @@ public static class GET
 
     public struct Aggregate
     {
+        public static int CommentsCountBy(int? procurementId) // Получить количество комментариев по id тендера
+        {
+            using ParsethingContext db = new();
+            int count = 0;
+
+            try
+            {
+                count = db.Comments
+                  .Include(c => c.Employee)
+                  .Where(pe => pe.EntryId == procurementId)
+                  .Where(c => c.EntityType == "Procurement")
+                  .Count();
+            }
+            catch { }
+
+            return count;
+        }
         public static int GetActualProcurementId(int currentProcurementId, int? parentProcurementId)
         {
             using (var db = new ParsethingContext())
@@ -2723,7 +2817,7 @@ public static class GET
                         break;
                     case KindOf.Applications: // Положительному статусу "По заявкам"
                         count = db.Procurements
-                            .Where(p => p.Applications == true)
+                            .Where(p => p.Applications == true && p.ProcurementState.Kind != "Принят")
                             .Count();
                         break;
                     case KindOf.CorrectionDate: // По тендерам на исправлении
@@ -2893,6 +2987,11 @@ public static class GET
                     case KindOf.FAS: // ФАС
                         count = db.Procurements
                             .Where(p => p.Fas == true)
+                            .Count();
+                        break;
+                    case KindOf.ClaimWorks: // Претензионные работы
+                        count = db.Procurements
+                            .Where(p => p.ClaimWorks == true)
                             .Count();
                         break;
                 }
@@ -3074,7 +3173,7 @@ public static class GET
                             .Include(pe => pe.Employee)
                             .Include(pe => pe.Procurement)
                             .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
-                            .Where(pe => pe.Procurement.Applications == true)
+                            .Where(pe => pe.Procurement.Applications == true && pe.Procurement.ProcurementState.Kind != "Принят")
                             .Count();
                         break;
                     case KindOf.ExecutionState: // Статусу обеспечения заявки по конкретному сотруднику 
@@ -3316,6 +3415,14 @@ public static class GET
                             .Where(pe => pe.Procurement.Fas == true)
                             .Count();
                         break;
+                    case KindOf.ClaimWorks: // Претензионные работы
+                        count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
+                            .Where(pe => pe.Procurement.ClaimWorks == true)
+                            .Count();
+                        break;
                 }
             }
             catch { }
@@ -3495,6 +3602,7 @@ public static class GET
         CorrectionDate, // Дата исправления недостатков
         Judgement, // Суд
         FAS, // ФАС
+        ClaimWorks, // Претензионные работы
         ContractConclusion, // Дата подписания контракта
         ExecutionState, // Статус обеспечения исполнения заявки
         WarrantyState, // Статус обеспечения гарантии заявки

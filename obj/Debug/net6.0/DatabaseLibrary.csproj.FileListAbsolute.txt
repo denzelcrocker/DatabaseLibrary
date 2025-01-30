@@ -47,6 +47,7 @@ C:\Users\zelen\Source\Repos\DatabaseLibraryy\obj\Debug\net6.0\refint\DatabaseLib
 C:\Users\zelen\Source\Repos\DatabaseLibraryy\obj\Debug\net6.0\DatabaseLibrary.pdb
 C:\Users\zelen\Source\Repos\DatabaseLibraryy\obj\Debug\net6.0\DatabaseLibrary.genruntimeconfig.cache
 C:\Users\zelen\Source\Repos\DatabaseLibraryy\obj\Debug\net6.0\ref\DatabaseLibrary.dll
+C:\Users\Денис\source\repos\DatabaseLibrary\obj\Debug\net6.0\DatabaseLibrary.sourcelink.json
 C:\Users\zelen\source\repos\DatabaseLibrary\bin\Debug\net6.0\DatabaseLibrary.deps.json
 C:\Users\zelen\source\repos\DatabaseLibrary\bin\Debug\net6.0\DatabaseLibrary.runtimeconfig.json
 C:\Users\zelen\source\repos\DatabaseLibrary\bin\Debug\net6.0\DatabaseLibrary.dll
@@ -64,4 +65,3 @@ C:\Users\zelen\source\repos\DatabaseLibrary\obj\Debug\net6.0\refint\DatabaseLibr
 C:\Users\zelen\source\repos\DatabaseLibrary\obj\Debug\net6.0\DatabaseLibrary.pdb
 C:\Users\zelen\source\repos\DatabaseLibrary\obj\Debug\net6.0\DatabaseLibrary.genruntimeconfig.cache
 C:\Users\zelen\source\repos\DatabaseLibrary\obj\Debug\net6.0\ref\DatabaseLibrary.dll
-C:\Users\Денис\source\repos\DatabaseLibrary\obj\Debug\net6.0\DatabaseLibrary.sourcelink.json

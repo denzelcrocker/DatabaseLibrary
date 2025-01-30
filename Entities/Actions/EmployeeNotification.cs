@@ -12,6 +12,7 @@ namespace DatabaseLibrary.Entities.Actions
         public int EmployeeId { get; set; }
         public int NotificationId { get; set; }
         public bool IsRead { get; set; }
+        public bool IsDeleted { get; set; }
         public DateTime? DateRead { get; set; }
 
         public virtual Notification Notification { get; set; } = null!;

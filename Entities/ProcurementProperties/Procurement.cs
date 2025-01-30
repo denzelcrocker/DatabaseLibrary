@@ -94,6 +94,7 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         private int? _signedOriginalId;
         private bool? _judgment;
         private bool? _fas;
+        private bool? _claimWorks;
         private int? _procurementStateId;
         private decimal? _calculatingAmount;
         private decimal? _purchaseAmount;
@@ -550,6 +551,11 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
             get => _fas;
             set { _fas = value; OnPropertyChanged(); }
         }
+        public bool? ClaimWorks
+        {
+            get => _claimWorks;
+            set { _claimWorks = value; OnPropertyChanged(); }
+        }
         public int? ProcurementStateId
         {
             get => _procurementStateId;
@@ -760,13 +766,13 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
             }
             else { return 0; }
         }
-
     }
     public class ComponentStateCount
     {
         public string? State { get; set; }
         public int Count { get; set; }
     }
+
 
     public enum RejectionReason
     {

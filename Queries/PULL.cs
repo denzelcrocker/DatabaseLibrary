@@ -198,7 +198,7 @@ public static class PULL
         return isSaved;
     }
 
-    public static bool EmployeeNotificationMark(EmployeeNotification employeeNotification)
+    public static bool EmployeeNotificationMarkAsRead(EmployeeNotification employeeNotification)
     {
         using ParsethingContext db = new();
         EmployeeNotification? def = null;
@@ -212,6 +212,26 @@ public static class PULL
 
             def.IsRead = true;
             def.DateRead = DateTime.Now;
+
+            _ = db.SaveChanges();
+        }
+        catch { isSaved = false; }
+
+        return isSaved;
+    }
+    public static bool EmployeeNotificationMarkAsDeleted(EmployeeNotification employeeNotification)
+    {
+        using ParsethingContext db = new();
+        EmployeeNotification? def = null;
+        bool isSaved = true;
+
+        try
+        {
+            def = db.EmployeeNotifications
+                .Where(en => en.Id == employeeNotification.Id)
+                .First();
+
+            def.IsDeleted = true;
 
             _ = db.SaveChanges();
         }
@@ -428,6 +448,7 @@ public static class PULL
             def.SignedOriginalId = procurement.SignedOriginalId;
             def.Judgment = procurement.Judgment;
             def.Fas = procurement.Fas;
+            def.ClaimWorks = procurement.ClaimWorks;
             def.ProcurementStateId = procurement.ProcurementStateId;
             def.PostingDate = procurement.PostingDate;
             def.CalculatingAmount = procurement.CalculatingAmount;
