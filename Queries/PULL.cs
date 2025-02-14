@@ -419,6 +419,7 @@ public static class PULL
             def.ContractAmount = procurement.ContractAmount;
             def.ReserveContractAmount = procurement.ReserveContractAmount;
             def.IsUnitPrice = procurement.IsUnitPrice;
+            def.UnitPrice = procurement.UnitPrice;
             def.ProtocolDate = procurement.ProtocolDate;
             def.RejectionReason = procurement.RejectionReason;
             def.CompetitorSum = procurement.CompetitorSum;
@@ -445,6 +446,7 @@ public static class PULL
             def.ClosingDate = procurement.ClosingDate;
             def.RealDueDate = procurement.RealDueDate;
             def.Amount = procurement.Amount;
+            def.UnpaidPennies = procurement.UnpaidPennies;
             def.SignedOriginalId = procurement.SignedOriginalId;
             def.Judgment = procurement.Judgment;
             def.Fas = procurement.Fas;

@@ -65,6 +65,7 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         private decimal? _contractAmount;
         private decimal? _reserveContractAmount;
         private bool? _isUnitPrice;
+        private decimal? _unitPrice;
         private DateTime? _protocolDate;
         private RejectionReason? _rejectionReason;
         private decimal? _competitorSum;
@@ -91,6 +92,7 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         private DateTime? _closingDate;
         private DateTime? _realDueDate;
         private decimal? _amount;
+        private bool? _unpaidPennies;
         private int? _signedOriginalId;
         private bool? _judgment;
         private bool? _fas;
@@ -406,6 +408,11 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
             get => _isUnitPrice;
             set { _isUnitPrice = value; OnPropertyChanged(); }
         }
+        public decimal? UnitPrice
+        {
+            get => _unitPrice;
+            set { _unitPrice = value; OnPropertyChanged(); }
+        }
         public DateTime? ProtocolDate
         {
             get => _protocolDate;
@@ -535,6 +542,11 @@ namespace DatabaseLibrary.Entities.ProcurementProperties
         {
             get => _amount;
             set { _amount = value; OnPropertyChanged(); }
+        }
+        public bool? UnpaidPennies
+        {
+            get => _unpaidPennies;
+            set { _unpaidPennies = value; OnPropertyChanged(); }
         }
         public int? SignedOriginalId
         {

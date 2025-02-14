@@ -1017,6 +1017,7 @@ public static class GET
                     .Include(pe => pe.Employee.Position)
                     .Include(pe => pe.Procurement.Method)
                     .Include(pe => pe.Procurement.Region)
+                    .Include(pe => pe.Procurement.LegalEntity)
                     .Include(pe => pe.Procurement)
                     .Where(pe => validProcurementIds.Contains(pe.ProcurementId) && pe.EmployeeId == employeeId && pe.ActionType == actionType)
                     .ToList();
@@ -1251,7 +1252,7 @@ public static class GET
                     .Where(p => p.MaxDueDate < DateTime.Now)
                     .Where(p => p.RealDueDate == null)
                     .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
-
+                    .Where(p => p.UnpaidPennies != true)
                     .ToList();
                 }
                 else // В срок
@@ -1270,6 +1271,7 @@ public static class GET
                     .Where(p => p.MaxDueDate > DateTime.Now)
                     .Where(p => p.RealDueDate == null)
                     .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+                    .Where(p => p.UnpaidPennies != true)
                     .ToList();
                 }
             }
@@ -1354,6 +1356,24 @@ public static class GET
                             .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ClaimWorks == true)
+                            .ToList();
+                        break;
+                    case KindOf.UnpaidPennies: // Неоплаченные пени
+                        procurements = db.Procurements
+                            .Include(p => p.ProcurementState)
+                            .Include(p => p.Law)
+                            .Include(p => p.Method)
+                            .Include(p => p.Platform)
+                            .Include(p => p.Organization)
+                            .Include(p => p.TimeZone)
+                            .Include(p => p.Region)
+                            .Include(p => p.City)
+                            .Include(p => p.ShipmentPlan)
+                            .Where(p => p.ProcurementState.Kind == "Принят")
+                            .Where(p => p.RealDueDate == null)
+                            .Where(p => p.MaxDueDate != null)
+                            .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+                            .Where(p => p.UnpaidPennies == true)
                             .ToList();
                         break;
                 }
@@ -1619,6 +1639,29 @@ public static class GET
 
             return procurementsEmployees;
         }
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupByMethod(int employeeId)
+        {
+            using ParsethingContext db = new();
+            var procurementsEmployees = db.ProcurementsEmployees
+                .Include(p => p.Procurement)
+                .Include(p => p.Procurement.Law)
+                .Include(p => p.Procurement.Method)
+                .Include(p => p.Procurement.ProcurementState)
+                .Where(p => p.Procurement.Method != null)
+                .Where(p => p.Procurement.ProcurementState.Kind == "Отправлен")
+                .Where(p => p.Employee.Id == employeeId)
+                .GroupBy(p => p.Procurement.Method.Text)
+                .Select(g => new ProcurementsEmployeesGrouping
+                {
+                    Id = g.Key,
+                    CountOfProcurements = g.Count(),
+                    // Изменение: выбираем только Procurements
+                    Procurements = g.Select(pe => pe.Procurement).ToList()
+                })
+                .ToList();
+
+            return procurementsEmployees;
+        }
 
         public static List<Comment>? CommentsBy(int? procurementId) // Получить комментарии по id тендера
         {
@@ -1684,10 +1727,14 @@ public static class GET
             return procurementsEmployees;
         }
 
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition, string premierProcurementState, string secondProcurementState, string thirdProcurementState, string fourthProcurementState, string actionType)
+        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(
+            string[] positions,
+            string actionType,
+            string[] procurementStates = null)
         {
             using ParsethingContext db = new();
-            var procurementsEmployees = db.ProcurementsEmployees
+
+            var query = db.ProcurementsEmployees
                 .Include(pe => pe.Procurement.Law)
                 .Include(pe => pe.Employee)
                 .Include(pe => pe.Procurement.ProcurementState)
@@ -1695,46 +1742,24 @@ public static class GET
                 .Include(pe => pe.Procurement.Method)
                 .Include(pe => pe.Procurement.Region)
                 .Include(pe => pe.Procurement)
-                .Where(pe => pe.Employee.Position.Kind == premierPosition ||
-                             pe.Employee.Position.Kind == secondPosition ||
-                             pe.Employee.Position.Kind == thirdPosition)
-                .Where(pe => pe.Procurement.ProcurementState.Kind == premierProcurementState ||
-                             pe.Procurement.ProcurementState.Kind == secondProcurementState ||
-                             pe.Procurement.ProcurementState.Kind == thirdProcurementState ||
-                             pe.Procurement.ProcurementState.Kind == fourthProcurementState)
-                .Where(pe => pe.Procurement.Applications != true && pe.ActionType == actionType)
+                .Where(pe => positions.Contains(pe.Employee.Position.Kind))  // Фильтрация по позициям
                 .Where(pe => !(pe.Procurement.ProcurementState.Kind == "Принят" && pe.Procurement.RealDueDate != null))
+                .Where(pe => pe.Procurement.Applications != true)
+                .Where(pe => pe.ActionType == actionType);
+
+            // Фильтрация по состояниям тендеров, если массив задан
+            if (procurementStates != null && procurementStates.Length > 0)
+            {
+                query = query.Where(pe => procurementStates.Contains(pe.Procurement.ProcurementState.Kind));
+            }
+
+            var procurementsEmployees = query
                 .GroupBy(pe => pe.Employee.FullName)
                 .Select(g => new ProcurementsEmployeesGrouping
                 {
                     Id = g.Key,
                     CountOfProcurements = g.Count(),
                     Procurements = g.Select(pe => pe.Procurement).ToList()
-                })
-                .ToList();
-
-            return procurementsEmployees;
-        }
-
-        public static List<ProcurementsEmployeesGrouping>? ProcurementsEmployeesGroupBy(string premierPosition, string secondPosition, string thirdPosition, string actionType) // Получить список сотруников и тендеров, которые у них в работе (по трем должностям) 
-        {
-            using ParsethingContext db = new();
-            var procurementsEmployees = db.ProcurementsEmployees
-                .Include(pe => pe.Procurement.Law)
-                .Include(pe => pe.Employee)
-                .Include(pe => pe.Procurement.ProcurementState)
-                .Include(pe => pe.Employee.Position)
-                .Include(pe => pe.Procurement.Method)
-                .Include(pe => pe.Procurement.Region)
-                .Include(pe => pe.Procurement)
-                .Where(pe => pe.Employee.Position.Kind == premierPosition || pe.Employee.Position.Kind == secondPosition || pe.Employee.Position.Kind == thirdPosition)
-                .Where(pe => pe.ActionType == actionType)
-                .GroupBy(pe => pe.Employee.FullName)
-                .Select(g => new ProcurementsEmployeesGrouping
-                {
-                    Id = g.Key,
-                    CountOfProcurements = g.Count(),
-                    Procurements = g.Select(pe => pe.Procurement).ToList() // Добавлено
                 })
                 .ToList();
 
@@ -1768,7 +1793,7 @@ public static class GET
                 procurements = db.Procurements
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
-                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8 && pe.ActionType == "Appoint"))
+                    .Where(p => p.ProcurementState.Kind == "Оформлен" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8 && pe.ActionType == "Appoint"))
                     .ToList();
             }
             catch { }
@@ -1794,6 +1819,7 @@ public static class GET
                     .Include(pe => pe.Procurement.Region)
                     .Include(pe => pe.Procurement.City)
                     .Include(pe => pe.Procurement.Organization)
+                    .Include(pe => pe.Procurement.LegalEntity)
                     .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == procurementStateKind)
                     .Where(pe => pe.Procurement.Applications != true)
                     .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
@@ -1838,6 +1864,7 @@ public static class GET
                     .Include(pe => pe.Procurement.Region)
                     .Include(pe => pe.Procurement.City)
                     .Include(pe => pe.Procurement.Organization)
+                    .Include(pe => pe.Procurement.LegalEntity)
                     .Where(pe => pe.Procurement.ProcurementState != null)
                     .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                     .ToList();
@@ -1885,6 +1912,7 @@ public static class GET
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.ProcurementState != null && pe.Procurement.ProcurementState.Kind == kind && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.Applications != true)
@@ -1902,6 +1930,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.ProcurementState)
                             .Where(pe => pe.Employee.Id == employeeId)
                             .Where(pe => pe.Procurement.ShipmentPlan != null && pe.Procurement.ShipmentPlan.Kind == kind && pe.ActionType == actionType)
@@ -1918,6 +1947,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -1936,6 +1966,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -1955,6 +1986,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -1974,6 +2006,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -2011,6 +2044,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Method)
                                 .Include(pe => pe.Procurement.Platform)
                                 .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.LegalEntity)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
@@ -2030,6 +2064,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Method)
                                 .Include(pe => pe.Procurement.Platform)
                                 .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.LegalEntity)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
@@ -2051,6 +2086,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Method)
                                 .Include(pe => pe.Procurement.Platform)
                                 .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.LegalEntity)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
@@ -2070,6 +2106,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Method)
                                 .Include(pe => pe.Procurement.Platform)
                                 .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.LegalEntity)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
@@ -2077,6 +2114,48 @@ public static class GET
                                 .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                                 .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
                                 .Where(pe => pe.Procurement.StartDate > DateTime.Now)
+                                .ToList();
+                        }
+                        break;
+                    case KindOf.ResultDate: // Дате начала подачи заявок, id сотрудника и статусу тендера
+                        if (isOverdue) // Просроченные
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Include(pe => pe.Procurement.Law)
+                                .Include(pe => pe.Procurement.Method)
+                                .Include(pe => pe.Procurement.Platform)
+                                .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.LegalEntity)
+                                .Include(pe => pe.Procurement.TimeZone)
+                                .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.City)
+                                .Include(pe => pe.Procurement.ShipmentPlan)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.ResultDate < DateTime.Now)
+                                .ToList();
+                        }
+                        else // Непросроченные
+                        {
+                            procurementsEmployees = db.ProcurementsEmployees
+                                .Include(pe => pe.Employee)
+                                .Include(pe => pe.Procurement)
+                                .Include(pe => pe.Procurement.ProcurementState)
+                                .Include(pe => pe.Procurement.Law)
+                                .Include(pe => pe.Procurement.Method)
+                                .Include(pe => pe.Procurement.Platform)
+                                .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.LegalEntity)
+                                .Include(pe => pe.Procurement.TimeZone)
+                                .Include(pe => pe.Procurement.Region)
+                                .Include(pe => pe.Procurement.City)
+                                .Include(pe => pe.Procurement.ShipmentPlan)
+                                .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
+                                .Where(pe => pe.Procurement.ProcurementState.Kind == procurementStateKind)
+                                .Where(pe => pe.Procurement.ResultDate > DateTime.Now)
                                 .ToList();
                         }
                         break;
@@ -2091,6 +2170,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Method)
                                 .Include(pe => pe.Procurement.Platform)
                                 .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.LegalEntity)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
@@ -2111,6 +2191,7 @@ public static class GET
                                 .Include(pe => pe.Procurement.Method)
                                 .Include(pe => pe.Procurement.Platform)
                                 .Include(pe => pe.Procurement.Organization)
+                                .Include(pe => pe.Procurement.LegalEntity)
                                 .Include(pe => pe.Procurement.TimeZone)
                                 .Include(pe => pe.Procurement.Region)
                                 .Include(pe => pe.Procurement.City)
@@ -2146,6 +2227,7 @@ public static class GET
                         .Include(pe => pe.Procurement.Method)
                         .Include(pe => pe.Procurement.Platform)
                         .Include(pe => pe.Procurement.Organization)
+                        .Include(pe => pe.Procurement.LegalEntity)
                         .Include(pe => pe.Procurement.TimeZone)
                         .Include(pe => pe.Procurement.Region)
                         .Include(pe => pe.Procurement.City)
@@ -2155,6 +2237,7 @@ public static class GET
                         .Where(pe => pe.Procurement.MaxDueDate < DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
                         .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
+                        .Where(p => p.Procurement.UnpaidPennies != true)
                         .ToList();
                 }
                 else // Просроченные
@@ -2167,6 +2250,7 @@ public static class GET
                         .Include(pe => pe.Procurement.Method)
                         .Include(pe => pe.Procurement.Platform)
                         .Include(pe => pe.Procurement.Organization)
+                        .Include(pe => pe.Procurement.LegalEntity)
                         .Include(pe => pe.Procurement.TimeZone)
                         .Include(pe => pe.Procurement.Region)
                         .Include(pe => pe.Procurement.City)
@@ -2176,6 +2260,7 @@ public static class GET
                         .Where(pe => pe.Procurement.MaxDueDate > DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
                         .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
+                        .Where(p => p.Procurement.UnpaidPennies != true)
                         .ToList();
                 }
             }
@@ -2198,6 +2283,7 @@ public static class GET
                     .Include(pe => pe.Procurement.Method)
                     .Include(pe => pe.Procurement.Platform)
                     .Include(pe => pe.Procurement.Organization)
+                    .Include(pe => pe.Procurement.LegalEntity)
                     .Include(pe => pe.Procurement.TimeZone)
                     .Include(pe => pe.Procurement.Region)
                     .Include(pe => pe.Procurement.City)
@@ -2232,6 +2318,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -2249,6 +2336,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -2266,6 +2354,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -2274,6 +2363,29 @@ public static class GET
                             .Where(pe => pe.Procurement.ClaimWorks == true)
                             .ToList();
                         break;
+                    case KindOf.UnpaidPennies: // Неоплаченные пени
+                        procurementsEmployees = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Include(pe => pe.Procurement.ProcurementState)
+                            .Include(pe => pe.Procurement.Law)
+                            .Include(pe => pe.Procurement.Method)
+                            .Include(pe => pe.Procurement.Platform)
+                            .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
+                            .Include(pe => pe.Procurement.TimeZone)
+                            .Include(pe => pe.Procurement.Region)
+                            .Include(pe => pe.Procurement.City)
+                            .Include(pe => pe.Procurement.ShipmentPlan)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
+                            .Where(pe => pe.Procurement.RealDueDate == null)
+                            .Where(pe => pe.Procurement.MaxDueDate != null)
+                            .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount)).Where(pe => pe.Procurement.UnpaidPennies == true)
+                            .Where(pe => pe.Procurement.UnpaidPennies == true)
+                            .ToList();
+                        break;
+
                 }
             }
             catch { }
@@ -2300,6 +2412,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -2319,6 +2432,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -2340,6 +2454,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -2359,6 +2474,7 @@ public static class GET
                             .Include(pe => pe.Procurement.Method)
                             .Include(pe => pe.Procurement.Platform)
                             .Include(pe => pe.Procurement.Organization)
+                            .Include(pe => pe.Procurement.LegalEntity)
                             .Include(pe => pe.Procurement.TimeZone)
                             .Include(pe => pe.Procurement.Region)
                             .Include(pe => pe.Procurement.City)
@@ -2440,22 +2556,17 @@ public static class GET
                         break;
                     case "Руководитель тендерного отдела":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" || ps.Kind == "Отклонен" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
+                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" || ps.Kind == "Отклонен" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
                             .ToList();
                         break;
                     case "Заместитель руководителя тендреного отдела":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" || ps.Kind == "Отклонен" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
+                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" || ps.Kind == "Отклонен" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
                             .ToList();
                         break;
                     case "Специалист тендерного отдела":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят")
-                            .ToList();
-                        break;
-                    case "Специалист по работе с электронными площадками":
-                        procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Отмена" || ps.Kind == "Проигран" || ps.Kind == "Принят")
+                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят")
                             .ToList();
                         break;
                     case "Руководитель отдела закупки":
@@ -2832,7 +2943,7 @@ public static class GET
 
             return count;
         }
-        public static int ProcurementsCountBy(string procurementState, DateTime startDate, int employeeId, string actionType) // Получить количество тендеров по статусу и конкретному сотруднику по дате
+        public static int ProcurementsEmployeesCountBy(string procurementState, DateTime startDate, int employeeId, string actionType) // Получить количество тендеров по статусу и конкретному сотруднику по дате
         {
             using ParsethingContext db = new();
             int count = 0;
@@ -2921,6 +3032,7 @@ public static class GET
                         .Where(p => p.MaxDueDate < DateTime.Now)
                         .Where(p => p.RealDueDate == null)
                         .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+                        .Where(p => p.UnpaidPennies != true)
                         .Count();
                 }
                 else // Непросроченных по дате оплаты
@@ -2931,6 +3043,7 @@ public static class GET
                         .Where(p => p.MaxDueDate > DateTime.Now)
                         .Where(p => p.RealDueDate == null)
                         .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+                        .Where(p => p.UnpaidPennies != true)
                         .Count();
                 }
             }
@@ -2963,7 +3076,7 @@ public static class GET
                 count = db.Procurements
                     .Include(p => p.ProcurementState)
                     .Include(p => p.Law)
-                    .Where(p => p.ProcurementState.Kind == "Выигран 1ч" || p.ProcurementState.Kind == "Выигран 2ч" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8 && pe.ActionType == "Appoint"))
+                    .Where(p => p.ProcurementState.Kind == "Оформлен" && !db.ProcurementsEmployees.Any(pe => pe.ProcurementId == p.Id && pe.Employee.Position.Id == 8 && pe.ActionType == "Appoint"))
                     .Count();
             }
             catch { }
@@ -2992,6 +3105,14 @@ public static class GET
                     case KindOf.ClaimWorks: // Претензионные работы
                         count = db.Procurements
                             .Where(p => p.ClaimWorks == true)
+                            .Count();
+                        break;
+                    case KindOf.UnpaidPennies: // Неоплаченные пени
+                        count = db.Procurements
+                            .Where(p => p.ProcurementState.Kind == "Принят")
+                            .Where(p => p.RealDueDate == null)
+                            .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
+                            .Where(p => p.UnpaidPennies == true)
                             .Count();
                         break;
                 }
@@ -3347,6 +3468,7 @@ public static class GET
                         .Where(pe => pe.Procurement.MaxDueDate < DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
                         .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
+                        .Where(p => p.Procurement.UnpaidPennies != true)
                         .Count();
                 }
                 else // Непросроченных неоплаченных
@@ -3360,6 +3482,7 @@ public static class GET
                         .Where(pe => pe.Procurement.MaxDueDate > DateTime.Now)
                         .Where(pe => pe.Procurement.RealDueDate == null)
                         .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
+                        .Where(p => p.Procurement.UnpaidPennies != true)
                         .Count();
                 }
             }
@@ -3382,7 +3505,7 @@ public static class GET
                     .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
                     .Where(pe => pe.Procurement.RealDueDate == null)
                     .Where(pe => pe.Procurement.MaxDueDate != null)
-                    .Where(pe => pe.Procurement.Amount < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
+                        .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                     .Count();
             }
             catch { }
@@ -3421,6 +3544,18 @@ public static class GET
                             .Include(pe => pe.Procurement)
                             .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ClaimWorks == true)
+                            .Count();
+                        break;
+                    case KindOf.UnpaidPennies: // Неоплаченные пени
+                        count = db.ProcurementsEmployees
+                            .Include(pe => pe.Employee)
+                            .Include(pe => pe.Procurement)
+                            .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
+                            .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
+                            .Where(pe => pe.Procurement.RealDueDate == null)
+                            .Where(pe => pe.Procurement.MaxDueDate != null)
+                            .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
+                            .Where(p => p.Procurement.UnpaidPennies == true)
                             .Count();
                         break;
                 }
@@ -3608,7 +3743,8 @@ public static class GET
         WarrantyState, // Статус обеспечения гарантии заявки
         Calculating, // Виза расчетчиков
         Purchase, // Виза закупки
-        IsUnitPrice // Цена за единицу товара
+        IsUnitPrice, // Цена за единицу товара
+        UnpaidPennies // Неоплаченные пени
     }
 
 }
