@@ -4,6 +4,7 @@ public partial class ParsethingContext : DbContext
 {
     public ParsethingContext() { }
 
+    public virtual DbSet<AppVersion> AppVersions { get; set; } = null!;
     public virtual DbSet<City> Cities { get; set; } = null!;
     public virtual DbSet<Comment> Comments { get; set; } = null!;
     public virtual DbSet<CommisioningWork> CommisioningWorks { get; set; } = null!;
@@ -51,6 +52,11 @@ public partial class ParsethingContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        _ = modelBuilder.Entity<AppVersion>(entity =>
+        {
+            _ = entity.HasKey(e => e.Id).HasName("PK_AppVersions");
+            _ = entity.Property(e => e.ReleaseDate).HasColumnType("datetime");
+        });
 
         _ = modelBuilder.Entity<City>(entity =>
         {
@@ -76,6 +82,7 @@ public partial class ParsethingContext : DbContext
         _ = modelBuilder.Entity<Procurement>().ToTable(tb => tb.HasTrigger("trg_AfterDeleteProcurement"));
         _ = modelBuilder.Entity<DeletedProcurement>().ToTable(tb => tb.HasTrigger("trg_CleanUpDeletedProcurements"));
         _ = modelBuilder.Entity<ComponentCalculation>().ToTable(tb => tb.HasTrigger("OnUpdateComponentCalculationsState"));
+        _ = modelBuilder.Entity<AppVersion>().ToTable(tb => tb.HasTrigger("SetReleaseDateOnInsert"));
 
 
         _ = modelBuilder.Entity<ComponentCalculation>(entity =>

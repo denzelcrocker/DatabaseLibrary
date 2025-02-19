@@ -276,6 +276,26 @@ public static class GET
 
     public struct View
     {
+        public static AppVersion? GetLatestVersion() // Получить Последнюю версию приложения
+        {
+            using ParsethingContext db = new();
+            AppVersion? appVersion = null;
+
+            try
+            {
+                appVersion = db.AppVersions
+                    .OrderByDescending(v => v.VersionNumber) // Берем самую новую версию
+                    .Select(v => new AppVersion
+                    {
+                        VersionNumber = v.VersionNumber,
+                        IsMandatory = v.IsMandatory,
+                    })
+                    .FirstOrDefault();
+            }
+            catch { }
+
+            return appVersion;
+        }
         public static List<Law>? Laws() // Получить все законы
         {
             using ParsethingContext db = new();
@@ -1297,7 +1317,6 @@ public static class GET
                 .Include(p => p.City)
                 .Include(p => p.ShipmentPlan)
                 .Where(p => p.ProcurementState.Kind == "Принят")
-                .Where(p => p.RealDueDate == null)
                 .Where(p => p.MaxDueDate != null)
                 .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
                 .ToList();
@@ -1370,7 +1389,6 @@ public static class GET
                             .Include(p => p.City)
                             .Include(p => p.ShipmentPlan)
                             .Where(p => p.ProcurementState.Kind == "Принят")
-                            .Where(p => p.RealDueDate == null)
                             .Where(p => p.MaxDueDate != null)
                             .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
                             .Where(p => p.UnpaidPennies == true)
@@ -2379,7 +2397,6 @@ public static class GET
                             .Include(pe => pe.Procurement.ShipmentPlan)
                             .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
-                            .Where(pe => pe.Procurement.RealDueDate == null)
                             .Where(pe => pe.Procurement.MaxDueDate != null)
                             .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount)).Where(pe => pe.Procurement.UnpaidPennies == true)
                             .Where(pe => pe.Procurement.UnpaidPennies == true)
@@ -2566,7 +2583,7 @@ public static class GET
                         break;
                     case "Специалист тендерного отдела":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят")
+                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Отмена" || ps.Kind == "Проигран" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" )
                             .ToList();
                         break;
                     case "Руководитель отдела закупки":
@@ -3110,7 +3127,6 @@ public static class GET
                     case KindOf.UnpaidPennies: // Неоплаченные пени
                         count = db.Procurements
                             .Where(p => p.ProcurementState.Kind == "Принят")
-                            .Where(p => p.RealDueDate == null)
                             .Where(p => (p.Amount ?? 0) < (p.ReserveContractAmount != null && p.ReserveContractAmount != 0 ? p.ReserveContractAmount : p.ContractAmount))
                             .Where(p => p.UnpaidPennies == true)
                             .Count();
@@ -3552,7 +3568,6 @@ public static class GET
                             .Include(pe => pe.Procurement)
                             .Where(pe => pe.Employee.Id == employeeId && pe.ActionType == actionType)
                             .Where(pe => pe.Procurement.ProcurementState.Kind == "Принят")
-                            .Where(pe => pe.Procurement.RealDueDate == null)
                             .Where(pe => pe.Procurement.MaxDueDate != null)
                             .Where(pe => (pe.Procurement.Amount ?? 0) < (pe.Procurement.ReserveContractAmount != null && pe.Procurement.ReserveContractAmount != 0 ? pe.Procurement.ReserveContractAmount : pe.Procurement.ContractAmount))
                             .Where(p => p.Procurement.UnpaidPennies == true)
