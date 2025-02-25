@@ -2558,12 +2558,12 @@ public static class GET
                         break;
                     case "Руководитель отдела расчетов":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой" || ps.Kind == "Неразобранный" || ps.Kind == "Проверка")
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Отгружен" || ps.Kind == "Разбор" || ps.Kind == "Отбой" || ps.Kind == "Неразобранный" || ps.Kind == "Проверка")
                             .ToList();
                         break;
                     case "Заместитель руководителя отдела расчетов":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Разбор" || ps.Kind == "Отбой" || ps.Kind == "Неразобранный" || ps.Kind == "Проверка")
+                            .Where(ps => ps.Kind == "Новый" || ps.Kind == "Посчитан" || ps.Kind == "Оформить" || ps.Kind == "Оформлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Отгружен" || ps.Kind == "Разбор" || ps.Kind == "Отбой" || ps.Kind == "Неразобранный" || ps.Kind == "Проверка")
                             .ToList();
                         break;
                     case "Специалист отдела расчетов":
@@ -2573,37 +2573,37 @@ public static class GET
                         break;
                     case "Руководитель тендерного отдела":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" || ps.Kind == "Отклонен" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
+                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Отгружен" || ps.Kind == "Приемка" || ps.Kind == "Принят" || ps.Kind == "Отклонен" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
                             .ToList();
                         break;
                     case "Заместитель руководителя тендреного отдела":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" || ps.Kind == "Отклонен" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
+                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Отгружен" || ps.Kind == "Приемка" || ps.Kind == "Принят" || ps.Kind == "Отклонен" || ps.Kind == "Отмена" || ps.Kind == "Проигран")
                             .ToList();
                         break;
                     case "Специалист тендерного отдела":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Отмена" || ps.Kind == "Проигран" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" )
+                            .Where(ps => ps.Kind == "Оформлен" || ps.Kind == "Новый" || ps.Kind == "Отправлен" || ps.Kind == "Отмена" || ps.Kind == "Проигран" || ps.Kind == "Отгружен" || ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Принят" )
                             .ToList();
                         break;
                     case "Руководитель отдела закупки":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка")
+                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Отгружен" || ps.Kind == "Приемка")
                             .ToList();
                         break;
                     case "Заместитель руководителя отдела закупок":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка")
+                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Отгружен" || ps.Kind == "Приемка")
                             .ToList();
                         break;
                     case "Специалист закупки":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка")
+                            .Where(ps => ps.Kind == "Выигран 1ч" || ps.Kind == "Выигран 2ч" || ps.Kind == "Отгружен" || ps.Kind == "Приемка")
                             .ToList();
                         break;
                     case "Руководитель отдела производства":
                         procurementStates = db.ProcurementStates
-                            .Where(ps => ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка")
+                            .Where(ps => ps.Kind == "Выигран 2ч" || ps.Kind == "Приемка" || ps.Kind == "Отгружен")
                             .ToList();
                         break;
                     case "Заместитель руководителя отдела производства":
