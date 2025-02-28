@@ -2685,22 +2685,30 @@ public static class GET
         {
             using ParsethingContext db = new();
 
-            // Статусы, для которых считается InitialPrice
             var statusesForInitialPrice = new List<string> { "Новый", "Посчитан", "Оформлен", "Отправлен", "Отбой", "Отклонен" };
 
-            // Обработка для статуса "Выигран 2ч"
             if (procurementState == "Выигран 2ч")
             {
                 var excludedStatuses = new List<string> { "Проигран", "Отклонен", "Отбой", "Отмена" };
 
-                // Получаем все EntryIds из истории, где присутствует статус "Выигран 2ч"
-                var winningEntryIds = histories
-                    .Where(h => h.Text == "Выигран 2ч")
-                    .Select(h => h.EntryId)
-                    .Distinct()
+                // Получаем ВСЕ записи с "Выигран 2ч"
+                var winningHistories = histories.Where(h => h.Text == "Выигран 2ч").ToList();
+
+                // Находим дату первой установки статуса для каждого тендера
+                var firstWinDateMap = winningHistories
+                    .GroupBy(h => h.EntryId)
+                    .ToDictionary(
+                        group => group.Key,
+                        group => group.Min(h => h.Date) // Берем САМУЮ РАННЮЮ дату
+                    );
+
+                // Фильтруем историю: берем только ту, где дата совпадает с первой установкой статуса
+                var filteredWinningHistories = winningHistories
+                    .Where(h => firstWinDateMap[h.EntryId] == h.Date) // Оставляем только первую установку
                     .ToList();
 
-                // Извлекаем тендеры, у которых есть статус "Выигран 2ч" и ProcurementState.Kind не относится к исключенным статусам
+                var winningEntryIds = filteredWinningHistories.Select(h => h.EntryId).Distinct().ToList();
+
                 var procurements = db.Procurements
                     .Where(p => winningEntryIds.Contains(p.Id) && !excludedStatuses.Contains(p.ProcurementState.Kind))
                     .Include(p => p.ProcurementState)
@@ -2714,10 +2722,8 @@ public static class GET
                     .Include(p => p.Organization)
                     .ToList();
 
-                // Группируем историю по месяцу и году, используя только записи с "Выигран 2ч"
-                var winningTendersByMonth = histories
-                    .Where(h => winningEntryIds.Contains(h.EntryId) && h.Text == "Выигран 2ч")
-                    .GroupBy(tender => new { Year = tender.Date.Year, Month = tender.Date.Month })
+                var winningTendersByMonth = filteredWinningHistories
+                    .GroupBy(h => new { h.Date.Year, h.Date.Month })
                     .Select(group =>
                     {
                         var procurementIdsInGroup = group.Select(h => h.EntryId).Distinct().ToList();
@@ -2725,7 +2731,6 @@ public static class GET
                             .Where(p => procurementIdsInGroup.Contains(p.Id))
                             .ToList();
 
-                        // Подсчитываем сумму и количество тендеров
                         decimal totalAmount = procurementsInGroup.Sum(p =>
                             p.ReserveContractAmount ?? p.ContractAmount ?? 0);
 
@@ -2737,10 +2742,10 @@ public static class GET
                     .ThenBy(entry => entry.Item2)
                     .ToList();
 
-                return (winningTendersByMonth);
+                return winningTendersByMonth;
             }
 
-            // Логика для остальных состояний
+            // Остальные статусы
             var relevantHistories = histories
                 .Where(h => h.Text == procurementState)
                 .ToList();
@@ -2764,7 +2769,7 @@ public static class GET
                 .ToList();
 
             var tendersByMonth = relevantHistories
-                .GroupBy(h => new { h.Date.Year, h.Date.Month }) // Группировка по годам и месяцам
+                .GroupBy(h => new { h.Date.Year, h.Date.Month })
                 .Select(group =>
                 {
                     var procurementIdsInGroup = group.Select(h => h.EntryId).Distinct().ToList();
@@ -2772,28 +2777,27 @@ public static class GET
                         .Where(p => procurementIdsInGroup.Contains(p.Id))
                         .ToList();
 
-                    // Подсчитываем сумму и количество тендеров
                     decimal totalAmount = procurementsInGroup.Sum(p =>
                     {
-                        if (p.ReserveContractAmount != null) // Если резервная сумма не null
-                            return p.ReserveContractAmount.Value; // Возвращаем значение резервной суммы
-                        else if (statusesForInitialPrice.Contains(procurementState)) // Если статус требует InitialPrice
-                            return p.InitialPrice; // Возвращаем InitialPrice, который всегда должен иметь значение
+                        if (p.ReserveContractAmount != null)
+                            return p.ReserveContractAmount.Value;
+                        else if (statusesForInitialPrice.Contains(procurementState))
+                            return p.InitialPrice;
                         else
-                            return p.ContractAmount ?? 0; // Если ContractAmount null, возвращаем 0
+                            return p.ContractAmount ?? 0;
                     });
 
                     int tenderCount = procurementsInGroup.Count;
 
-                    return Tuple.Create(group.Key.Year, group.Key.Month, totalAmount, tenderCount, procurementsInGroup); // Включаем список тендеров
+                    return Tuple.Create(group.Key.Year, group.Key.Month, totalAmount, tenderCount, procurementsInGroup);
                 })
                 .OrderBy(entry => entry.Item1)
                 .ThenBy(entry => entry.Item2)
                 .ToList();
 
-            return (tendersByMonth);
+            return tendersByMonth;
         }
-        
+
         public static List<Procurement>? ApplicationsBy(int? procurementId)
         {
             using ParsethingContext db = new();
